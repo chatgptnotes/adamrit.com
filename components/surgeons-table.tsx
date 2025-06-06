@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState } from 'react';
 import { getSurgeons, Doctor } from '@/lib/supabase/api/doctors';
 
