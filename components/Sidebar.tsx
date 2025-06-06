@@ -72,16 +72,8 @@ const Sidebar = () => {
           </button>
           {!isCollapsed && openDropdowns.dashboard && (
             <div className="ml-4 mt-1 space-y-1">
-              <Link href="/?tab=today-ipd-dashboard" legacyBehavior>
-                <a className="block px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition-colors">
-                  Today's IPD Dashboard
-                </a>
-              </Link>
-              <Link href="/?tab=today-opd-dashboard" legacyBehavior>
-                <a className="block px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition-colors">
-                  Today's OPD Dashboard
-                </a>
-              </Link>
+              <Link href="/?tab=today-ipd-dashboard">Today's IPD Dashboard</Link>
+              <Link href="/?tab=today-opd-dashboard">Today's OPD Dashboard</Link>
             </div>
           )}
         </div>
@@ -104,16 +96,8 @@ const Sidebar = () => {
           </button>
           {!isCollapsed && openDropdowns.patient && (
             <div className="ml-4 mt-1 space-y-1">
-              <Link href="/?tab=patient" legacyBehavior>
-                <a className="block px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition-colors">
-                  Patient Management
-                </a>
-              </Link>
-              <Link href="/?tab=patient-dashboard" legacyBehavior>
-                <a className="block px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition-colors">
-                  Patient Dashboard
-                </a>
-              </Link>
+              <Link href="/?tab=patient">Patient Management</Link>
+              <Link href="/?tab=patient-dashboard">Patient Dashboard</Link>
             </div>
           )}
         </div>
@@ -136,102 +120,18 @@ const Sidebar = () => {
           </button>
           {!isCollapsed && openDropdowns.masters && (
             <div className="ml-4 mt-1 space-y-1">
-              <Link href="/?tab=diagnosis-master" legacyBehavior>
-                <a className="block px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <ClipboardList className="h-3 w-3" />
-                    Diagnosis Master
-                  </div>
-                </a>
-              </Link>
-              <Link href="/?tab=cghs-surgery-master" legacyBehavior>
-                <a className="block px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <Scissors className="h-3 w-3" />
-                    CGHS Surgery Master
-                  </div>
-                </a>
-              </Link>
-              <Link href="/?tab=yojna-surgery-master" legacyBehavior>
-                <a className="block px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <Scissors className="h-3 w-3" />
-                    Yojna Surgery Master
-                  </div>
-                </a>
-              </Link>
-              <Link href="/?tab=private-surgery-master" legacyBehavior>
-                <a className="block px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <Scissors className="h-3 w-3" />
-                    Private Surgery Master
-                  </div>
-                </a>
-              </Link>
-              <Link href="/?tab=complications-master" legacyBehavior>
-                <a className="block px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <ActivitySquare className="h-3 w-3" />
-                    Complication Master
-                  </div>
-                </a>
-              </Link>
-              <Link href="/?tab=radiology-master" legacyBehavior>
-                <a className="block px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <Monitor className="h-3 w-3" />
-                    Radiology Master
-                  </div>
-                </a>
-              </Link>
-              <Link href="/?tab=lab-master" legacyBehavior>
-                <a className="block px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <TestTube className="h-3 w-3" />
-                    Lab Master
-                  </div>
-                </a>
-              </Link>
-              <Link href="/?tab=other-investigations-master" legacyBehavior>
-                <a className="block px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <FileSearch className="h-3 w-3" />
-                    Other Investigations
-                  </div>
-                </a>
-              </Link>
-              <Link href="/?tab=medications-master" legacyBehavior>
-                <a className="block px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <Pill className="h-3 w-3" />
-                    Medications Master
-                  </div>
-                </a>
-              </Link>
-              <Link href="/?tab=medical-staff-master" legacyBehavior>
-                <a className="block px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <Stethoscope className="h-3 w-3" />
-                    Medical Staff
-                  </div>
-                </a>
-              </Link>
-              <Link href="/?tab=doctor-master" legacyBehavior>
-                <a className="block px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <User className="h-3 w-3" />
-                    Doctor Master
-                  </div>
-                </a>
-              </Link>
-              <Link href="/?tab=user-list" legacyBehavior>
-                <a className="block px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <Users className="h-3 w-3" />
-                    User List
-                  </div>
-                </a>
-              </Link>
+              <Link href="/?tab=diagnosis-master">Diagnosis Master</Link>
+              <Link href="/?tab=cghs-surgery-master">CGHS Surgery Master</Link>
+              <Link href="/?tab=yojna-surgery-master">Yojna Surgery Master</Link>
+              <Link href="/?tab=private-surgery-master">Private Surgery Master</Link>
+              <Link href="/?tab=complications-master">Complication Master</Link>
+              <Link href="/?tab=radiology-master">Radiology Master</Link>
+              <Link href="/?tab=lab-master">Lab Master</Link>
+              <Link href="/?tab=other-investigations-master">Other Investigations</Link>
+              <Link href="/?tab=medications-master">Medications Master</Link>
+              <Link href="/?tab=medical-staff-master">Medical Staff</Link>
+              <Link href="/?tab=doctor-master">Doctor Master</Link>
+              <Link href="/?tab=user-list">User List</Link>
             </div>
           )}
         </div>
@@ -254,22 +154,8 @@ const Sidebar = () => {
           </button>
           {!isCollapsed && openDropdowns.reports && (
             <div className="ml-4 mt-1 space-y-1">
-              <Link href="/?tab=approvals" legacyBehavior>
-                <a className="block px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3 w-3" />
-                    Approvals
-                  </div>
-                </a>
-              </Link>
-              <Link href="/?tab=reports" legacyBehavior>
-                <a className="block px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <BarChart3 className="h-3 w-3" />
-                    Reports
-                  </div>
-                </a>
-              </Link>
+              <Link href="/?tab=approvals">Approvals</Link>
+              <Link href="/?tab=reports">Reports</Link>
             </div>
           )}
         </div>
