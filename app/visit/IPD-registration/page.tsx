@@ -77,8 +77,10 @@ export default function RegisterNewIPDVisit() {
         description: "IPD visit registered successfully"
       });
     
-    // Redirect to patient dashboard
-    router.push("/?tab=today-ipd-dashboard")
+    // Add a small delay to ensure the database has been updated before redirecting
+    setTimeout(() => {
+      router.push("/?tab=today-ipd-dashboard")
+    }, 500);
     } catch (err) {
       console.error("Error registering IPD visit:", err);
       toast({

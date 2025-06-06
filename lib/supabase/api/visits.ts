@@ -101,4 +101,29 @@ export async function deleteVisit(id: string) {
       return true;
     })
   );
+}
+
+// Get all visits with patient information
+export async function getAllVisits() {
+  return withErrorHandler(
+    Promise.resolve(
+      supabase
+        .from('visits')
+        .select(`
+          *,
+          patients!inner(
+            id,
+            unique_id,
+            name,
+            age,
+            gender,
+            phone
+          )
+        `)
+        .order('visit_date', { ascending: false })
+    ).then(({ data, error }) => {
+      if (error) throw new APIError(error.message);
+      return data || [];
+    })
+  );
 } 

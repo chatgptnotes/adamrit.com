@@ -16,7 +16,7 @@ export function PatientRegistryList() {
   const [referringDoctors, setReferringDoctors] = useState<{ dr_id: string, name: string }[]>([]);
   const [diagnosesList, setDiagnosesList] = useState<{ id: string, name: string, diagnosis_id: string }[]>([]);
   const [surgeons, setSurgeons] = useState<{ dr_id: string }[]>([]);
-  const [surgeryList, setSurgeryList] = useState<{ dr_id: string, name: string }[]>([]);
+  const [surgeryList, setSurgeryList] = useState<{ dr_id: string, name: string, code?: string, amount?: string }[]>([]);
   const [selectedSurgeonId, setSelectedSurgeonId] = useState("");
   const [latestVisit, setLatestVisit] = useState(null);
 
@@ -50,10 +50,19 @@ export function PatientRegistryList() {
   useEffect(() => {
     const fetchSurgeries = async () => {
       const { data, error } = await supabase
-        .from('doctor')
-        .select('dr_id, name')
-        .eq('is_surgeon', true);
-      if (data) setSurgeryList(data);
+        .from('cghs_surgery')
+        .select('id, name, code, amount')
+        .order('name');
+      if (data) {
+        // Transform data to match the expected format
+        const surgeryData = data.map(surgery => ({
+          dr_id: surgery.id, // Use id as dr_id for compatibility
+          name: surgery.name,
+          code: surgery.code,
+          amount: surgery.amount
+        }));
+        setSurgeryList(surgeryData);
+      }
     };
     fetchSurgeries();
   }, []);
@@ -547,7 +556,7 @@ export function PatientRegistryList() {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50 overflow-auto">
           <div className="bg-white p-6 rounded-2xl shadow-2xl max-w-full w-[800px] border border-blue-100" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
             <h3 className="text-2xl font-bold mb-1 text-blue-900">Register New Visit</h3>
-            <p className="mb-4 text-gray-500">Patient: {selectedPatient.name} ({selectedPatient.id})</p>
+            <p className="mb-4 text-gray-500">Patient: {selectedPatient.name} ({selectedPatient.id}) {selectedPatient.type}</p>
 
             <form onSubmit={handleVisitSubmit}>
               <div className="border rounded-xl p-6 mb-4 bg-blue-50/40">
@@ -700,7 +709,7 @@ export function PatientRegistryList() {
                             key={`surgery-${dr_id}-${index}`}
                             className="flex items-center gap-1 bg-green-100 text-green-800 px-2 py-1 rounded-md"
                           >
-                            <span>{surgery?.name || dr_id}</span>
+                            <span className="text-sm">{surgery?.name || dr_id}</span>
                             <button
                               type="button"
                               onClick={() => removeSurgery(dr_id)}
@@ -815,7 +824,9 @@ export function PatientRegistryList() {
                       <div>
                         <div className="text-lg font-semibold">{surgery.name}</div>
                         <div className="flex items-center mt-1 gap-2">
-                          <span className="text-blue-600">{surgery.dr_id}</span>
+                          <span className="text-blue-600">Code: {surgery.code}</span>
+                          <span className="text-gray-500">•</span>
+                          <span className="text-green-600">₹{surgery.amount}</span>
                         </div>
                       </div>
                       <button

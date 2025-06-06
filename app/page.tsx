@@ -35,7 +35,8 @@ import {
   PlusCircle,
   Pencil,
   Trash2,
-  RefreshCw
+  RefreshCw,
+  Eye
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -48,7 +49,16 @@ import AddLabForm from "@/components/add-lab-form"
 import AddOtherInvestigationForm from "@/components/add-other-investigation-form"
 import AddMedicationForm from "@/components/add-medication-form"
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter, TableCaption } from "@/components/ui/table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  TableFooter,
+  TableCaption
+} from "@/components/ui/table"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase/client"
@@ -145,6 +155,8 @@ interface Medication {
   name: string;
   type: string;
   cost: string;
+  speciality?: string;
+  non_nabh_cost?: string;
 }
 
 type Patient = {
@@ -159,6 +171,13 @@ type Patient = {
   admission_date?: string;
   // ...baaki fields
 };
+
+// Add type for activeTab
+type TabType = "diagnosis-master" | "yojna-surgery-master" | "private-surgery-master" | 
+  "complications-master" | "radiology-master" | "lab-master" | "other-investigations-master" | 
+  "medications-master" | "approvals" | "reports" | "today-ipd-dashboard" | "today-opd-dashboard" |
+  "patient" | "patient-dashboard" | "doctor-master" | "settings" | "cghs-surgery-master" |
+  "medical-staff-master" | "user-list";
 
 export default function Home() {
   const searchParams = useSearchParams();
@@ -184,7 +203,7 @@ export default function Home() {
     | "today-opd-dashboard"
     | "patient-registration"
     | null;
-  const activeTab = tabFromUrl || "patient";
+  const [activeTab, setActiveTab] = useState<TabType>("diagnosis-master");
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [showAddDiagnosis, setShowAddDiagnosis] = useState(false)
@@ -257,8 +276,7 @@ export default function Home() {
   const [updates, setUpdates] = useState<any[]>([]);
   const [loadingUpdates, setLoadingUpdates] = useState(false);
 
-  const [ipdPatients, setIpdPatients] = useState<Patient[]>([]);
-  const [opdPatients, setOpdPatients] = useState<Patient[]>([]);
+  // Removed ipdPatients and opdPatients state since we now use todayIPDVisits and todayOPDVisits for dashboards
 
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
@@ -998,27 +1016,14 @@ export default function Home() {
     fetchLatestUpdates();
   }, []);
 
-  useEffect(() => {
-    const fetchIPDPatients = async () => {
-      const { data, error } = await supabase
-        .from('patients')
-        .select('*')
-        .ilike('type', 'ipd'); // ilike for case-insensitive
-      if (!error) setIpdPatients(data || []);
-    };
-    fetchIPDPatients();
-  }, []);
+  // Remove fetchIPDPatients and fetchOPDPatients since we now use todayIPDVisits and todayOPDVisits for dashboards
 
+  // Synchronize activeTab with tabFromUrl
   useEffect(() => {
-    const fetchOPDPatients = async () => {
-      const { data, error } = await supabase
-        .from('patients')
-        .select('*')
-        .ilike('type', 'opd'); // Case-insensitive match
-      if (!error) setOpdPatients(data || []);
-    };
-    fetchOPDPatients();
-  }, []);
+    if (tabFromUrl && tabFromUrl !== activeTab) {
+      setActiveTab(tabFromUrl as TabType);
+    }
+  }, [tabFromUrl]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -1158,7 +1163,30 @@ export default function Home() {
         {activeTab === "today-ipd-dashboard" && (
           <div className="p-4">
             <div className="border rounded-lg p-4">
-              <h3 className="text-lg font-medium mb-4">Today's IPD Dashboard</h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium">Today's IPD Dashboard</h3>
+                <div className="flex gap-2">
+                  <Link href="/visit/IPD-registration">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
+                    >
+                      <PlusCircle className="h-4 w-4" />
+                      New IPD Visit
+                    </Button>
+                  </Link>
+                  <Button
+                    onClick={fetchTodayIPDData}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                    Refresh
+                  </Button>
+                </div>
+              </div>
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h4 className="text-sm text-blue-700 font-medium mb-2">Total IPD Patients</h4>
@@ -1187,30 +1215,30 @@ export default function Home() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {ipdPatients.length > 0 ? (
-                      ipdPatients.map((patient, index) => (
-                        <tr key={patient.id || index}>
+                    {todayIPDVisits.length > 0 ? (
+                      todayIPDVisits.map((visit, index) => (
+                        <tr key={visit.id || index}>
                           <td className="px-4 py-2 whitespace-nowrap">
-                            <Link href={`/patient-management/${patient.id}`} className="text-blue-600 underline">
-                              {patient.unique_id}
+                            <Link href={`/patient-management/${visit.patients?.id}`} className="text-blue-600 underline">
+                              {visit.visit_id || `IPD-${String(index + 1).padStart(4, '0')}`}
                             </Link>
                           </td>
-                          <td className="px-4 py-2 whitespace-nowrap">{patient.unique_id}</td>
-                          <td className="px-4 py-2 whitespace-nowrap">{patient.name}</td>
-                          {/* <td className="px-4 py-2 whitespace-nowrap">{patient.registration_date || '-'}</td> */}
-                          <td className="px-4 py-2 whitespace-nowrap">{patient.insurance_person_no && patient.registration_date ? new Date(patient.registration_date).toLocaleDateString('en-GB') : '-'}</td>
-                          <td className="px-4 py-2 whitespace-nowrap">{patient.age || '-'} / {patient.gender || '-'}</td>
+                          <td className="px-4 py-2 whitespace-nowrap">{visit.patients?.unique_id || '-'}</td>
+                          <td className="px-4 py-2 whitespace-nowrap">{visit.patients?.name || '-'}</td>
+                          {/* <td className="px-4 py-2 whitespace-nowrap">{visit.visit_date || '-'}</td> */}
+                          <td className="px-4 py-2 whitespace-nowrap">{visit.visit_date ? new Date(visit.visit_date).toLocaleDateString('en-GB') : '-'}</td>
+                          <td className="px-4 py-2 whitespace-nowrap">{visit.patients?.age || '-'} / {visit.patients?.gender || '-'}</td>
                           <td className="px-4 py-2 whitespace-nowrap">
-                            <Link href={`/patient-management/${patient.id}`} className="text-blue-600 underline">
-                              Register New Visit
+                            <Link href={`/patient-management/${visit.patients?.id}`} className="text-blue-600 underline">
+                              View Patient
                             </Link>
                           </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
-                          No IPD patients found
+                        <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                          No IPD visits found for today
                         </td>
                       </tr>
                     )}
@@ -1224,7 +1252,30 @@ export default function Home() {
         {activeTab === "today-opd-dashboard" && (
           <div className="p-4">
             <div className="border rounded-lg p-4">
-              <h3 className="text-lg font-medium mb-4">Today's OPD Dashboard</h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium">Today's OPD Dashboard</h3>
+                <div className="flex gap-2">
+                  <Link href="/visit/OPD-registration">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2 bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+                    >
+                      <PlusCircle className="h-4 w-4" />
+                      New OPD Visit
+                    </Button>
+                  </Link>
+                  <Button
+                    onClick={fetchTodayOPDData}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                    Refresh
+                  </Button>
+                </div>
+              </div>
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h4 className="text-sm text-blue-700 font-medium mb-2">Total OPD Patients</h4>
@@ -1255,39 +1306,51 @@ export default function Home() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {opdPatients.length > 0 ? (
-                      opdPatients.map((patient, index) => (
-                        <tr key={patient.id || index}>
+                    {todayOPDVisits.length > 0 ? (
+                      todayOPDVisits.map((visit, index) => (
+                        <tr key={visit.id || index}>
                           <td className="px-4 py-2 whitespace-nowrap">
-                            <Link href={`/patient-management/${patient.id}`} className="text-blue-600 underline">
-                              {`OPD-${String(index + 1).padStart(4, '0')}`}
+                            <Link href={`/patient-management/${visit.patients?.id}`} className="text-blue-600 underline">
+                              {visit.visit_id || `OPD-${String(index + 1).padStart(4, '0')}`}
                             </Link>
                           </td>
                           <td className="px-4 py-2 whitespace-nowrap">{`T-${String(index + 1).padStart(3, '0')}`}</td>
-                          <td className="px-4 py-2 whitespace-nowrap">{patient.unique_id || 'N/A'}</td>
-                          <td className="px-4 py-2 whitespace-nowrap">{patient.name || 'N/A'}</td>
-                          <td className="px-4 py-2 whitespace-nowrap">-</td>
-                          <td className="px-4 py-2 whitespace-nowrap">-</td>
-                          <td className="px-4 py-2 whitespace-nowrap">-</td>
+                          <td className="px-4 py-2 whitespace-nowrap">{visit.patients?.unique_id || 'N/A'}</td>
+                          <td className="px-4 py-2 whitespace-nowrap">{visit.patients?.name || 'N/A'}</td>
                           <td className="px-4 py-2 whitespace-nowrap">
-                            <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">Waiting</span>
+                            {new Date(visit.created_at).getHours() < 14 ? 'Morning' : 'Evening'}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap">{visit.department || visit.visit_type || 'OPD'}</td>
+                          <td className="px-4 py-2 whitespace-nowrap">{visit.appointment_with || visit.doctor_name || '-'}</td>
+                          <td className="px-4 py-2 whitespace-nowrap">
+                            <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">{visit.status || 'Waiting'}</span>
                           </td>
                           <td className="px-4 py-2 whitespace-nowrap">
-                            <Link href={`/visit/IPD-registration?patientId=${patient.unique_id}&name=${encodeURIComponent(patient.name || '')}`}>
-                              <button
-                                className="flex items-center justify-center p-1 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded-full"
-                                title="Register New IPD Visit"
-                              >
-                                <span className="text-xs font-bold">OPD→IPD</span>
-                              </button>
-                            </Link>
+                            <div className="flex gap-2">
+                              <Link href={`/visit/IPD-registration?patientId=${visit.patients?.unique_id}&name=${encodeURIComponent(visit.patients?.name || '')}&uniqueId=${visit.patients?.unique_id}`}>
+                                <button
+                                  className="flex items-center justify-center p-1 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded-full"
+                                  title="Register New IPD Visit"
+                                >
+                                  <span className="text-xs font-bold">→IPD</span>
+                                </button>
+                              </Link>
+                              <Link href={`/patient-management/${visit.patients?.id}`}>
+                                <button
+                                  className="flex items-center justify-center p-1 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-full"
+                                  title="View Patient Details"
+                                >
+                                  <span className="text-xs font-bold">View</span>
+                                </button>
+                              </Link>
+                            </div>
                           </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
                         <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
-                          No OPD patients found
+                          No OPD visits found for today
                         </td>
                       </tr>
                     )}
@@ -1458,34 +1521,44 @@ export default function Home() {
                   + Add More
                 </button>
               </div>
-              <table className="min-w-full border text-sm">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="border px-2 py-1 text-left">Name</th>
-                    <th className="border px-2 py-1 text-left">Complication 1</th>
-                    <th className="border px-2 py-1 text-left">Complication 2</th>
-                    <th className="border px-2 py-1 text-left">Complication 3</th>
-                    <th className="border px-2 py-1 text-left">Complication 4</th>
-                    <th className="border px-2 py-1 text-left">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {diagnoses.map((diagnosis, idx) => (
-                    <tr key={diagnosis.id || idx}>
-                      <td className="border px-2 py-1">{diagnosis.name}</td>
-                      <td className="border px-2 py-1">{diagnosis.complication1}</td>
-                      <td className="border px-2 py-1">{diagnosis.complication2}</td>
-                      <td className="border px-2 py-1">{diagnosis.complication3}</td>
-                      <td className="border px-2 py-1">{diagnosis.complication4}</td>
-                      <td className="border px-2 py-1 flex gap-2">
-                        <button title="View">👁️</button>
-                        <button title="Edit" onClick={() => setEditDiagnosis(diagnosis)}>✏️</button>
-                        <button title="Delete" onClick={() => handleDeleteDiagnosis(diagnosis.id)}>🗑️</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="rounded-md border overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Complication 1</TableHead>
+                      <TableHead>Complication 2</TableHead>
+                      <TableHead>Complication 3</TableHead>
+                      <TableHead>Complication 4</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {diagnoses.map((diagnosis, idx) => (
+                      <TableRow key={diagnosis.id || idx}>
+                        <TableCell>{diagnosis.name}</TableCell>
+                        <TableCell>{diagnosis.complication1}</TableCell>
+                        <TableCell>{diagnosis.complication2}</TableCell>
+                        <TableCell>{diagnosis.complication3}</TableCell>
+                        <TableCell>{diagnosis.complication4}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button variant="ghost" size="icon" title="View">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => setEditDiagnosis(diagnosis)}>
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleDeleteDiagnosis(diagnosis.id)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
             {showAddDiagnosis && (
               <AddDiagnosisForm
@@ -2390,6 +2463,8 @@ export default function Home() {
                     <th className="border px-2 py-1 text-left">Type</th>
                     <th className="border px-2 py-1 text-left">Cost</th>
                     <th className="border px-2 py-1 text-left">Actions</th>
+                    <th className="border px-2 py-1 text-left">speciality</th>
+                    <th className="border px-2 py-1 text-left">Non NABH Cost</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -2398,15 +2473,18 @@ export default function Home() {
                       <td className="border px-2 py-1">{med.name}</td>
                       <td className="border px-2 py-1">{med.type}</td>
                       <td className="border px-2 py-1">{med.cost}</td>
+                      <td className="border px-2 py-1">{med.speciality}</td>
+                      <td className="border px-2 py-1">{med.non_nabh_cost}</td>
                       <td className="border px-2 py-1 flex gap-2">
-                        <button title="View">👁️</button>
-                        <button title="Edit" onClick={() => setEditMedication(med)}>✏️</button>
-                        <button title="Delete" onClick={() => handleDeleteMedication(med.id)}>🗑️</button>
+                        <button title="View">👁</button>
+                        <button title="Edit" onClick={() => setEditMedication(med)}>✏</button>
+                        <button title="Delete" onClick={() => handleDeleteMedication(med.id)}>🗑</button>
                       </td>
+                      
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table>
               <p className="mb-2 text-sm text-gray-500">
                 Showing {medications.length} of {medTotalRows} results
               </p>

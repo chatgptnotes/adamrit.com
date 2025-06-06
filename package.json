@@ -54,7 +54,8 @@
     "input-otp": "1.4.1",
     "lodash": "^4.17.21",
     "lucide-react": "^0.454.0",
-    "next": "15.2.4",
+    "marked": "^15.0.12",
+    "next": "^15.2.4",
     "next-themes": "^0.4.4",
     "react": "^18.2.0",
     "react-day-picker": "8.10.1",
@@ -69,12 +70,12 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@types/node": "^22",
-    "@types/react": "^19",
+    "@types/node": "22.15.30",
+    "@types/react": "19.1.6",
     "@types/react-dom": "^19",
     "husky": "^9.1.7",
     "postcss": "^8",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5"
+    "typescript": "5.8.3"
   }
 }

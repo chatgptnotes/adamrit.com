@@ -1,5 +1,9 @@
 "use client"
 
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase/client";
+import { toast } from "sonner";
+
 // Mock data - in a real app, this would come from an API based on the selected complication
 const mockMedications = {
   c1: [
@@ -114,30 +118,40 @@ const mockMedications = {
 
 // Dummy medications for D1, D2, D3, D4
 const mockMedicationsByDay: { [key: string]: { id: string; name: string; dosage: string; duration: string }[] } = {
-  D1: [
-    { id: "d1m1", name: "Paracetamol", dosage: "500mg every 6 hours", duration: "1 day" },
-    { id: "d1m2", name: "Amoxicillin", dosage: "500mg three times daily", duration: "1 day" },
-  ],
-  D2: [
-    { id: "d2m1", name: "Ibuprofen", dosage: "400mg every 8 hours", duration: "1 day" },
-    { id: "d2m2", name: "Cefixime", dosage: "200mg twice daily", duration: "1 day" },
-  ],
-  D3: [
-    { id: "d3m1", name: "Azithromycin", dosage: "500mg once daily", duration: "1 day" },
-    { id: "d3m2", name: "Vitamin C", dosage: "500mg once daily", duration: "1 day" },
-  ],
-  D4: [
-    { id: "d4m1", name: "Pantoprazole", dosage: "40mg once daily", duration: "1 day" },
-    { id: "d4m2", name: "Multivitamin", dosage: "1 tablet daily", duration: "1 day" },
-  ],
+  // D1: [
+  //   { id: "d1m1", name: "Paracetamol", dosage: "500mg every 6 hours", duration: "1 day" },
+  //   { id: "d1m2", name: "Amoxicillin", dosage: "500mg three times daily", duration: "1 day" },
+  // ],
+  // D2: [
+  //   { id: "d2m1", name: "Ibuprofen", dosage: "400mg every 8 hours", duration: "1 day" },
+  //   { id: "d2m2", name: "Cefixime", dosage: "200mg twice daily", duration: "1 day" },
+  // ],
+  // D3: [
+  //   { id: "d3m1", name: "Azithromycin", dosage: "500mg once daily", duration: "1 day" },
+  //   { id: "d3m2", name: "Vitamin C", dosage: "500mg once daily", duration: "1 day" },
+  // ],
+  // D4: [
+  //   { id: "d4m1", name: "Pantoprazole", dosage: "40mg once daily", duration: "1 day" },
+  //   { id: "d4m2", name: "Multivitamin", dosage: "1 tablet daily", duration: "1 day" },
+  // ],
+  // D5: [
+  //   { id: "d4m1", name: "Pantoprazole", dosage: "40mg once daily", duration: "1 day" },
+  //   { id: "d4m2", name: "Multivitamin", dosage: "1 tablet daily", duration: "1 day" },
+  // ],
+  // D6: [
+  //   { id: "d4m1", name: "Pantoprazole", dosage: "40mg once daily", duration: "1 day" },
+  //   { id: "d4m2", name: "Multivitamin", dosage: "1 tablet daily", duration: "1 day" },
+  // ],
 };
 
 interface MedicationsListProps {
   complicationIds: string[];
-  day?: string; // D1, D2, D3, D4
+  day?: string; // D1, D2, D3, D4, etc.
+  patientId: string;
+  visitId: string;
 }
 
-export function MedicationsList({ complicationIds, day }: MedicationsListProps) {
+export function MedicationsList({ complicationIds, day, patientId, visitId }: MedicationsListProps) {
   // Get all medications for all selected complications
   const allMedications: { id: string; name: string; dosage: string; duration: string }[] = [];
   
@@ -157,9 +171,105 @@ export function MedicationsList({ complicationIds, day }: MedicationsListProps) 
     });
   });
 
-  if (allMedications.length === 0) {
-    return <p className="text-sm text-muted-foreground">No medications recommended for selected complications.</p>
-  }
+  // Fetch all medicines from Supabase
+  const [allMedicines, setAllMedicines] = useState<{id: string, name: string}[]>([]);
+  const [selectedMedicines, setSelectedMedicines] = useState<string[]>([]);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const fetchMedicines = async () => {
+      const { data, error } = await supabase
+        .from('medications')
+        .select('id, name')
+        .order('name');
+      if (!error && data) {
+        setAllMedicines(data.map((row: { id: string, name: string }) => ({ id: row.id, name: row.name })));
+      }
+    };
+    fetchMedicines();
+  }, []);
+
+  const handleSaveMedications = async () => {
+    if (!patientId || !visitId || !day) {
+      toast.error("Missing patient, visit, or day info");
+      return;
+    }
+    const medication_day = parseInt(day.replace("D", ""));
+    const inserts = selectedMedicines.map(medication_id => ({
+      patient_id: patientId,
+      visit_id: visitId,
+      medication_day,
+      medication_id,
+    }));
+    const { error } = await supabase.from("patient_medications").insert(inserts);
+    if (!error) {
+      toast.success("Medication data saved", { duration: 2000 });
+    } else {
+      toast.error("Failed to save medication data");
+    }
+  };
+
+  // State for saved medications for the selected day
+  const [savedMedications, setSavedMedications] = useState<{id: string, name: string, type?: string, cost?: string}[]>([]);
+
+  const handleRemoveMedication = async (medicationId: string) => {
+    if (!patientId || !visitId || !day) {
+      toast.error("Missing patient, visit, or day info");
+      return;
+    }
+    const medication_day = parseInt(day.replace("D", ""));
+    const { error } = await supabase
+      .from("patient_medications")
+      .delete()
+      .eq('patient_id', patientId)
+      .eq('visit_id', visitId)
+      .eq('medication_day', medication_day)
+      .eq('medication_id', medicationId);
+    
+    if (!error) {
+      setSavedMedications(prev => prev.filter(med => med.id !== medicationId));
+      toast.success("Medication removed successfully");
+    } else {
+      toast.error("Failed to remove medication");
+    }
+  };
+
+  useEffect(() => {
+    // Fetch saved medications for the selected day, patient, and visit
+    const fetchSavedMedications = async () => {
+      if (!patientId || !visitId || !day) {
+        setSavedMedications([]);
+        return;
+      }
+      const medication_day = parseInt(day.replace("D", ""));
+      const { data, error } = await supabase
+        .from('patient_medications')
+        .select('medication_id')
+        .eq('patient_id', patientId)
+        .eq('visit_id', visitId)
+        .eq('medication_day', medication_day);
+      if (!error && data && data.length > 0) {
+        // Get medication details for each medication_id
+        const ids = data.map((row: { medication_id: string }) => row.medication_id);
+        if (ids.length === 0) {
+          setSavedMedications([]);
+          return;
+        }
+        const { data: meds, error: medsError } = await supabase
+          .from('medications')
+          .select('id, name, type, cost')
+          .in('id', ids);
+        if (!medsError && meds) {
+          setSavedMedications(meds);
+        } else {
+          setSavedMedications([]);
+        }
+      } else {
+        setSavedMedications([]);
+      }
+    };
+    fetchSavedMedications();
+  }, [patientId, visitId, day]);
 
   return (
     <div className="space-y-3">
@@ -168,8 +278,37 @@ export function MedicationsList({ complicationIds, day }: MedicationsListProps) 
           Add Med
         </button>
       </div>
+      {/* Show saved medications for the selected day */}
       {day && (
         <div className="mb-2 text-xs text-blue-600 font-semibold">Showing medications for <span className="bg-blue-50 px-2 py-1 rounded-full">{day}</span></div>
+      )}
+      {savedMedications.length > 0 ? (
+        <div className="mb-4">
+          {savedMedications.map(med => (
+            <div key={med.id} className="rounded-md border p-3 mb-2 bg-white relative">
+              <button 
+                onClick={() => handleRemoveMedication(med.id)}
+                className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                title="Remove medication"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+              <h4 className="font-medium text-sm">{med.name}</h4>
+              <div className="grid grid-cols-2 gap-2 mt-1 text-xs">
+                <div>
+                  <span className="text-muted-foreground">Type:</span> {med.type || '-'}
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Cost:</span> {med.cost || '-'}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mb-4 text-sm text-muted-foreground">No medications saved for this day.</div>
       )}
       {allMedications.map((medication) => (
         <div key={medication.id} className="rounded-md border p-3">
@@ -184,6 +323,55 @@ export function MedicationsList({ complicationIds, day }: MedicationsListProps) 
           </div>
         </div>
       ))}
+      {/* List of all medicines fetched from database as checkboxes */}
+      <div className="border mt-6 p-4 bg-white rounded shadow">
+        <input
+          type="text"
+          placeholder="Search medicine..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="mb-3 p-2 border rounded w-full"
+        />
+        <div className="mb-2 font-medium">Select from all medicines:</div>
+        <div
+          style={{
+            maxHeight: 220, // adjust as needed
+            minHeight: 100,
+            overflow: "auto",
+            whiteSpace: "nowrap"
+          }}
+          className="border rounded bg-gray-50 p-2"
+        >
+          {allMedicines.length === 0 ? (
+            <div className="text-gray-400 text-sm">Loading medicines...</div>
+          ) : (
+            allMedicines
+              .filter(med => med.name.toLowerCase().includes(search.toLowerCase()))
+              .map((med) => (
+                <div key={med.id} className="flex items-center mb-2">
+                  <input
+                    type="checkbox"
+                    id={`med-${med.id}`}
+                    checked={selectedMedicines.includes(med.id)}
+                    onChange={() => setSelectedMedicines((prev) =>
+                      prev.includes(med.id)
+                        ? prev.filter((n) => n !== med.id)
+                        : [...prev, med.id]
+                    )}
+                    className="mr-2"
+                  />
+                  <label htmlFor={`med-${med.id}`} className="text-base">{med.name}</label>
+                </div>
+              ))
+          )}
+        </div>
+        <button
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          onClick={handleSaveMedications}
+        >
+          Save
+        </button>
+      </div>
     </div>
   )
 }
