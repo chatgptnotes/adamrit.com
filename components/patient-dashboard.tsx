@@ -3072,7 +3072,6 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
           </div>
         </div>
       </div>
-
       {/* Main Content */}
       <div className="flex-1 h-screen overflow-y-auto" >
         {/* Patient Information Card at the very top, always visible and aligned to the right of the sidebar */}
@@ -3993,5 +3992,5 @@ export function PatientDashboard({ patient }: PatientDashboardProps) {
         </Card>
       </div>
     </div>
-  )
+  );
 }

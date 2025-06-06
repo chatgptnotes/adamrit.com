@@ -528,7 +528,7 @@ export function DiagnosisManager({ patientUniqueId, visitId, onDiagnosesChange }
       setShowDiagnosisResults(false);
       
       // Fetch related complications
-      const diagnosisComplications = await fetchRelatedComplications([diagnosis.id]) ?? [];
+      const diagnosisComplications = (await fetchRelatedComplications([diagnosis.id])) ?? [];
       // This will now automatically set relatedComplications state
       
       toast({
@@ -572,7 +572,7 @@ export function DiagnosisManager({ patientUniqueId, visitId, onDiagnosesChange }
     setShowSurgeryResults(false);
 
     // Fetch related complications for all selected surgeries
-    const surgeryComplications = await fetchCghsRelatedComplications([...selectedSurgeries.map(s => s.id), surgery.id]) ?? [];
+    const surgeryComplications = (await fetchCghsRelatedComplications([...selectedSurgeries.map(s => s.id), surgery.id])) ?? [];
     setRelatedComplications(prev => mergeComplications(prev, surgeryComplications));
 
     toast({

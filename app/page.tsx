@@ -1166,7 +1166,7 @@ export default function Home() {
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium">Today's IPD Dashboard</h3>
                 <div className="flex gap-2">
-                  <Link href="/visit/IPD-registration">
+                  <Link href="/visit/IPD-registration" legacyBehavior>
                     <Button
                       variant="outline"
                       size="sm"
@@ -1219,7 +1219,10 @@ export default function Home() {
                       todayIPDVisits.map((visit, index) => (
                         <tr key={visit.id || index}>
                           <td className="px-4 py-2 whitespace-nowrap">
-                            <Link href={`/patient-management/${visit.patients?.id}`} className="text-blue-600 underline">
+                            <Link
+                              href={`/patient-management/${visit.patients?.id}`}
+                              className="text-blue-600 underline"
+                              legacyBehavior>
                               {visit.visit_id || `IPD-${String(index + 1).padStart(4, '0')}`}
                             </Link>
                           </td>
@@ -1255,7 +1258,7 @@ export default function Home() {
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium">Today's OPD Dashboard</h3>
                 <div className="flex gap-2">
-                  <Link href="/visit/OPD-registration">
+                  <Link href="/visit/OPD-registration" legacyBehavior>
                     <Button
                       variant="outline"
                       size="sm"
@@ -1310,7 +1313,10 @@ export default function Home() {
                       todayOPDVisits.map((visit, index) => (
                         <tr key={visit.id || index}>
                           <td className="px-4 py-2 whitespace-nowrap">
-                            <Link href={`/patient-management/${visit.patients?.id}`} className="text-blue-600 underline">
+                            <Link
+                              href={`/patient-management/${visit.patients?.id}`}
+                              className="text-blue-600 underline"
+                              legacyBehavior>
                               {visit.visit_id || `OPD-${String(index + 1).padStart(4, '0')}`}
                             </Link>
                           </td>
@@ -1327,7 +1333,9 @@ export default function Home() {
                           </td>
                           <td className="px-4 py-2 whitespace-nowrap">
                             <div className="flex gap-2">
-                              <Link href={`/visit/IPD-registration?patientId=${visit.patients?.unique_id}&name=${encodeURIComponent(visit.patients?.name || '')}&uniqueId=${visit.patients?.unique_id}`}>
+                              <Link
+                                href={`/visit/IPD-registration?patientId=${visit.patients?.unique_id}&name=${encodeURIComponent(visit.patients?.name || '')}&uniqueId=${visit.patients?.unique_id}`}
+                                legacyBehavior>
                                 <button
                                   className="flex items-center justify-center p-1 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded-full"
                                   title="Register New IPD Visit"
@@ -1335,7 +1343,7 @@ export default function Home() {
                                   <span className="text-xs font-bold">→IPD</span>
                                 </button>
                               </Link>
-                              <Link href={`/patient-management/${visit.patients?.id}`}>
+                              <Link href={`/patient-management/${visit.patients?.id}`} legacyBehavior>
                                 <button
                                   className="flex items-center justify-center p-1 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-full"
                                   title="View Patient Details"
@@ -2720,5 +2728,5 @@ export default function Home() {
         )}
       </main>
     </div>
-  )
+  );
 }
