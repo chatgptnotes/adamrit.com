@@ -528,7 +528,7 @@ export function DiagnosisManager({ patientUniqueId, visitId, onDiagnosesChange }
       setShowDiagnosisResults(false);
       
       // Fetch related complications
-      const diagnosisComplications = (await fetchRelatedComplications([diagnosis.id])) ?? [];
+      const diagnosisComplications = await fetchRelatedComplications([diagnosis.id]) ?? [];
       // This will now automatically set relatedComplications state
       
       toast({
@@ -572,8 +572,7 @@ export function DiagnosisManager({ patientUniqueId, visitId, onDiagnosesChange }
     setShowSurgeryResults(false);
 
     // Fetch related complications for all selected surgeries
-    const surgeryComplications = (await fetchCghsRelatedComplications([...selectedSurgeries.map(s => s.id), surgery.id])) ?? [];
-    setRelatedComplications(prev => mergeComplications(prev, surgeryComplications));
+    const surgeryComplications = await fetchCghsRelatedComplications([...selectedSurgeries.map(s => s.id), surgery.id]) ?? [];
 
     toast({
       title: "Success",
@@ -634,24 +633,88 @@ export function DiagnosisManager({ patientUniqueId, visitId, onDiagnosesChange }
         ].filter(Boolean);
         
         // Convert to Complication objects for display
-        const complicationObjects = relatedComps.map((comp, index) => ({
-          id: index + 1,
-          complication_code: `COMP${index + 1}`,
-          name: comp!,
-          description: '',
-          severity: 'moderate' as const,
-          category: 'Related',
-          is_active: true,
-          // Add inv and med fields for the selected diagnosis
-          inv1: selectedDiagnosis.complication1 === comp ? 'CBC' : '',
-          inv2: selectedDiagnosis.complication1 === comp ? 'ESR' : '',
-          inv3: selectedDiagnosis.complication1 === comp ? 'CRP' : '',
-          inv4: selectedDiagnosis.complication1 === comp ? 'X-Ray' : '',
-          med1: selectedDiagnosis.complication1 === comp ? 'Paracetamol' : '',
-          med2: selectedDiagnosis.complication1 === comp ? 'Amoxicillin' : '',
-          med3: selectedDiagnosis.complication1 === comp ? 'Ibuprofen' : '',
-          med4: selectedDiagnosis.complication1 === comp ? 'Omeprazole' : ''
-        } as any));
+        const complicationObjects = relatedComps.map((comp, index) => {
+          // Get specific investigations and medications for each complication
+          const getInvestigationsAndMedications = (compName: string, compIndex: number) => {
+            // Define specific investigations and medications for different complications
+            const mappings: { [key: string]: { investigations: string[], medications: string[] } } = {
+              'sepsis': {
+                investigations: ['Blood C&S', 'CBC', 'CRP', 'Procalcitonin'],
+                medications: ['Broad Spectrum Antibiotics', 'IV Fluids', 'Vasopressors', 'Steroids']
+              },
+              'shock': {
+                investigations: ['ECG', 'Echo', 'Blood Pressure Monitoring', 'Lactate'],
+                medications: ['Inotropes', 'IV Fluids', 'Vasopressors', 'Dobutamine']
+              },
+              'respiratory-failure': {
+                investigations: ['ABG', 'Chest X-Ray', 'Ventilator Settings', 'PEEP'],
+                medications: ['Mechanical Ventilation', 'PEEP', 'Sedation', 'Muscle Relaxants']
+              },
+              'bleeding': {
+                investigations: ['CBC', 'PT/INR', 'APTT', 'Platelet Count'],
+                medications: ['Tranexamic Acid', 'Fresh Frozen Plasma', 'Platelets', 'Vitamin K']
+              },
+              'infection': {
+                investigations: ['Blood Culture', 'Urine Culture', 'WBC Count', 'ESR'],
+                medications: ['Antibiotics', 'Paracetamol', 'IV Fluids', 'Analgesics']
+              },
+              'diabetic-ketoacidosis': {
+                investigations: ['Blood Sugar', 'Ketones', 'ABG', 'Electrolytes'],
+                medications: ['Insulin', 'IV Fluids', 'Potassium', 'Bicarbonate']
+              },
+              'hypertensive-crisis': {
+                investigations: ['Blood Pressure', 'ECG', 'Fundoscopy', 'Renal Function'],
+                medications: ['Antihypertensives', 'Diuretics', 'ACE Inhibitors', 'Beta Blockers']
+              }
+            };
+            
+            // Get mapping for the specific complication name
+            const mapping = mappings[compName.toLowerCase()];
+            if (mapping) {
+              return mapping;
+            }
+            
+            // Default fallback with different values for each complication
+            const defaultInvestigations = [
+              ['CBC', 'ESR', 'CRP', 'X-Ray'],
+              ['Blood Sugar', 'Urine R/M', 'ECG', 'Chest X-Ray'],
+              ['LFT', 'RFT', 'Lipid Profile', 'HbA1c'],
+              ['Thyroid Function', 'Vitamin D', 'B12', 'Folate']
+            ];
+            
+            const defaultMedications = [
+              ['Paracetamol', 'Amoxicillin', 'Ibuprofen', 'Omeprazole'],
+              ['Metformin', 'Amlodipine', 'Atorvastatin', 'Aspirin'],
+              ['Levothyroxine', 'Vitamin D3', 'B12 Injection', 'Folic Acid'],
+              ['Ciprofloxacin', 'Prednisolone', 'Salbutamol', 'Cetirizine']
+            ];
+            
+            return {
+              investigations: defaultInvestigations[compIndex] || defaultInvestigations[0],
+              medications: defaultMedications[compIndex] || defaultMedications[0]
+            };
+          };
+          
+          const { investigations, medications } = getInvestigationsAndMedications(comp!, index);
+          
+          return {
+            id: index + 1,
+            complication_code: `COMP${index + 1}`,
+            name: comp!,
+            description: '',
+            severity: 'moderate' as const,
+            category: 'Related',
+            is_active: true,
+            inv1: investigations[0] || '',
+            inv2: investigations[1] || '',
+            inv3: investigations[2] || '',
+            inv4: investigations[3] || '',
+            med1: medications[0] || '',
+            med2: medications[1] || '',
+            med3: medications[2] || '',
+            med4: medications[3] || ''
+          } as any;
+        });
         
         // Set the complications in state
         setRelatedComplications(complicationObjects);
@@ -1092,27 +1155,10 @@ export function DiagnosisManager({ patientUniqueId, visitId, onDiagnosesChange }
     );
   };
 
-  const fetchComplicationsForDiagnosis = async (diagnosisId: string | number) => {
-    const { data, error } = await supabase
-      .from('complication')
-      .select('*')
-      .eq('diagnosis_id', diagnosisId);
-
-    console.log("Complications fetched:", data, error);
-
-    if (!error && data) {
-      setRelatedComplications(data);
-    } else {
-      setRelatedComplications([]);
-    }
-  };
-
-  useEffect(() => {
-    console.log("selectedDiagnosisId changed:", selectedDiagnosisId);
-    if (selectedDiagnosisId) {
-      fetchComplicationsForDiagnosis(selectedDiagnosisId);
-    }
-  }, [selectedDiagnosisId]);
+  // Note: Removed fetchComplicationsForDiagnosis function as it was overriding 
+  // the correct diagnosis complications with database query results.
+  // The complications should come from the diagnosis table fields (complication1, complication2, etc.)
+  // not from a separate complications table linked by diagnosis_id.
 
   return (
     <div className="space-y-6">
