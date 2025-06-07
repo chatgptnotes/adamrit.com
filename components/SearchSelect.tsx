@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, ChangeEvent } from 'react';
 import { Combobox } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';

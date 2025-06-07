@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { SearchSelect } from '@/components/SearchSelect';
 import { useLabData } from '@/hooks/useLabData';

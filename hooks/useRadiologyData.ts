@@ -1,22 +1,10 @@
 import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 export interface RadiologyTest {
   id: string;
   name: string;
 }
-
-const mockRadiologyTests: RadiologyTest[] = [
-  { id: '1', name: 'X-Ray Chest' },
-  { id: '2', name: 'CT Scan' },
-  { id: '3', name: 'MRI Brain' },
-  { id: '4', name: 'Ultrasound' },
-  { id: '5', name: 'PET Scan' },
-  { id: '6', name: 'Mammogram' },
-  { id: '7', name: 'Bone Scan' },
-  { id: '8', name: 'Angiogram' },
-  { id: '9', name: 'DEXA Scan' },
-  { id: '10', name: 'Nuclear Medicine Scan' }
-];
 
 export function useRadiologyData() {
   const [radiologyTests, setRadiologyTests] = useState<RadiologyTest[]>([]);
@@ -24,11 +12,44 @@ export function useRadiologyData() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setRadiologyTests(mockRadiologyTests);
-      setLoading(false);
-    }, 500);
+    async function fetchRadiologyTests() {
+      try {
+        console.log('Fetching radiology tests...');
+        
+        if (!supabase) {
+          throw new Error('Supabase client is not initialized. Please check your environment variables.');
+        }
+
+        const { data, error: fetchError } = await supabase
+          .from('radiology')
+          .select('id, name')
+          .order('name');
+
+        console.log('Radiology data received:', data);
+        console.log('Fetch error if any:', fetchError);
+
+        if (fetchError) {
+          console.error('Supabase error:', fetchError);
+          throw new Error(fetchError.message || 'Failed to fetch radiology tests');
+        }
+
+        if (!data) {
+          console.warn('No radiology data received from Supabase');
+          setRadiologyTests([]);
+          return;
+        }
+
+        setRadiologyTests(data);
+      } catch (err) {
+        console.error('Error in useRadiologyData:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch radiology tests');
+        setRadiologyTests([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchRadiologyTests();
   }, []);
 
   return { radiologyTests, loading, error };
