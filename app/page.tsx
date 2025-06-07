@@ -64,6 +64,8 @@ import Link from "next/link"
 import { supabase } from "@/lib/supabase/client"
 import { sendWhatsAppNotification } from "@/lib/whatsapp-notification"
 import SettingsPage from "@/app/settings/page"
+import { useComplications } from "@/hooks/useComplications"
+import { Select, SelectTrigger, SelectValue, SelectItem } from "@/components/ui/select"
 
 // Types
 interface Diagnosis {
@@ -212,7 +214,7 @@ export default function Home() {
     { name: "Coronary Bypass", amount: "₹1,50,000", code: "S005", complication1: "Bleeding", complication2: "Infection", complication3: "Pulmonary Embolism", complication4: "Heart Arrhythmias" },
   ])
   const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([])
-  const [editDiagnosis, setEditDiagnosis] = useState<Diagnosis | null>(null)
+  const [editDiagnosis, setEditDiagnosis] = useState<Diagnosis | null>(null);
   const [radiology, setRadiology] = useState<RadiologyTest[]>([])
   const [showAddRadiology, setShowAddRadiology] = useState(false)
   const [editRadiology, setEditRadiology] = useState<RadiologyTest | null>(null)
@@ -289,6 +291,8 @@ export default function Home() {
   const [medPage, setMedPage] = useState(1);
   const [medPageSize] = useState(10);
   const [medTotalRows, setMedTotalRows] = useState(0);
+
+  const { complications: complicationsData } = useComplications(); // [{id, name, ...}]
 
   // Add useEffect to handle initial state
   useEffect(() => {
@@ -610,13 +614,18 @@ export default function Home() {
 
   // Handler to update diagnosis
   const handleEditDiagnosis = async (id: string, name: string, formData: Partial<Diagnosis> | undefined) => {
-    const { data, error } = await supabase.from('diagnosis').update({
-      name: name,
-      complication1: formData?.complication1 || '',
-      complication2: formData?.complication2 || '',
-      complication3: formData?.complication3 || '',
-      complication4: formData?.complication4 || ''
-    }).eq('id', id);
+    console.log("EDIT DIAGNOSIS", { id, name, formData });
+    const { data, error } = await supabase
+      .from('diagnosis')
+      .update({
+        name: name,
+        complication1: formData?.complication1 || '',
+        complication2: formData?.complication2 || '',
+        complication3: formData?.complication3 || '',
+        complication4: formData?.complication4 || ''
+      })
+      .eq('id', id);
+
     if (error) {
       window.alert("Error updating diagnosis: " + error.message);
     } else {
@@ -1020,6 +1029,12 @@ export default function Home() {
       setActiveTab(tab);
     }
   }, [tab]);
+
+  function getComplicationName(id) {
+    if (!id) return "";
+    const comp = complications.find(c => c.id === id);
+    return comp ? comp.name : "";
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -1541,10 +1556,10 @@ export default function Home() {
                     {diagnoses.map((diagnosis, idx) => (
                       <TableRow key={diagnosis.id || idx}>
                         <TableCell>{diagnosis.name}</TableCell>
-                        <TableCell>{diagnosis.complication1}</TableCell>
-                        <TableCell>{diagnosis.complication2}</TableCell>
-                        <TableCell>{diagnosis.complication3}</TableCell>
-                        <TableCell>{diagnosis.complication4}</TableCell>
+                        <TableCell>{getComplicationName(diagnosis.complication1)}</TableCell>
+                        <TableCell>{getComplicationName(diagnosis.complication2)}</TableCell>
+                        <TableCell>{getComplicationName(diagnosis.complication3)}</TableCell>
+                        <TableCell>{getComplicationName(diagnosis.complication4)}</TableCell>
                         <TableCell>
                           <div className="flex gap-2">
                             <Button variant="ghost" size="icon" title="View">
@@ -1573,7 +1588,14 @@ export default function Home() {
             {editDiagnosis && (
               <AddDiagnosisForm
                 onCancel={() => setEditDiagnosis(null)}
-                onSubmit={(name: string, formData: Partial<Diagnosis> | undefined) => handleEditDiagnosis(editDiagnosis.id, name, formData)}
+                onSubmit={(name, formData) => handleEditDiagnosis(editDiagnosis.id, name, formData)}
+                initialData={{
+                  name: editDiagnosis.name || "",
+                  complication1: editDiagnosis.complication1 || "",
+                  complication2: editDiagnosis.complication2 || "",
+                  complication3: editDiagnosis.complication3 || "",
+                  complication4: editDiagnosis.complication4 || "",
+                }}
               />
             )}
           </div>
@@ -2650,7 +2672,7 @@ export default function Home() {
                         <td className="border px-2 py-1">{doc.other_speciality}</td>
                         <td className="border px-2 py-1 flex gap-2">
                           <button title="View">👁️</button>
-                          <button title="Edit">✏️</button>
+                          <button title="Edit" onClick={() => setEditDiagnosis(diagnosis)}>✏️</button>
                           <button title="Delete">🗑️</button>
                         </td>
                       </tr>

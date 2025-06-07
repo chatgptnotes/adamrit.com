@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase/client';
 
 export interface Complication {
   id: string;
@@ -16,72 +17,89 @@ export interface Complication {
   med4_id?: string;
 }
 
-const mockComplications: Complication[] = [
-  {
-    id: '1',
-    name: 'abscess',
-    risk_level: 'Low',
-    description: 'Abscess commonly occurs post-surgery or as a complication of diagnosis.',
-    foreign_key: 'COMP_1'
-  },
-  {
-    id: '2',
-    name: 'adhesions',
-    risk_level: 'Moderate',
-    description: 'Adhesions commonly occurs post-surgery or as a complication of diagnosis.',
-    foreign_key: 'COMP_2'
-  },
-  {
-    id: '3',
-    name: 'bleeding',
-    risk_level: 'Low',
-    description: 'Bleeding commonly occurs post-surgery or as a complication of diagnosis.',
-    foreign_key: 'COMP_3'
-  },
-  {
-    id: '4',
-    name: 'cramps',
-    risk_level: 'High',
-    description: 'Cramps commonly occurs post-surgery or as a complication of diagnosis.',
-    foreign_key: 'COMP_4'
-  }
-];
-
 export function useComplications() {
   const [complications, setComplications] = useState<Complication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setComplications(mockComplications);
-      setLoading(false);
-    }, 500);
+    async function fetchComplications() {
+      try {
+        const { data, error } = await supabase
+          .from('complication')
+          .select('*')
+          .order('name');
+
+        if (error) {
+          throw error;
+        }
+
+        setComplications(data || []);
+      } catch (err) {
+        console.error('Error fetching complications:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch complications');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchComplications();
   }, []);
 
   const createComplication = async (complication: Omit<Complication, 'id'>) => {
-    // Simulate API call
-    const newComplication = {
-      ...complication,
-      id: Math.random().toString(36).substr(2, 9)
-    };
-    setComplications(prev => [...prev, newComplication]);
-    return newComplication;
+    try {
+      const { data, error } = await supabase
+        .from('complication')
+        .insert([complication])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setComplications(prev => [...prev, data]);
+      return data;
+    } catch (err) {
+      console.error('Error creating complication:', err);
+      throw err;
+    }
   };
 
   const updateComplication = async (id: string, updates: Partial<Complication>) => {
-    // Simulate API call
-    setComplications(prev =>
-      prev.map(comp =>
-        comp.id === id ? { ...comp, ...updates } : comp
-      )
-    );
+    try {
+      const { data, error } = await supabase
+        .from('complication')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setComplications(prev =>
+        prev.map(comp => (comp.id === id ? { ...comp, ...data } : comp))
+      );
+      return data;
+    } catch (err) {
+      console.error('Error updating complication:', err);
+      throw err;
+    }
   };
 
   const deleteComplication = async (id: string) => {
-    // Simulate API call
-    setComplications(prev => prev.filter(comp => comp.id !== id));
+    try {
+      const { error } = await supabase
+        .from('complication')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setComplications(prev => prev.filter(comp => comp.id !== id));
+      return true;
+    } catch (err) {
+      console.error('Error deleting complication:', err);
+      throw err;
+    }
   };
 
   return {

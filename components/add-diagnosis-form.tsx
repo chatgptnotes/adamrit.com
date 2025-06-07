@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { useComplications } from "@/hooks/useComplications";
 
 // Define the updated interface for diagnosis submission
 interface DiagnosisFormData {
@@ -10,30 +11,6 @@ interface DiagnosisFormData {
   complication3: string;
   complication4: string;
 }
-
-// Use existing complications from the system
-const availableComplications = [
-  { id: "c1", name: "Infection", riskLevel: "High" },
-  { id: "c2", name: "Bleeding", riskLevel: "Medium" },
-  { id: "c3", name: "Allergic Reaction", riskLevel: "Medium" },
-  { id: "c4", name: "Blood Clot", riskLevel: "High" },
-  { id: "c5", name: "Pneumonia", riskLevel: "Medium" },
-  { id: "c6", name: "Diabetic Ketoacidosis", riskLevel: "High" },
-  { id: "c7", name: "Hypoglycemia", riskLevel: "Medium" },
-  { id: "c8", name: "Diabetic Neuropathy", riskLevel: "Medium" },
-  { id: "c9", name: "Diabetic Retinopathy", riskLevel: "High" },
-  { id: "c10", name: "Diabetic Foot Ulcer", riskLevel: "High" },
-  { id: "c11", name: "Hypertensive Crisis", riskLevel: "High" },
-  { id: "c12", name: "Hypertensive Heart Disease", riskLevel: "High" },
-  { id: "c13", name: "Hypertensive Retinopathy", riskLevel: "Medium" },
-  { id: "c14", name: "Angina Pectoris", riskLevel: "Medium" },
-  { id: "c15", name: "Myocardial Infarction", riskLevel: "High" },
-  { id: "c16", name: "Heart Failure", riskLevel: "High" },
-  { id: "c17", name: "Chronic Kidney Disease", riskLevel: "High" },
-  { id: "c18", name: "Proteinuria", riskLevel: "Medium" },
-  { id: "c19", name: "Edema", riskLevel: "Low" },
-  { id: "c20", name: "Acute Respiratory Failure", riskLevel: "High" }
-];
 
 interface AddDiagnosisFormProps {
   onCancel: () => void;
@@ -46,6 +23,7 @@ export default function AddDiagnosisForm({
   onSubmit,
   initialData
 }: AddDiagnosisFormProps) {
+  const { complications, loading, error } = useComplications();
   const [formData, setFormData] = useState<DiagnosisFormData>({
     name: "",
     complication1: "none",
@@ -56,10 +34,10 @@ export default function AddDiagnosisForm({
 
   function normalizeComplication(value?: string) {
     if (!value || value.toLowerCase() === "none") return "none";
-    const found = availableComplications.find(
-      c => c.name.toLowerCase() === value.toLowerCase().trim()
+    const found = complications.find(
+      c => c.id === value
     );
-    return found ? found.name : "none";
+    return found ? found.id : "none";
   }
 
   useEffect(() => {
@@ -72,7 +50,7 @@ export default function AddDiagnosisForm({
         complication4: normalizeComplication(initialData.complication4),
       });
     }
-  }, [initialData]);
+  }, [initialData, complications]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -89,6 +67,23 @@ export default function AddDiagnosisForm({
     }));
   };
 
+  function getComplicationName(id) {
+    const comp = complications.find(c => c.id === id);
+    return comp ? comp.name : '';
+  }
+
+  if (loading) {
+    return <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg">Loading complications...</div>
+    </div>;
+  }
+
+  if (error) {
+    return <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg text-red-500">Error loading complications: {error}</div>
+    </div>;
+  }
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-lg w-[600px] max-h-[90vh] overflow-y-auto">
@@ -100,14 +95,14 @@ export default function AddDiagnosisForm({
             <Label htmlFor="diagnosisName" className="font-medium">
               Diagnosis Name <span className="text-red-500">*</span>
             </Label>
-        <input
+            <input
               id="diagnosisName"
               className="border rounded px-2 py-1 w-full"
               placeholder="Enter diagnosis name"
               value={formData.name}
               onChange={e => updateFormData("name", e.target.value)}
-          required
-        />
+              required
+            />
           </div>
 
           {/* Complications Section Header */}
@@ -132,9 +127,9 @@ export default function AddDiagnosisForm({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">None</SelectItem>
-                {availableComplications.map((complication) => (
-                  <SelectItem key={complication.id} value={complication.name}>
-                    {complication.name} ({complication.riskLevel} risk)
+                {complications.map((complication) => (
+                  <SelectItem key={complication.id} value={complication.id}>
+                    {complication.name} ({complication.risk_level} risk)
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -155,9 +150,9 @@ export default function AddDiagnosisForm({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">None</SelectItem>
-                {availableComplications.map((complication) => (
-                  <SelectItem key={complication.id} value={complication.name}>
-                    {complication.name} ({complication.riskLevel} risk)
+                {complications.map((complication) => (
+                  <SelectItem key={complication.id} value={complication.id}>
+                    {complication.name} ({complication.risk_level} risk)
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -178,9 +173,9 @@ export default function AddDiagnosisForm({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">None</SelectItem>
-                {availableComplications.map((complication) => (
-                  <SelectItem key={complication.id} value={complication.name}>
-                    {complication.name} ({complication.riskLevel} risk)
+                {complications.map((complication) => (
+                  <SelectItem key={complication.id} value={complication.id}>
+                    {complication.name} ({complication.risk_level} risk)
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -201,9 +196,9 @@ export default function AddDiagnosisForm({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">None</SelectItem>
-                {availableComplications.map((complication) => (
-                  <SelectItem key={complication.id} value={complication.name}>
-                    {complication.name} ({complication.riskLevel} risk)
+                {complications.map((complication) => (
+                  <SelectItem key={complication.id} value={complication.id}>
+                    {complication.name} ({complication.risk_level} risk)
                   </SelectItem>
                 ))}
               </SelectContent>
