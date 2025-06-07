@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS packages (
 CREATE TABLE IF NOT EXISTS complications (
     id SERIAL PRIMARY KEY,
     complication_code VARCHAR(20) UNIQUE NOT NULL,
+    foreign_key VARCHAR(20) UNIQUE NOT NULL,
     name VARCHAR(300) NOT NULL,
     description TEXT,
     severity VARCHAR(50), -- mild, moderate, severe, critical
@@ -99,17 +100,17 @@ INSERT INTO packages (package_code, name, description, base_amount, category, du
 ('PKG007', 'Psychiatric Care Package', 'Mental health evaluation and treatment', 8000.00, 'Mental Health', 3);
 
 -- Insert sample complications data
-INSERT INTO complications (complication_code, name, description, severity, category) VALUES
-('CP001', 'Diabetic Ketoacidosis', 'Life-threatening complication of diabetes', 'critical', 'Metabolic'),
-('CP002', 'Hypertensive Crisis', 'Severe increase in blood pressure', 'severe', 'Cardiovascular'),
-('CP003', 'Cardiogenic Shock', 'Heart unable to pump enough blood', 'critical', 'Cardiovascular'),
-('CP004', 'Acute Kidney Injury', 'Sudden episode of kidney failure', 'severe', 'Renal'),
-('CP005', 'Respiratory Failure', 'Lungs cannot provide enough oxygen', 'critical', 'Respiratory'),
-('CP006', 'Sepsis', 'Body response to infection', 'severe', 'Infectious'),
-('CP007', 'Bleeding', 'Excessive blood loss', 'moderate', 'Hematologic'),
-('CP008', 'Infection', 'Bacterial or viral infection', 'mild', 'Infectious'),
-('CP009', 'Deep Vein Thrombosis', 'Blood clot in deep vein', 'moderate', 'Vascular'),
-('CP010', 'Pneumothorax', 'Collapsed lung', 'moderate', 'Respiratory');
+INSERT INTO complications (complication_code, foreign_key, name, description, severity, category) VALUES
+('CP001', 'CP001', 'Diabetic Ketoacidosis', 'Life-threatening complication of diabetes', 'critical', 'Metabolic'),
+('CP002', 'CP002', 'Hypertensive Crisis', 'Severe increase in blood pressure', 'severe', 'Cardiovascular'),
+('CP003', 'CP003', 'Cardiogenic Shock', 'Heart unable to pump enough blood', 'critical', 'Cardiovascular'),
+('CP004', 'CP004', 'Acute Kidney Injury', 'Sudden episode of kidney failure', 'severe', 'Renal'),
+('CP005', 'CP005', 'Respiratory Failure', 'Lungs cannot provide enough oxygen', 'critical', 'Respiratory'),
+('CP006', 'CP006', 'Sepsis', 'Body response to infection', 'severe', 'Infectious'),
+('CP007', 'CP007', 'Bleeding', 'Excessive blood loss', 'moderate', 'Hematologic'),
+('CP008', 'CP008', 'Infection', 'Bacterial or viral infection', 'mild', 'Infectious'),
+('CP009', 'CP009', 'Deep Vein Thrombosis', 'Blood clot in deep vein', 'moderate', 'Vascular'),
+('CP010', 'CP010', 'Pneumothorax', 'Collapsed lung', 'moderate', 'Respiratory');
 
 -- Insert sample diagnosis-complications relationships
 INSERT INTO diagnosis_complications (diagnosis_id, complication_id, probability) VALUES

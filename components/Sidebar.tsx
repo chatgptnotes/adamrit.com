@@ -124,7 +124,7 @@ const Sidebar = () => {
               <Link href="/?tab=cghs-surgery-master">CGHS Surgery Master</Link>
               <Link href="/?tab=yojna-surgery-master">Yojna Surgery Master</Link>
               <Link href="/?tab=private-surgery-master">Private Surgery Master</Link>
-              <Link href="/?tab=complications-master">Complication Master</Link>
+              <Link href="/complications">Complication Master</Link>
               <Link href="/?tab=radiology-master">Radiology Master</Link>
               <Link href="/?tab=lab-master">Lab Master</Link>
               <Link href="/?tab=other-investigations-master">Other Investigations</Link>

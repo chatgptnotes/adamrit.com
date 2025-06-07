@@ -122,10 +122,11 @@ interface Complication {
   name: string;
   risk_level?: string;
   description?: string;
-  inv1?: string;
-  inv2?: string;
-  inv3?: string;
-  inv4?: string;
+  foreign_key?: string;
+  lab1?: string;
+  lab2?: string;
+  rad1?: string;
+  rad2?: string;
   med1?: string;
   med2?: string;
   med3?: string;
@@ -173,37 +174,32 @@ type Patient = {
 };
 
 // Add type for activeTab
-type TabType = "diagnosis-master" | "yojna-surgery-master" | "private-surgery-master" | 
-  "complications-master" | "radiology-master" | "lab-master" | "other-investigations-master" | 
-  "medications-master" | "approvals" | "reports" | "today-ipd-dashboard" | "today-opd-dashboard" |
-  "patient" | "patient-dashboard" | "doctor-master" | "settings" | "cghs-surgery-master" |
-  "medical-staff-master" | "user-list";
+type TabType = 
+  | "complications-master" 
+  | "radiology-master" 
+  | "lab-master" 
+  | "other-investigations-master" 
+  | "medications-master" 
+  | "approvals" 
+  | "reports" 
+  | "medical-staff-master" 
+  | "user-list" 
+  | "doctor-master" 
+  | "settings"
+  | "today-ipd-dashboard"
+  | "today-opd-dashboard"
+  | "patient"
+  | "patient-dashboard"
+  | "diagnosis-master"
+  | "cghs-surgery-master"
+  | "yojna-surgery-master"
+  | "private-surgery-master"
+  | "patient-registration";
 
 export default function Home() {
   const searchParams = useSearchParams();
-  const tabFromUrl = searchParams?.get("tab") as
-    | "patient"
-    | "patient-dashboard"
-    | "diagnosis-master"
-    | "cghs-surgery-master"
-    | "yojna-surgery-master"
-    | "private-surgery-master"
-    | "complications-master"
-    | "radiology-master"
-    | "lab-master"
-    | "other-investigations-master"
-    | "medications-master"
-    | "medical-staff-master"
-    | "approvals"
-    | "reports"
-    | "settings"
-    | "doctor-master"
-    | "user-list"
-    | "today-ipd-dashboard"
-    | "today-opd-dashboard"
-    | "patient-registration"
-    | null;
-  const [activeTab, setActiveTab] = useState<TabType>("diagnosis-master");
+  const tab = (searchParams?.get('tab') || 'complications-master') as TabType;
+  const [activeTab, setActiveTab] = useState<TabType>(tab);
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [showAddDiagnosis, setShowAddDiagnosis] = useState(false)
@@ -1020,10 +1016,10 @@ export default function Home() {
 
   // Synchronize activeTab with tabFromUrl
   useEffect(() => {
-    if (tabFromUrl && tabFromUrl !== activeTab) {
-      setActiveTab(tabFromUrl as TabType);
+    if (tab && tab !== activeTab) {
+      setActiveTab(tab);
     }
-  }, [tabFromUrl]);
+  }, [tab]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -2003,14 +1999,15 @@ export default function Home() {
                     <th className="border px-2 py-1 text-left">Name</th>
                     <th className="border px-2 py-1 text-left">Risk Level</th>
                     <th className="border px-2 py-1 text-left">Description</th>
-                    <th className="border px-2 py-1 text-left">INV1</th>
-                    <th className="border px-2 py-1 text-left">INV2</th>
-                    <th className="border px-2 py-1 text-left">INV3</th>
-                    <th className="border px-2 py-1 text-left">INV4</th>
-                    <th className="border px-2 py-1 text-left">Med1</th>
-                    <th className="border px-2 py-1 text-left">Med2</th>
-                    <th className="border px-2 py-1 text-left">Med3</th>
-                    <th className="border px-2 py-1 text-left">Med4</th>
+                    <th className="border px-2 py-1 text-left">Foreign Key</th>
+                    <th className="border px-2 py-1 text-left">Lab 1</th>
+                    <th className="border px-2 py-1 text-left">Lab 2</th>
+                    <th className="border px-2 py-1 text-left">Rad 1</th>
+                    <th className="border px-2 py-1 text-left">Rad 2</th>
+                    <th className="border px-2 py-1 text-left">MED1</th>
+                    <th className="border px-2 py-1 text-left">MED2</th>
+                    <th className="border px-2 py-1 text-left">MED3</th>
+                    <th className="border px-2 py-1 text-left">MED4</th>
                     <th className="border px-2 py-1 text-left">Actions</th>
                   </tr>
                 </thead>
@@ -2027,10 +2024,11 @@ export default function Home() {
                         </span>
                       </td>
                       <td className="border px-2 py-1">{complication.description}</td>
-                      <td className="border px-2 py-1">{complication.inv1}</td>
-                      <td className="border px-2 py-1">{complication.inv2}</td>
-                      <td className="border px-2 py-1">{complication.inv3}</td>
-                      <td className="border px-2 py-1">{complication.inv4}</td>
+                      <td className="border px-2 py-1">{complication.foreign_key || `COMP_${idx + 1}`}</td>
+                      <td className="border px-2 py-1">{complication.lab1}</td>
+                      <td className="border px-2 py-1">{complication.lab2}</td>
+                      <td className="border px-2 py-1">{complication.rad1}</td>
+                      <td className="border px-2 py-1">{complication.rad2}</td>
                       <td className="border px-2 py-1">{complication.med1}</td>
                       <td className="border px-2 py-1">{complication.med2}</td>
                       <td className="border px-2 py-1">{complication.med3}</td>
@@ -2077,88 +2075,124 @@ export default function Home() {
                       const nameEl = formEl.elements.namedItem('name') as HTMLInputElement;
                       const riskLevelEl = formEl.elements.namedItem('risk_level') as HTMLSelectElement;
                       const descriptionEl = formEl.elements.namedItem('description') as HTMLTextAreaElement;
-                      const inv1El = formEl.elements.namedItem('inv1') as HTMLInputElement;
-                      const inv2El = formEl.elements.namedItem('inv2') as HTMLInputElement;
-                      const inv3El = formEl.elements.namedItem('inv3') as HTMLInputElement;
-                      const inv4El = formEl.elements.namedItem('inv4') as HTMLInputElement;
+                      const foreignKeyEl = formEl.elements.namedItem('foreign_key') as HTMLInputElement;
+                      const lab1El = formEl.elements.namedItem('lab1') as HTMLInputElement;
+                      const lab2El = formEl.elements.namedItem('lab2') as HTMLInputElement;
+                      const rad1El = formEl.elements.namedItem('rad1') as HTMLInputElement;
+                      const rad2El = formEl.elements.namedItem('rad2') as HTMLInputElement;
                       const med1El = formEl.elements.namedItem('med1') as HTMLInputElement;
                       const med2El = formEl.elements.namedItem('med2') as HTMLInputElement;
                       const med3El = formEl.elements.namedItem('med3') as HTMLInputElement;
                       const med4El = formEl.elements.namedItem('med4') as HTMLInputElement;
-                      const compData = {
+
+                      const formData = {
                         name: nameEl.value,
                         risk_level: riskLevelEl.value,
                         description: descriptionEl.value,
-                        inv1: inv1El.value,
-                        inv2: inv2El.value,
-                        inv3: inv3El.value,
-                        inv4: inv4El.value,
+                        foreign_key: foreignKeyEl.value || `COMP_${Date.now()}`,
+                        lab1: lab1El.value,
+                        lab2: lab2El.value,
+                        rad1: rad1El.value,
+                        rad2: rad2El.value,
                         med1: med1El.value,
                         med2: med2El.value,
                         med3: med3El.value,
-                        med4: med4El.value
+                        med4: med4El.value,
                       };
+
                       if (editComplication) {
-                        await handleEditComplication(editComplication.id, compData);
+                        await handleEditComplication(editComplication.id, formData);
                       } else {
-                        await handleAddComplication(compData);
+                        const { data, error } = await supabase.from('complication').insert([formData]);
+                        if (error) {
+                          window.alert("Error adding complication: " + error.message);
+                        } else {
+                          const { data: newComplications } = await supabase.from('complication').select('*');
+                          setComplications((newComplications as Complication[]) || []);
+                          window.alert("Complication Added Successfully!");
+                        }
                       }
+                      setShowAddComplication(false);
+                      setEditComplication(null);
                     }}>
-                      <div className="mb-2">
-                        <label className="block mb-1">Name</label>
-                        <input name="name" className="border rounded px-2 py-1 w-full" required defaultValue={editComplication?.name || ''} />
-                      </div>
-                      <div className="mb-2">
-                        <label className="block mb-1">Risk Level</label>
-                        <select name="risk_level" className="border rounded px-2 py-1 w-full" required defaultValue={editComplication?.risk_level || 'Low'}>
-                          <option value="Low">Low</option>
-                          <option value="Medium">Medium</option>
-                          <option value="High">High</option>
-                        </select>
-                      </div>
-                      <div className="mb-4">
-                        <label className="block mb-1">Description</label>
-                        <textarea name="description" className="border rounded px-2 py-1 w-full" rows={3} required defaultValue={editComplication?.description || ''}></textarea>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 mb-2">
+                      <div className="space-y-4">
                         <div>
-                          <label className="block mb-1">INV1</label>
-                          <input name="inv1" className="border rounded px-2 py-1 w-full" defaultValue={editComplication?.inv1 || ''} />
+                          <label className="block text-sm font-medium mb-1">Name</label>
+                          <input
+                            type="text"
+                            name="name"
+                            defaultValue={editComplication?.name || ''}
+                            className="w-full p-2 border rounded"
+                            required
+                          />
                         </div>
                         <div>
-                          <label className="block mb-1">INV2</label>
-                          <input name="inv2" className="border rounded px-2 py-1 w-full" defaultValue={editComplication?.inv2 || ''} />
+                          <label className="block text-sm font-medium mb-1">Foreign Key</label>
+                          <input
+                            type="text"
+                            name="foreign_key"
+                            defaultValue={editComplication?.foreign_key || ''}
+                            placeholder="COMP_XXX"
+                            className="w-full p-2 border rounded"
+                          />
                         </div>
                         <div>
-                          <label className="block mb-1">INV3</label>
-                          <input name="inv3" className="border rounded px-2 py-1 w-full" defaultValue={editComplication?.inv3 || ''} />
+                          <label className="block text-sm font-medium mb-1">Risk Level</label>
+                          <select
+                            name="risk_level"
+                            defaultValue={editComplication?.risk_level || 'Low'}
+                            className="w-full p-2 border rounded"
+                            required
+                          >
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                          </select>
                         </div>
-                        <div>
-                          <label className="block mb-1">INV4</label>
-                          <input name="inv4" className="border rounded px-2 py-1 w-full" defaultValue={editComplication?.inv4 || ''} />
+                        <div className="mb-4">
+                          <label className="block mb-1">Description</label>
+                          <textarea name="description" className="border rounded px-2 py-1 w-full" rows={3} required defaultValue={editComplication?.description || ''}></textarea>
                         </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 mb-4">
-                        <div>
-                          <label className="block mb-1">Med1</label>
-                          <input name="med1" className="border rounded px-2 py-1 w-full" defaultValue={editComplication?.med1 || ''} />
+                        <div className="grid grid-cols-2 gap-2 mb-2">
+                          <div>
+                            <label className="block mb-1">Lab 1</label>
+                            <input name="lab1" className="border rounded px-2 py-1 w-full" defaultValue={editComplication?.lab1 || ''} />
+                          </div>
+                          <div>
+                            <label className="block mb-1">Lab 2</label>
+                            <input name="lab2" className="border rounded px-2 py-1 w-full" defaultValue={editComplication?.lab2 || ''} />
+                          </div>
+                          <div>
+                            <label className="block mb-1">Rad 1</label>
+                            <input name="rad1" className="border rounded px-2 py-1 w-full" defaultValue={editComplication?.rad1 || ''} />
+                          </div>
+                          <div>
+                            <label className="block mb-1">Rad 2</label>
+                            <input name="rad2" className="border rounded px-2 py-1 w-full" defaultValue={editComplication?.rad2 || ''} />
+                          </div>
                         </div>
-                        <div>
-                          <label className="block mb-1">Med2</label>
-                          <input name="med2" className="border rounded px-2 py-1 w-full" defaultValue={editComplication?.med2 || ''} />
+                        <div className="grid grid-cols-2 gap-2 mb-4">
+                          <div>
+                            <label className="block mb-1">Med1</label>
+                            <input name="med1" className="border rounded px-2 py-1 w-full" defaultValue={editComplication?.med1 || ''} />
+                          </div>
+                          <div>
+                            <label className="block mb-1">Med2</label>
+                            <input name="med2" className="border rounded px-2 py-1 w-full" defaultValue={editComplication?.med2 || ''} />
+                          </div>
+                          <div>
+                            <label className="block mb-1">Med3</label>
+                            <input name="med3" className="border rounded px-2 py-1 w-full" defaultValue={editComplication?.med3 || ''} />
+                          </div>
+                          <div>
+                            <label className="block mb-1">Med4</label>
+                            <input name="med4" className="border rounded px-2 py-1 w-full" defaultValue={editComplication?.med4 || ''} />
+                          </div>
                         </div>
-                        <div>
-                          <label className="block mb-1">Med3</label>
-                          <input name="med3" className="border rounded px-2 py-1 w-full" defaultValue={editComplication?.med3 || ''} />
+                        <div className="flex justify-end gap-2">
+                          <button type="button" className="px-3 py-1 rounded border" onClick={() => { setShowAddComplication(false); setEditComplication(null); }}>Cancel</button>
+                          <button type="submit" className="bg-blue-600 text-white px-3 py-1 rounded">{editComplication ? 'Update' : 'Add'}</button>
                         </div>
-                        <div>
-                          <label className="block mb-1">Med4</label>
-                          <input name="med4" className="border rounded px-2 py-1 w-full" defaultValue={editComplication?.med4 || ''} />
-                        </div>
-                      </div>
-                      <div className="flex justify-end gap-2">
-                        <button type="button" className="px-3 py-1 rounded border" onClick={() => { setShowAddComplication(false); setEditComplication(null); }}>Cancel</button>
-                        <button type="submit" className="bg-blue-600 text-white px-3 py-1 rounded">{editComplication ? 'Update' : 'Add'}</button>
                       </div>
                     </form>
                   </div>
