@@ -302,12 +302,6 @@ export default function Home() {
   const [diagnosisPageSize] = useState(10)
   const [diagnosisTotalRows, setDiagnosisTotalRows] = useState(0)
 
-  // Add these state variables near the top of your component
-  const [complicationSearchTerm, setComplicationSearchTerm] = useState("");
-  const [complicationPage, setComplicationPage] = useState(1);
-  const [complicationPageSize] = useState(10);
-  const [complicationTotalRows, setComplicationTotalRows] = useState(0);
-
   // Add useEffect to handle initial state
   useEffect(() => {
     setMounted(true)
@@ -384,26 +378,27 @@ export default function Home() {
   }, [])
 
   // Fetch complications from Supabase on mount
-  const fetchComplications = async () => {
-    let query = supabase
-      .from('complication')
-      .select('*', { count: 'exact' })
-      .order('name')
-      .range((complicationPage - 1) * complicationPageSize, complicationPage * complicationPageSize - 1);
-
-    if (complicationSearchTerm.trim()) {
-      query = query.ilike('name', `%${complicationSearchTerm.trim()}%`);
-    }
-
-    const { data, error, count } = await query;
-    if (!error) {
-      setComplications((data as Complication[]) || []);
-      setComplicationTotalRows(count || 0);
-    }
-  };
   useEffect(() => {
-    fetchComplications();
-  }, [complicationPage, complicationPageSize, complicationSearchTerm]);
+    setMounted(true)
+    const fetchComplications = async () => {
+      let query = supabase
+        .from('complication')
+        .select('*', { count: 'exact' })
+        .order('name')
+        .range((page - 1) * pageSize, page * pageSize - 1);
+
+      if (searchTerm.trim()) {
+        query = query.ilike('name', `%${searchTerm.trim()}%`);
+      }
+
+      const { data, error, count } = await query;
+      if (!error) {
+        setComplications((data as Complication[]) || []);
+        setTotalRows(count || 0);
+      }
+    }
+    fetchComplications()
+  }, [page, pageSize, searchTerm]);
 
   // Fetch radiology tests from Supabase radiology table
   useEffect(() => {
@@ -1641,8 +1636,8 @@ export default function Home() {
         )}
         {activeTab === "patient-dashboard" && <PatientRegistryList />}
         {activeTab === "diagnosis-master" && (
-          <div className="w-full px-0">
-            <div className="border rounded-lg p-4 w-full max-w-none">
+          <div className="p-4">
+            <div className="border rounded-lg p-4">
               <h3 className="text-lg font-medium mb-4">Diagnosis Master</h3>
               <div className="mb-4 flex items-center gap-2">
                 <label htmlFor="diagnosis-upload" className="bg-blue-500 text-white px-3 py-1 rounded cursor-pointer">Upload Excel/CSV</label>
@@ -2198,8 +2193,8 @@ export default function Home() {
           </div>
         )}
         {activeTab === "complications-master" && (
-          <div className="w-full px-0">
-            <div className="border rounded-lg p-4 w-full max-w-none">
+          <div className="p-4">
+            <div className="border rounded-lg p-4">
               <h3 className="text-lg font-medium mb-4">Complication Master</h3>
               <div className="mb-4 flex items-center gap-2">
                 <label htmlFor="complications-upload" className="bg-blue-500 text-white px-3 py-1 rounded cursor-pointer">Upload Excel/CSV</label>
@@ -2210,15 +2205,21 @@ export default function Home() {
                 >
                   + Add More
                 </button>
-                <input
-                  type="text"
-                  placeholder="Search complication..."
-                  value={complicationSearchTerm}
-                  onChange={e => { setComplicationSearchTerm(e.target.value); setComplicationPage(1); }}
-                  className="ml-4 p-2 border rounded w-64"
-                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <input
+                    type="text"
+                    placeholder="Search diagnosis..."
+                    value={searchTerm}
+                    onChange={e => {
+                      setSearchTerm(e.target.value);
+                      setPage(1); // search par page 1 pe aa jaye
+                    }}
+                    style={{ width: 250, padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
+                  />
+                  {/* Add More button yahan bhi rakh sakte hain */}
+                </div>
               </div>
-              <table className="min-w-full w-full border text-sm">
+              <table className="min-w-full border text-sm">
                 <thead>
                   <tr className="bg-gray-100">
                     <th className="border px-2 py-1 text-left">Name</th>
@@ -2268,26 +2269,14 @@ export default function Home() {
                 </tbody>
               </table>
               <p className="mb-2 text-sm text-gray-500">
-                Showing {complications.length} of {complicationTotalRows} results
+                Showing {complications.length} of {totalRows} results
               </p>
-              <div className="flex justify-center items-center gap-2 mt-4">
-                <button
-                  className="px-3 py-1 border rounded"
-                  disabled={complicationPage === 1}
-                  onClick={() => setComplicationPage(complicationPage - 1)}
-                >
-                  Prev
-                </button>
-                <span className="text-sm">
-                  Page {complicationPage} of {Math.max(1, Math.ceil(complicationTotalRows / complicationPageSize))}
+              <div style={{ marginTop: 16, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <button disabled={page === 1} onClick={() => setPage(page - 1)}>Prev</button>
+                <span style={{ margin: '0 8px' }}>
+                  Page {page} of {Math.max(1, Math.ceil(totalRows / pageSize))}
                 </span>
-                <button
-                  className="px-3 py-1 border rounded"
-                  disabled={complicationPage >= Math.ceil(complicationTotalRows / complicationPageSize)}
-                  onClick={() => setComplicationPage(complicationPage + 1)}
-                >
-                  Next
-                </button>
+                <button disabled={page === Math.ceil(totalRows / pageSize)} onClick={() => setPage(page + 1)}>Next</button>
               </div>
               {/* Add/Edit Modal */}
               {(showAddComplication || editComplication) && (
