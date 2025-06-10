@@ -252,62 +252,7 @@ export function DiagnosisManager({ patientUniqueId, visitId, onDiagnosesChange }
     fetchComplications();
     fetchPatientData();
     
-    // Add sample complications for testing
-    const sampleComplications = [
-      {
-        id: 1,
-        complication_code: 'COMP1',
-        name: 'sepsis',
-        description: 'Blood infection',
-        severity: 'severe' as const,
-        category: 'Infection',
-        is_active: true,
-        inv1: 'CBC',
-        inv2: 'ESR',
-        inv3: 'CRP',
-        inv4: 'Blood C&S',
-        med1: 'Amoxicillin',
-        med2: 'Paracetamol',
-        med3: 'Ibuprofen',
-        med4: 'Omeprazole'
-      },
-      {
-        id: 2,
-        complication_code: 'COMP2',
-        name: 'shock',
-        description: 'Circulatory failure',
-        severity: 'critical' as const,
-        category: 'Cardiovascular',
-        is_active: true,
-        inv1: 'X-Ray',
-        inv2: 'MRI',
-        inv3: 'CT Scan',
-        inv4: 'D-Dimer',
-        med1: 'Atorvastatin',
-        med2: 'Amlodipine',
-        med3: 'Losartan',
-        med4: 'Aspirin'
-      },
-      {
-        id: 3,
-        complication_code: 'COMP3',
-        name: 'respiratory-failure',
-        description: 'Breathing difficulty',
-        severity: 'severe' as const,
-        category: 'Respiratory',
-        is_active: true,
-        inv1: 'Stool routine',
-        inv2: 'Blood Glucose Random',
-        inv3: 'Urine R/M',
-        inv4: 'LFT',
-        med1: 'Ciprofloxacin',
-        med2: 'Metformin',
-        med3: 'Levothyroxine',
-        med4: 'Clopidogrel'
-      }
-    ];
     
-    setRelatedComplications(sampleComplications as any);
   }, [patientUniqueId]);
 
   // Handle click outside to close search results
@@ -620,6 +565,13 @@ export function DiagnosisManager({ patientUniqueId, visitId, onDiagnosesChange }
     }
   };
 
+  // Helper function to get complication name from ID
+  const getComplicationName = (id: string) => {
+    if (!id) return "";
+    const comp = complications.find(c => c.id.toString() === id);
+    return comp ? comp.name : id; // fallback to ID if name not found
+  };
+
   const fetchRelatedComplications = async (diagnosisIds: string[]) => {
     try {
       // For now, we'll extract complications directly from the diagnosis data
@@ -634,6 +586,9 @@ export function DiagnosisManager({ patientUniqueId, visitId, onDiagnosesChange }
         
         // Convert to Complication objects for display
         const complicationObjects = relatedComps.map((comp, index) => {
+          // Convert complication ID to name
+          const compName = getComplicationName(comp!);
+          
           // Get specific investigations and medications for each complication
           const getInvestigationsAndMedications = (compName: string, compIndex: number) => {
             // Define specific investigations and medications for different complications
@@ -695,12 +650,12 @@ export function DiagnosisManager({ patientUniqueId, visitId, onDiagnosesChange }
             };
           };
           
-          const { investigations, medications } = getInvestigationsAndMedications(comp!, index);
+          const { investigations, medications } = getInvestigationsAndMedications(compName, index);
           
           return {
             id: index + 1,
             complication_code: `COMP${index + 1}`,
-            name: comp!,
+            name: compName,
             description: '',
             severity: 'moderate' as const,
             category: 'Related',
@@ -747,6 +702,9 @@ export function DiagnosisManager({ patientUniqueId, visitId, onDiagnosesChange }
         
         // Convert to Complication objects with investigations and medications
         const complicationObjects = uniqueComps.map((comp, index) => {
+          // Convert complication ID to name
+          const compName = getComplicationName(comp);
+          
           // Define different investigations and medications for different complications
           const getInvestigationsAndMedications = (compName: string) => {
             const mappings: { [key: string]: { investigations: string[], medications: string[] } } = {
@@ -787,12 +745,12 @@ export function DiagnosisManager({ patientUniqueId, visitId, onDiagnosesChange }
             };
           };
           
-          const { investigations, medications } = getInvestigationsAndMedications(comp);
+          const { investigations, medications } = getInvestigationsAndMedications(compName);
           
           return {
             id: index + 1,
             complication_code: `CGHS_COMP${index + 1}`,
-            name: comp,
+            name: compName,
             description: '',
             severity: 'moderate' as const,
             category: 'Surgery Related',
