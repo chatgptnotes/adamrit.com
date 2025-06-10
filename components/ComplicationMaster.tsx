@@ -26,6 +26,21 @@ export function ComplicationMaster() {
     [key: string]: { [key: string]: any };
   }>({});
 
+  // Add search and pagination state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+
+  // Filter and paginate complications
+  const filteredComplications = complications.filter(c =>
+    c.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const totalRows = filteredComplications.length;
+  const paginatedComplications = filteredComplications.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  );
+
   const handleSelectChange = (complicationId: string, field: string, value: any) => {
     // Update the complication in the database
     const updates: { [key: string]: string | null } = {
@@ -79,7 +94,16 @@ export function ComplicationMaster() {
           </button>
         </div>
       </div>
-
+      {/* Search input */}
+      <div className="mb-4 flex items-center gap-2">
+        <input
+          type="text"
+          placeholder="Search complication..."
+          value={searchTerm}
+          onChange={e => { setSearchTerm(e.target.value); setPage(1); }}
+          className="ml-4 p-2 border rounded w-64"
+        />
+      </div>
       <div className="overflow-x-auto">
         <div className="inline-block min-w-full align-middle">
           <div className="overflow-hidden border-b border-gray-200 shadow sm:rounded-lg">
@@ -128,7 +152,7 @@ export function ComplicationMaster() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
-                {complications.map((complication) => (
+                {paginatedComplications.map((complication) => (
                   <tr key={complication.id}>
                     <td className="whitespace-nowrap px-6 py-4">{complication.name}</td>
                     <td className="whitespace-nowrap px-6 py-4">
@@ -232,6 +256,29 @@ export function ComplicationMaster() {
             </table>
           </div>
         </div>
+      </div>
+      {/* Results count and pagination controls */}
+      <p className="mb-2 text-sm text-gray-500">
+        Showing {paginatedComplications.length} of {totalRows} results
+      </p>
+      <div className="flex justify-center items-center gap-2 mt-4">
+        <button
+          className="px-3 py-1 border rounded"
+          disabled={page === 1}
+          onClick={() => setPage(page - 1)}
+        >
+          Prev
+        </button>
+        <span className="text-sm">
+          Page {page} of {Math.max(1, Math.ceil(totalRows / pageSize))}
+        </span>
+        <button
+          className="px-3 py-1 border rounded"
+          disabled={page >= Math.ceil(totalRows / pageSize)}
+          onClick={() => setPage(page + 1)}
+        >
+          Next
+        </button>
       </div>
     </div>
   );
