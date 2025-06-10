@@ -3147,34 +3147,7 @@ export default function Home() {
                   className="ml-4 p-2 border rounded w-64"
                 />
               </div>
-              <table className="min-w-full border text-sm">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="border px-2 py-1 text-left">Name</th>
-                    <th className="border px-2 py-1 text-left">Type</th>
-                    <th className="border px-2 py-1 text-left">Cost</th>
-                    <th className="border px-2 py-1 text-left">Actions</th>
-                    <th className="border px-2 py-1 text-left">speciality</th>
-                    <th className="border px-2 py-1 text-left">Non NABH Cost</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {medications.map((med, idx) => (
-                    <tr key={idx}>
-                      <td className="border px-2 py-1">{med.name}</td>
-                      <td className="border px-2 py-1">{med.type}</td>
-                      <td className="border px-2 py-1">{med.cost}</td>
-                      <td className="border px-2 py-1 flex gap-2">
-                        <button title="View">👁</button>
-                        <button title="Edit" onClick={() => setEditMedication(med)}>✏</button>
-                        <button title="Delete" onClick={() => handleDeleteMedication(med.id)}>🗑</button>
-                      </td>
-                      <td className="border px-2 py-1">{med.speciality}</td>
-                      <td className="border px-2 py-1">{med.non_nabh_cost}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <table className="min-w-full border text-sm"><thead><tr className="bg-gray-100"><th className="border px-2 py-1 text-left">Name</th><th className="border px-2 py-1 text-left">Type</th><th className="border px-2 py-1 text-left">Cost</th><th className="border px-2 py-1 text-left">Actions</th><th className="border px-2 py-1 text-left">speciality</th><th className="border px-2 py-1 text-left">Non NABH Cost</th></tr></thead><tbody>{medications.map((med, idx) => (<tr key={idx}><td className="border px-2 py-1">{med.name}</td><td className="border px-2 py-1">{med.type}</td><td className="border px-2 py-1">{med.cost}</td><td className="border px-2 py-1 flex gap-2"><button title="View">👁</button><button title="Edit" onClick={() => setEditMedication(med)}>✏</button><button title="Delete" onClick={() => handleDeleteMedication(med.id)}>🗑</button></td><td className="border px-2 py-1">{med.speciality}</td><td className="border px-2 py-1">{med.non_nabh_cost}</td></tr>))}</tbody></table>
               <p className="mb-2 text-sm text-gray-500">
                 Showing {medications.length} of {medTotalRows} results
               </p>
@@ -3204,42 +3177,7 @@ export default function Home() {
                 <label htmlFor="medical-staff-upload" className="bg-blue-500 text-white px-3 py-1 rounded cursor-pointer">Upload Excel/CSV</label>
                 <input id="medical-staff-upload" type="file" accept=".csv,.xls,.xlsx" className="hidden" />
               </div>
-              <table className="min-w-full border text-sm">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="border px-2 py-1 text-left">Name</th>
-                    <th className="border px-2 py-1 text-left">Cost</th>
-                    <th className="border px-2 py-1 text-left">CGHS Code</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="border px-2 py-1">Nurse Anjali</td>
-                    <td className="border px-2 py-1">₹500</td>
-                    <td className="border px-2 py-1">MS001</td>
-                  </tr>
-                  <tr>
-                    <td className="border px-2 py-1">Technician Ravi</td>
-                    <td className="border px-2 py-1">₹600</td>
-                    <td className="border px-2 py-1">MS002</td>
-                  </tr>
-                  <tr>
-                    <td className="border px-2 py-1">Ward Boy Suresh</td>
-                    <td className="border px-2 py-1">₹400</td>
-                    <td className="border px-2 py-1">MS003</td>
-                  </tr>
-                  <tr>
-                    <td className="border px-2 py-1">Receptionist Meena</td>
-                    <td className="border px-2 py-1">₹450</td>
-                    <td className="border px-2 py-1">MS004</td>
-                  </tr>
-                  <tr>
-                    <td className="border px-2 py-1">Pharmacist Ritu</td>
-                    <td className="border px-2 py-1">₹550</td>
-                    <td className="border px-2 py-1">MS005</td>
-                  </tr>
-                </tbody>
-              </table>
+<table className="min-w-full border text-sm"><thead><tr className="bg-gray-100"><th className="border px-2 py-1 text-left">Name</th><th className="border px-2 py-1 text-left">Cost</th><th className="border px-2 py-1 text-left">CGHS Code</th></tr></thead><tbody><tr><td className="border px-2 py-1">Nurse Anjali</td><td className="border px-2 py-1">₹500</td><td className="border px-2 py-1">MS001</td></tr><tr><td className="border px-2 py-1">Technician Ravi</td><td className="border px-2 py-1">₹600</td><td className="border px-2 py-1">MS002</td></tr><tr><td className="border px-2 py-1">Ward Boy Suresh</td><td className="border px-2 py-1">₹400</td><td className="border px-2 py-1">MS003</td></tr><tr><td className="border px-2 py-1">Receptionist Meena</td><td className="border px-2 py-1">₹450</td><td className="border px-2 py-1">MS004</td></tr><tr><td className="border px-2 py-1">Pharmacist Ritu</td><td className="border px-2 py-1">₹550</td><td className="border px-2 py-1">MS005</td></tr></tbody></table>
             </div>
           </div>
         )}
