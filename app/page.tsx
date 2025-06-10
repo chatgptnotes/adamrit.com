@@ -435,7 +435,7 @@ export default function Home() {
   useEffect(() => {
     const fetchLabTests = async () => {
       let query = supabase
-        .from('lab')
+        .from('investigations')
         .select('*', { count: 'exact' })
         .order('name')
         .range((page - 1) * pageSize, page * pageSize - 1);
@@ -445,8 +445,15 @@ export default function Home() {
       }
 
       const { data, error, count } = await query;
-      if (!error) {
-        setLab((data as LabTest[]) || []);
+      if (!error && data) {
+        // Transform data to match LabTest interface
+        const labData = data.map(item => ({
+          id: item.id,
+          name: item.name,
+          cost: item.rate?.toString() || '0',
+          code: item.code || ''
+        }));
+        setLab(labData);
         setTotalRows(count || 0);
       }
     };
@@ -2764,9 +2771,9 @@ export default function Home() {
                             // Add tests one by one with error handling
                             for (const test of tests) {
                               try {
-                                // Check if code already exists
+                                // Check if code already exists in investigations table
                                 const { data: existingTests } = await supabase
-                                  .from('lab')
+                                  .from('investigations')
                                   .select('code')
                                   .eq('code', test.code);
 
@@ -2776,9 +2783,16 @@ export default function Home() {
                                   continue;
                                 }
 
+                                // Transform data for investigations table
+                                const investigationData = {
+                                  name: test.name,
+                                  code: test.code,
+                                  rate: parseFloat(test.cost || '0')
+                                };
+
                                 const { error } = await supabase
-                                  .from('lab')
-                                  .insert([test]);
+                                  .from('investigations')
+                                  .insert([investigationData]);
 
                                 if (error) {
                                   errorCount++;
@@ -2796,9 +2810,21 @@ export default function Home() {
                             buttonElement.textContent = originalText;
                             buttonElement.disabled = false;
 
-                            // Refresh the lab list
-                            const { data: newTests } = await supabase.from('lab').select('*');
-                            setLab((newTests as LabTest[]) || []);
+                            // Refresh the lab list from investigations table
+                            const { data: newTests } = await supabase
+                              .from('investigations')
+                              .select('*')
+                              .order('code');
+                            
+                            if (newTests) {
+                              const labData = newTests.map(item => ({
+                                id: item.id,
+                                name: item.name,
+                                cost: item.rate?.toString() || '0',
+                                code: item.code || ''
+                              }));
+                              setLab(labData);
+                            }
 
                             // Show results
                             let message = `Import Complete!\n`;
