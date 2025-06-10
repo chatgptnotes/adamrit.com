@@ -66,6 +66,7 @@ import { sendWhatsAppNotification } from "@/lib/whatsapp-notification"
 import SettingsPage from "@/app/settings/page"
 import { useComplications } from "@/hooks/useComplications"
 import { Select, SelectTrigger, SelectValue, SelectItem } from "@/components/ui/select"
+import * as XLSX from 'xlsx';
 
 // Types
 interface Diagnosis {
@@ -278,7 +279,7 @@ export default function Home() {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(10); // Rows per page
+  const [pageSize, setPageSize] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
 
   const [searchCGHS, setSearchCGHS] = useState('');
@@ -289,10 +290,16 @@ export default function Home() {
   // Add these new states near the other useState declarations
   const [searchMed, setSearchMed] = useState('');
   const [medPage, setMedPage] = useState(1);
-  const [medPageSize] = useState(10);
+  const [medPageSize, setMedPageSize] = useState(10);
   const [medTotalRows, setMedTotalRows] = useState(0);
 
   const { complications: complicationsData } = useComplications(); // [{id, name, ...}]
+
+  // Add separate state variables for diagnosis section
+  const [diagnosisSearchTerm, setDiagnosisSearchTerm] = useState("")
+  const [diagnosisPage, setDiagnosisPage] = useState(1)
+  const [diagnosisPageSize] = useState(10)
+  const [diagnosisTotalRows, setDiagnosisTotalRows] = useState(0)
 
   // Add useEffect to handle initial state
   useEffect(() => {
@@ -306,13 +313,25 @@ export default function Home() {
 
   // Fetch diagnoses from Supabase on mount
   useEffect(() => {
-    setMounted(true)
     const fetchDiagnoses = async () => {
-      const { data, error } = await supabase.from('diagnosis').select('*')
-      if (!error) setDiagnoses(data || [])
-    }
-    fetchDiagnoses()
-  }, [])
+      let query = supabase
+        .from('diagnosis')
+        .select('*', { count: 'exact' })
+        .order('name')
+        .range((diagnosisPage - 1) * diagnosisPageSize, diagnosisPage * diagnosisPageSize - 1);
+
+      if (diagnosisSearchTerm.trim()) {
+        query = query.ilike('name', `%${diagnosisSearchTerm.trim()}%`);
+      }
+
+      const { data, error, count } = await query;
+      if (!error) {
+        setDiagnoses(data || []);
+        setDiagnosisTotalRows(count || 0);
+      }
+    };
+    fetchDiagnoses();
+  }, [diagnosisPage, diagnosisPageSize, diagnosisSearchTerm]);
 
   // Fetch CGHS surgeries from Supabase on mount
   useEffect(() => {
@@ -1036,6 +1055,95 @@ export default function Home() {
     return comp ? comp.name : "";
   }
 
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const data = e.target.result;
+        const workbook = XLSX.read(data, { type: 'binary' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+        // Fetch all complications for lookup
+        const { data: complications, error: compError } = await supabase
+          .from('complication')
+          .select('id, name');
+
+        if (compError) throw new Error('Error fetching complications: ' + compError.message);
+
+        // Map complication names to IDs
+        const nameToId = {};
+        complications.forEach(c => {
+          if (c.name) {
+            nameToId[c.name.toLowerCase().trim()] = c.id;
+          }
+        });
+
+        // Process each row and filter out invalid ones
+        const invalidRows = [];
+        const validDiagnoses = jsonData
+          .filter(row => row.name && row.name.trim() !== '')
+          .map(row => {
+            const comp1 = row.complication1 ? row.complication1.toLowerCase().trim() : null;
+            const comp2 = row.complication2 ? row.complication2.toLowerCase().trim() : null;
+            const comp3 = row.complication3 ? row.complication3.toLowerCase().trim() : null;
+            const comp4 = row.complication4 ? row.complication4.toLowerCase().trim() : null;
+
+            // Check if all complications are valid (or blank)
+            const isValid =
+              (!comp1 || nameToId[comp1]) &&
+              (!comp2 || nameToId[comp2]) &&
+              (!comp3 || nameToId[comp3]) &&
+              (!comp4 || nameToId[comp4]);
+
+            if (!isValid) {
+              invalidRows.push(row);
+              return null;
+            }
+
+            return {
+              name: row.name.trim(),
+              complication1: comp1 ? nameToId[comp1] || null : null,
+              complication2: comp2 ? nameToId[comp2] || null : null,
+              complication3: comp3 ? nameToId[comp3] || null : null,
+              complication4: comp4 ? nameToId[comp4] || null : null,
+            };
+          })
+          .filter(d => d && d.name);
+
+        if (validDiagnoses.length === 0) {
+          alert(
+            'No valid diagnoses found in the file. Please check the data.\\n' +
+            (invalidRows.length > 0
+              ? 'Invalid rows (complication not found):\\n' +
+                invalidRows.map(r => JSON.stringify(r)).join('\\n')
+              : '')
+          );
+          return;
+        }
+
+        // Insert valid diagnoses into the table
+        const { error: insertError } = await supabase
+          .from('diagnosis')
+          .insert(validDiagnoses);
+
+        if (insertError) {
+          throw new Error('Error uploading diagnoses: ' + insertError.message);
+        }
+
+        alert(`Successfully uploaded ${validDiagnoses.length} diagnoses!`);
+        fetchDiagnoses(); // Refresh the list
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+    reader.readAsBinaryString(file);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="border-b bg-white shadow-sm sticky top-0 z-50">
@@ -1532,13 +1640,26 @@ export default function Home() {
               <h3 className="text-lg font-medium mb-4">Diagnosis Master</h3>
               <div className="mb-4 flex items-center gap-2">
                 <label htmlFor="diagnosis-upload" className="bg-blue-500 text-white px-3 py-1 rounded cursor-pointer">Upload Excel/CSV</label>
-                <input id="diagnosis-upload" type="file" accept=".csv,.xls,.xlsx" className="hidden" />
+                <input
+                  id="diagnosis-upload"
+                  type="file"
+                  accept=".csv,.xls,.xlsx"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
                 <button
                   className="bg-green-500 text-white px-3 py-1 rounded ml-2"
                   onClick={() => setShowAddDiagnosis(true)}
                 >
                   + Add More
                 </button>
+                <input
+                  type="text"
+                  placeholder="Search by name..."
+                  value={diagnosisSearchTerm}
+                  onChange={e => { setDiagnosisSearchTerm(e.target.value); setDiagnosisPage(1); }}
+                  className="ml-4 p-2 border rounded w-64"
+                />
               </div>
               <div className="rounded-md border overflow-hidden">
                 <Table>
@@ -1577,6 +1698,28 @@ export default function Home() {
                     ))}
                   </TableBody>
                 </Table>
+              </div>
+              <p className="mb-2 text-sm text-gray-500">
+                Showing {diagnoses.length} of {diagnosisTotalRows} results
+              </p>
+              <div className="flex justify-center items-center gap-2 mt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setDiagnosisPage(diagnosisPage - 1)}
+                  disabled={diagnosisPage === 1}
+                >
+                  Previous
+                </Button>
+                <span className="text-sm">
+                  Page {diagnosisPage} of {Math.max(1, Math.ceil(diagnosisTotalRows / diagnosisPageSize))}
+                </span>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setDiagnosisPage(diagnosisPage + 1)}
+                  disabled={diagnosisPage >= Math.ceil(diagnosisTotalRows / diagnosisPageSize)}
+                >
+                  Next
+                </Button>
               </div>
             </div>
             {showAddDiagnosis && (
@@ -1665,8 +1808,8 @@ export default function Home() {
             </p>
             <div className="flex items-center gap-2 mt-4">
               <button
-                onClick={() => setCGHSPage(p => Math.max(1, p - 1))}
                 disabled={cghsPage === 1}
+                onClick={() => setCGHSPage(cghsPage - 1)}
                 className="px-3 py-1 border rounded disabled:opacity-50"
               >
                 Prev
@@ -1675,8 +1818,8 @@ export default function Home() {
                 Page {cghsPage} of {Math.ceil(cghsTotalRows / cghsPageSize)}
               </span>
               <button
-                onClick={() => setCGHSPage(p => p + 1)}
                 disabled={cghsPage * cghsPageSize >= cghsTotalRows}
+                onClick={() => setCGHSPage(cghsPage + 1)}
                 className="px-3 py-1 border rounded disabled:opacity-50"
               >
                 Next
@@ -2007,13 +2150,19 @@ export default function Home() {
                 >
                   + Add More
                 </button>
-                <input
-                  type="text"
-                  placeholder="Search by name..."
-                  value={searchTerm}
-                  onChange={e => { setSearchTerm(e.target.value); setPage(1); }}
-                  className="ml-4 p-2 border rounded w-64"
-                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <input
+                    type="text"
+                    placeholder="Search diagnosis..."
+                    value={searchTerm}
+                    onChange={e => {
+                      setSearchTerm(e.target.value);
+                      setPage(1); // search par page 1 pe aa jaye
+                    }}
+                    style={{ width: 250, padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
+                  />
+                  {/* Add More button yahan bhi rakh sakte hain */}
+                </div>
               </div>
               <table className="min-w-full border text-sm">
                 <thead>
@@ -2067,24 +2216,12 @@ export default function Home() {
               <p className="mb-2 text-sm text-gray-500">
                 Showing {complications.length} of {totalRows} results
               </p>
-              <div className="flex items-center gap-2 mt-4">
-                <button
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  className="px-3 py-1 border rounded disabled:opacity-50"
-                >
-                  Prev
-                </button>
-                <span>
-                  Page {page} of {Math.ceil(totalRows / pageSize)}
+              <div style={{ marginTop: 16, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <button disabled={page === 1} onClick={() => setPage(page - 1)}>Prev</button>
+                <span style={{ margin: '0 8px' }}>
+                  Page {page} of {Math.max(1, Math.ceil(totalRows / pageSize))}
                 </span>
-                <button
-                  onClick={() => setPage(p => p + 1)}
-                  disabled={page * pageSize >= totalRows}
-                  className="px-3 py-1 border rounded disabled:opacity-50"
-                >
-                  Next
-                </button>
+                <button disabled={page === Math.ceil(totalRows / pageSize)} onClick={() => setPage(page + 1)}>Next</button>
               </div>
               {/* Add/Edit Modal */}
               {(showAddComplication || editComplication) && (
@@ -2265,24 +2402,12 @@ export default function Home() {
               <p className="mb-2 text-sm text-gray-500">
                 Showing {radiology.length} of {totalRows} results
               </p>
-              <div className="flex items-center gap-2 mt-4">
-                <button
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  className="px-3 py-1 border rounded disabled:opacity-50"
-                >
-                  Prev
-                </button>
-                <span>
+              <div style={{ marginTop: 16, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <button disabled={page === 1} onClick={() => setPage(page - 1)}>Prev</button>
+                <span style={{ margin: '0 8px' }}>
                   Page {page} of {Math.ceil(totalRows / pageSize)}
                 </span>
-                <button
-                  onClick={() => setPage(p => p + 1)}
-                  disabled={page * pageSize >= totalRows}
-                  className="px-3 py-1 border rounded disabled:opacity-50"
-                >
-                  Next
-                </button>
+                <button disabled={page === Math.ceil(totalRows / pageSize)} onClick={() => setPage(page + 1)}>Next</button>
               </div>
               {(showAddRadiology || editRadiology) && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
@@ -2383,24 +2508,12 @@ export default function Home() {
               <p className="mb-2 text-sm text-gray-500">
                 Showing {lab.length} of {totalRows} results
               </p>
-              <div className="flex items-center gap-2 mt-4">
-                <button
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  className="px-3 py-1 border rounded disabled:opacity-50"
-                >
-                  Prev
-                </button>
-                <span>
+              <div style={{ marginTop: 16, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <button disabled={page === 1} onClick={() => setPage(page - 1)}>Prev</button>
+                <span style={{ margin: '0 8px' }}>
                   Page {page} of {Math.ceil(totalRows / pageSize)}
                 </span>
-                <button
-                  onClick={() => setPage(p => p + 1)}
-                  disabled={page * pageSize >= totalRows}
-                  className="px-3 py-1 border rounded disabled:opacity-50"
-                >
-                  Next
-                </button>
+                <button disabled={page === Math.ceil(totalRows / pageSize)} onClick={() => setPage(page + 1)}>Next</button>
               </div>
               {(showAddLab || editLab) && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
@@ -2552,24 +2665,12 @@ export default function Home() {
               <p className="mb-2 text-sm text-gray-500">
                 Showing {medications.length} of {medTotalRows} results
               </p>
-              <div className="flex items-center gap-2 mt-4">
-                <button
-                  onClick={() => setMedPage(p => Math.max(1, p - 1))}
-                  disabled={medPage === 1}
-                  className="px-3 py-1 border rounded disabled:opacity-50"
-                >
-                  Prev
-                </button>
-                <span>
+              <div style={{ marginTop: 16, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <button disabled={medPage === 1} onClick={() => setMedPage(medPage - 1)}>Prev</button>
+                <span style={{ margin: '0 8px' }}>
                   Page {medPage} of {Math.ceil(medTotalRows / medPageSize)}
                 </span>
-                <button
-                  onClick={() => setMedPage(p => p + 1)}
-                  disabled={medPage * medPageSize >= medTotalRows}
-                  className="px-3 py-1 border rounded disabled:opacity-50"
-                >
-                  Next
-                </button>
+                <button disabled={medPage === Math.ceil(medTotalRows / medPageSize)} onClick={() => setMedPage(medPage + 1)}>Next</button>
               </div>
               {showAddMedication && (
                 <AddMedicationForm
