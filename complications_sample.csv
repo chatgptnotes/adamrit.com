@@ -1,0 +1,11 @@
+name,risk_level,description,foreign_key,lab1,lab2,rad1,rad2,med1,med2,med3,med4
+🔥 SUPER INFECTION RISK,High,Post-surgical infection with high temperature,COMP-INF-999,Blood Culture,ESR Test,Chest X-Ray,CT Abdomen,Antibiotics,Pain Relief,Anti-inflammatory,Fever Reducer
+💔 HEART ATTACK EMERGENCY,High,Cardiac arrest during surgery procedure,COMP-HRT-777,Cardiac Enzymes,ECG Test,Echo Cardiogram,Angiography,Aspirin,Beta Blockers,ACE Inhibitors,Statins
+🧠 BRAIN STROKE ALERT,High,Cerebrovascular accident post-operation,COMP-BRN-555,Neurological Exam,Coagulation Test,Brain CT,Brain MRI,Anticoagulants,Neuroprotective,Blood Thinners,Steroids
+🩸 BLEEDING COMPLICATION,Medium,Excessive bleeding during procedure,COMP-BLD-333,Hemoglobin,Platelet Count,USG Abdomen,CT Angiography,Hemostatic Agents,Blood Transfusion,Vitamin K,Iron Supplements
+⚡ LIGHTNING SHOCK SYNDROME,Medium,Electrical shock during equipment use,COMP-SHK-111,Cardiac Markers,Electrolytes,ECG Monitor,Nerve Conduction,Cardiac Stabilizers,Muscle Relaxants,Pain Killers,Anti-arrhythmic
+🫁 LUNG COLLAPSE CRISIS,High,Pneumothorax after chest surgery,COMP-LNG-888,Arterial Blood Gas,Chest X-Ray,CT Thorax,Pulmonary Function,Bronchodilators,Oxygen Therapy,Respiratory Support,Anti-inflammatory
+🦴 BONE FRACTURE RISK,Low,Minor bone damage during operation,COMP-BON-444,Bone Density,Calcium Levels,X-Ray Bone,MRI Joint,Calcium Supplements,Pain Relief,Bone Strengtheners,Vitamin D
+💊 DRUG REACTION ALERT,Medium,Allergic reaction to anesthesia,COMP-DRG-222,Allergy Panel,Liver Function,Skin Test,CT Scan,Antihistamines,Steroids,Epinephrine,Anti-allergic
+🔍 MICROSCOPIC DAMAGE,Low,Tissue damage visible under microscope,COMP-MIC-666,Biopsy,Histopathology,Ultrasound,MRI Detailed,Cell Repair,Tissue Regeneration,Growth Factors,Healing Accelerators
+🌟 PREMIUM RECOVERY ISSUE,Medium,Delayed healing in premium patients,COMP-PRM-123,Protein Levels,Wound Culture,Wound Imaging,Healing Assessment,Protein Supplements,Wound Care,Healing Enhancers,Recovery Boosters 

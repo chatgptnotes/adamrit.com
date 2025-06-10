@@ -2212,9 +2212,66 @@ export default function Home() {
           <div className="p-4">
             <div className="border rounded-lg p-4">
               <h3 className="text-lg font-medium mb-4">Complication Master</h3>
-              <div className="mb-4 flex items-center gap-2">
-                <label htmlFor="complications-upload" className="bg-blue-500 text-white px-3 py-1 rounded cursor-pointer">Upload Excel/CSV</label>
-                <input id="complications-upload" type="file" accept=".csv,.xls,.xlsx" className="hidden" />
+              <div className="mb-4 flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    // Simple CSV upload trigger - same as CGHS Surgery Master
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.csv';
+                    input.onchange = (e: any) => {
+                      const file = e.target?.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          const csvText = event.target?.result as string;
+                          // Simple CSV parsing for complications
+                          const lines = csvText.trim().split('\n');
+                          if (lines.length > 1) {
+                            const complications = [];
+                            for (let i = 1; i < lines.length; i++) {
+                              const values = lines[i].split(',');
+                              if (values.length >= 4) {
+                                complications.push({
+                                  name: values[0]?.trim() || '',
+                                  risk_level: values[1]?.trim() || 'Low',
+                                  description: values[2]?.trim() || '',
+                                  foreign_key: values[3]?.trim() || `COMP_${Date.now()}_${i}`,
+                                  lab1: values[4]?.trim() || '',
+                                  lab2: values[5]?.trim() || '',
+                                  rad1: values[6]?.trim() || '',
+                                  rad2: values[7]?.trim() || '',
+                                  med1: values[8]?.trim() || '',
+                                  med2: values[9]?.trim() || '',
+                                  med3: values[10]?.trim() || '',
+                                  med4: values[11]?.trim() || ''
+                                });
+                              }
+                            }
+                            // Add complications to database with explicit ID generation
+                            complications.forEach(async (complication) => {
+                              // Generate UUID for id field since database doesn't auto-generate
+                              const complicationWithId = {
+                                ...complication,
+                                id: crypto.randomUUID() // Generate UUID explicitly
+                              };
+                              await handleAddComplication(complicationWithId);
+                            });
+                            alert(`${complications.length} complications imported successfully!`);
+                          }
+                        };
+                        reader.readAsText(file);
+                      }
+                    };
+                    input.click();
+                  }}
+                  className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-md border-2 border-blue-600 shadow-lg hover:bg-blue-600 hover:border-blue-700 active:bg-blue-700 active:shadow-inner active:transform active:translate-y-0.5 transition-all duration-150 font-medium text-sm"
+                  style={{
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                  }}
+                >
+                  📁 Upload Excel/CSV
+                </button>
                 <button
                   className="bg-green-500 text-white px-3 py-1 rounded ml-2"
                   onClick={() => setShowAddComplication(true)}
