@@ -36,7 +36,8 @@ import {
   Pencil,
   Trash2,
   RefreshCw,
-  Eye
+  Eye,
+  Upload
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -1752,21 +1753,75 @@ export default function Home() {
           <div className="p-6 space-y-4">
             <div className="flex justify-between items-center mb-4">
               <h1 className="text-2xl font-bold">CGHS Surgery Master</h1>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    // Simple CSV upload trigger
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.csv';
+                    input.onchange = (e: any) => {
+                      const file = e.target?.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          const csvText = event.target?.result as string;
+                          // Simple CSV parsing for CGHS surgeries
+                          const lines = csvText.trim().split('\n');
+                          if (lines.length > 1) {
+                            const headers = lines[0].split(',');
+                            const surgeries = [];
+                            for (let i = 1; i < lines.length; i++) {
+                              const values = lines[i].split(',');
+                              if (values.length >= 3) {
+                                surgeries.push({
+                                  name: values[0]?.trim() || '',
+                                  code: values[1]?.trim() || '',
+                                  amount: values[2]?.trim() || '',
+                                  complication1: values[3]?.trim() || '',
+                                  complication2: values[4]?.trim() || '',
+                                  complication3: values[5]?.trim() || '',
+                                  complication4: values[6]?.trim() || ''
+                                });
+                              }
+                            }
+                            // Add surgeries to database
+                            surgeries.forEach(async (surgery) => {
+                              await handleAddCGHSSurgery(surgery);
+                            });
+                            alert(`${surgeries.length} CGHS surgeries imported successfully!`);
+                          }
+                        };
+                        reader.readAsText(file);
+                      }
+                    };
+                    input.click();
+                  }}
+                  className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-md border-2 border-blue-600 shadow-lg hover:bg-blue-600 hover:border-blue-700 active:bg-blue-700 active:shadow-inner active:transform active:translate-y-0.5 transition-all duration-150 font-medium text-sm"
+                  style={{
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                  }}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload Excel/CSV
+                </button>
                 <Button
                   onClick={() => setShowAddCGHSSurgery(true)}
-                  className="ml-auto"
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 font-medium"
                 >
                   <PlusCircle className="mr-2 h-4 w-4" />
-                  Add CGHS Surgery
+                  ➕ Add CGHS Surgery
                 </Button>
-                <input
-                  type="text"
-                  placeholder="Search by name..."
-                  value={searchCGHS}
-                  onChange={e => { setSearchCGHS(e.target.value); setCGHSPage(1); }}
-                  className="ml-4 p-2 border rounded w-64"
-                />
+                <div className="relative ml-auto">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="🔍 Search by name..."
+                    value={searchCGHS}
+                    onChange={e => { setSearchCGHS(e.target.value); setCGHSPage(1); }}
+                    className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg w-64 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-200 text-sm"
+                  />
+                </div>
               </div>
             </div>
             <div className="rounded-md border overflow-hidden">

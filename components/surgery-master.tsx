@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { 
   Card, 
@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
-import { PlusCircle, Pencil, Trash2, Search } from "lucide-react"
+import { PlusCircle, Pencil, Trash2, Search, Upload, AlertCircle } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -35,6 +35,11 @@ import {
   TabsList,
   TabsTrigger
 } from "@/components/ui/tabs"
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert"
 
 import { createClient } from '@supabase/supabase-js'
 import UserAddForm from "@/components/user-add-form"
@@ -121,8 +126,11 @@ export function SurgeryMaster() {
   const [activeTab, setActiveTab] = useState("cghs");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [currentSurgery, setCurrentSurgery] = useState<Surgery | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [importError, setImportError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchSurgeries();
@@ -498,6 +506,211 @@ export function SurgeryMaster() {
     }
   };
 
+  // CSV parsing function
+  const parseCSV = (csvText: string) => {
+    const lines = csvText.trim().split('\n');
+    if (lines.length < 2) return [];
+
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    const surgeries = [];
+
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(',');
+      if (values.length < 2) continue;
+
+      const surgery: any = {};
+      headers.forEach((header, index) => {
+        if (values[index]) {
+          surgery[header] = values[index].trim();
+        }
+      });
+
+      // Validate required fields based on active tab
+      if (activeTab === "cghs") {
+        if (surgery.name && surgery.cghs_code && surgery.package_amount) {
+          surgeries.push({
+            name: surgery.name,
+            cghsCode: surgery.cghs_code,
+            packageAmount: Number(surgery.package_amount) || 0,
+            description: surgery.description || "",
+            approved: (surgery.approved || "").toLowerCase() === 'true',
+            complication1: surgery.complication1 || "none",
+            complication2: surgery.complication2 || "none",
+            complication3: surgery.complication3 || "none",
+            complication4: surgery.complication4 || "none",
+            surgeryType: 'cghs' as const
+          });
+        }
+      } else if (activeTab === "yojna") {
+        if (surgery.name && surgery.yojna_code && surgery.package_amount) {
+          surgeries.push({
+            name: surgery.name,
+            yojnaCode: surgery.yojna_code,
+            yojnaName: surgery.yojna_name || "",
+            packageAmount: Number(surgery.package_amount) || 0,
+            description: surgery.description || "",
+            approved: (surgery.approved || "").toLowerCase() === 'true',
+            complication1: surgery.complication1 || "none",
+            complication2: surgery.complication2 || "none",
+            complication3: surgery.complication3 || "none",
+            complication4: surgery.complication4 || "none",
+            surgeryType: 'yojna' as const
+          });
+        }
+      } else if (activeTab === "private") {
+        if (surgery.name && surgery.package_amount) {
+          surgeries.push({
+            name: surgery.name,
+            hospitalCode: surgery.hospital_code || "",
+            packageAmount: Number(surgery.package_amount) || 0,
+            description: surgery.description || "",
+            approved: (surgery.approved || "").toLowerCase() === 'true',
+            complication1: surgery.complication1 || "none",
+            complication2: surgery.complication2 || "none",
+            complication3: surgery.complication3 || "none",
+            complication4: surgery.complication4 || "none",
+            surgeryType: 'private' as const
+          });
+        }
+      }
+    }
+
+    return surgeries;
+  };
+
+  const handleImportClick = () => {
+    setImportError(null);
+    setIsImportDialogOpen(true);
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const csvData = e.target?.result as string;
+        const importedData = parseCSV(csvData);
+        
+        if (importedData.length === 0) {
+          setImportError("No valid data found in the CSV file");
+          return;
+        }
+
+        // Insert surgeries into database
+        const surgeriesToInsert = importedData.map((surgery: any) => {
+          const baseData = {
+            name: surgery.name,
+            description: surgery.description,
+            package_amount: surgery.packageAmount,
+            approved: surgery.approved,
+            surgery_type: surgery.surgeryType,
+            complication1: surgery.complication1,
+            complication2: surgery.complication2,
+            complication3: surgery.complication3,
+            complication4: surgery.complication4
+          };
+
+          if (surgery.surgeryType === 'cghs') {
+            return { ...baseData, cghs_code: surgery.cghsCode };
+          } else if (surgery.surgeryType === 'yojna') {
+            return { 
+              ...baseData, 
+              yojna_code: surgery.yojnaCode,
+              yojna_name: surgery.yojnaName 
+            };
+          } else {
+            return { ...baseData, hospital_code: surgery.hospitalCode };
+          }
+        });
+
+        const { data, error } = await supabase
+          .from('surgeries')
+          .insert(surgeriesToInsert)
+          .select();
+
+        if (error) {
+          setImportError(`Failed to import surgeries: ${error.message}`);
+          return;
+        }
+
+        if (data) {
+          // Update the appropriate state
+          if (activeTab === "cghs") {
+            const newSurgeries = data.map(s => ({
+              id: s.id,
+              name: s.name,
+              description: s.description,
+              packageAmount: Number(s.package_amount),
+              created_at: s.created_at,
+              approved: s.approved,
+              cghsCode: s.cghs_code || "",
+              surgeryType: 'cghs' as const,
+              complication1: s.complication1 || "none",
+              complication2: s.complication2 || "none",
+              complication3: s.complication3 || "none",
+              complication4: s.complication4 || "none"
+            }));
+            setCGHSSurgeries(prev => [...prev, ...newSurgeries].sort((a, b) => a.name.localeCompare(b.name)));
+          } else if (activeTab === "yojna") {
+            const newSurgeries = data.map(s => ({
+              id: s.id,
+              name: s.name,
+              description: s.description,
+              packageAmount: Number(s.package_amount),
+              created_at: s.created_at,
+              approved: s.approved,
+              yojnaCode: s.yojna_code || "",
+              yojnaName: s.yojna_name || "",
+              surgeryType: 'yojna' as const,
+              complication1: s.complication1 || "none",
+              complication2: s.complication2 || "none",
+              complication3: s.complication3 || "none",
+              complication4: s.complication4 || "none"
+            }));
+            setYojnaSurgeries(prev => [...prev, ...newSurgeries].sort((a, b) => a.name.localeCompare(b.name)));
+          } else {
+            const newSurgeries = data.map(s => ({
+              id: s.id,
+              name: s.name,
+              description: s.description,
+              packageAmount: Number(s.package_amount),
+              created_at: s.created_at,
+              approved: s.approved,
+              hospitalCode: s.hospital_code,
+              surgeryType: 'private' as const,
+              complication1: s.complication1 || "none",
+              complication2: s.complication2 || "none",
+              complication3: s.complication3 || "none",
+              complication4: s.complication4 || "none"
+            }));
+            setPrivateSurgeries(prev => [...prev, ...newSurgeries].sort((a, b) => a.name.localeCompare(b.name)));
+          }
+        }
+
+        setIsImportDialogOpen(false);
+        
+        toast({
+          title: "Import Successful",
+          description: `${importedData.length} surgeries were imported to ${activeTab.toUpperCase()}.`,
+        });
+
+        // Reset file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      } catch (error) {
+        console.error("Import error:", error);
+        setImportError("Failed to parse CSV file. Please check the format.");
+      }
+    };
+    reader.onerror = () => {
+      setImportError("Failed to read the file");
+    };
+    reader.readAsText(file);
+  };
+
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen"><div>Loading surgeries...</div></div>;
   }
@@ -517,6 +730,15 @@ export function SurgeryMaster() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+          
+          <Button 
+            variant="outline" 
+            onClick={handleImportClick}
+            className="w-full sm:w-auto"
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            Import CSV
+          </Button>
           
           <Button onClick={handleAddSurgery} className="w-full sm:w-auto">
             <PlusCircle className="mr-2 h-4 w-4" />
@@ -1022,6 +1244,83 @@ export function SurgeryMaster() {
             </Button>
             <Button onClick={isAddDialogOpen ? handleSaveNewSurgery : handleUpdateSurgery}>
               {isAddDialogOpen ? "Add Surgery" : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Import CSV Dialog */}
+      <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Import {activeTab.toUpperCase()} Surgeries</DialogTitle>
+            <DialogDescription>
+              Upload a CSV file with {activeTab} surgeries to import. The CSV file should have the required columns for {activeTab} surgery type.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            {importError && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{importError}</AlertDescription>
+              </Alert>
+            )}
+            
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+              <Input
+                type="file"
+                accept=".csv"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="hidden"
+                id="csv-upload-surgery"
+              />
+              <label 
+                htmlFor="csv-upload-surgery"
+                className="cursor-pointer flex flex-col items-center justify-center gap-2"
+              >
+                <Upload className="h-8 w-8 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">Click to upload a CSV file</p>
+                <p className="text-xs text-muted-foreground">
+                  Upload {activeTab} surgeries with the required format
+                </p>
+              </label>
+            </div>
+            
+            <div className="bg-muted/50 rounded-lg p-4 mt-4">
+              <h4 className="font-medium mb-2">CSV Format for {activeTab.toUpperCase()}:</h4>
+              {activeTab === "cghs" && (
+                <pre className="text-xs overflow-x-auto">
+                  name,cghs_code,package_amount,description,approved,complication1,complication2,complication3,complication4<br/>
+                  Appendectomy,CGHS-001,25000,Removal of appendix,true,Infection,Bleeding,none,none<br/>
+                  Gallbladder Surgery,CGHS-002,45000,Laparoscopic cholecystectomy,true,Infection,Bleeding,Bile Leak,none
+                </pre>
+              )}
+              {activeTab === "yojna" && (
+                <pre className="text-xs overflow-x-auto">
+                  name,yojna_name,yojna_code,package_amount,description,approved,complication1,complication2,complication3,complication4<br/>
+                  Heart Surgery,Ayushman Bharat,AB-001,150000,Cardiac bypass surgery,true,Infection,Bleeding,Heart Failure,none<br/>
+                  Kidney Surgery,PMJAY,PM-002,85000,Kidney transplant,true,Infection,Rejection,Bleeding,none
+                </pre>
+              )}
+              {activeTab === "private" && (
+                <pre className="text-xs overflow-x-auto">
+                  name,hospital_code,package_amount,description,approved,complication1,complication2,complication3,complication4<br/>
+                  Cosmetic Surgery,HOSP-001,75000,Plastic surgery procedure,true,Infection,Scarring,none,none<br/>
+                  Dental Implant,HOSP-002,15000,Single tooth implant,true,Infection,Implant Failure,none,none
+                </pre>
+              )}
+              <p className="text-xs text-muted-foreground mt-2">
+                <strong>Note:</strong> approved should be 'true' or 'false', complication fields can be 'none' if not applicable
+              </p>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsImportDialogOpen(false)}>
+              Cancel
             </Button>
           </DialogFooter>
         </DialogContent>
