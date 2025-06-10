@@ -405,7 +405,7 @@ export default function Home() {
   useEffect(() => {
     const fetchRadiology = async () => {
       let query = supabase
-        .from('radiology')
+        .from('investigations')
         .select('*', { count: 'exact' })
         .order('code')
         .range((page - 1) * pageSize, page * pageSize - 1);
@@ -415,8 +415,16 @@ export default function Home() {
       }
 
       const { data, error, count } = await query;
-      if (!error) {
-        setRadiology(data || []);
+      if (!error && data) {
+        // Transform data to match RadiologyTest interface
+        const radiologyData = data.map(item => ({
+          id: item.id,
+          name: item.name,
+          cost: item.rate?.toString() || '0',
+          code: item.code || '',
+          non_nabh_cost: ''
+        }));
+        setRadiology(radiologyData);
         setTotalRows(count || 0);
       }
     };
@@ -2459,11 +2467,10 @@ export default function Home() {
                                 const testData = {
                                   name: values[0]?.trim() || '',
                                   code: values[1]?.trim() || '',
-                                  cost: values[2]?.trim() || '',
-                                  non_nabh_cost: values[3]?.trim() || ''
+                                  rate: values[2]?.trim() || ''
                                 };
                                 
-                                if (testData.name && testData.code && testData.cost) {
+                                if (testData.name && testData.code && testData.rate) {
                                   tests.push(testData);
                                 }
                               }
@@ -2497,8 +2504,7 @@ export default function Home() {
                                 const investigationData = {
                                   name: test.name,
                                   code: test.code,
-                                  rate: parseFloat(test.cost || '0'),
-                                  non_nabh_cost: test.non_nabh_cost || ''
+                                  rate: parseFloat(test.rate || '0')
                                 };
 
                                 const { error } = await supabase
@@ -2542,9 +2548,9 @@ export default function Home() {
                                 const radiologyData = newTests.map(item => ({
                                   id: item.id,
                                   name: item.name,
-                                  cost: item.rate?.toString() || item.cost?.toString() || '0',
+                                  cost: item.rate?.toString() || '0',
                                   code: item.code,
-                                  non_nabh_cost: item.non_nabh_cost || ''
+                                  non_nabh_cost: ''
                                 }));
                                 setRadiology(radiologyData);
                               }
