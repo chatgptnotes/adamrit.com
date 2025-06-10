@@ -1,0 +1,9 @@
+name,code,cost,non_nabh_cost
+X-Ray Chest PA,R-001,300,250
+CT Scan Head,R-002,1500,1200
+MRI Brain,R-003,4500,4000
+Ultrasound Abdomen,R-004,800,700
+CT Scan Abdomen,R-005,2000,1800
+X-Ray KUB,R-006,250,200
+Mammography,R-007,1200,1000
+CECT Thorax,R-008,2500,2200

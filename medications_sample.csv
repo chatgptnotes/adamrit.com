@@ -1,0 +1,12 @@
+name,type,cost,speciality,non_nabh_cost
+Paracetamol 500mg,Tablet,50,General Medicine,45
+Amoxicillin 250mg,Capsule,120,Antibiotic,100
+Ibuprofen 400mg,Tablet,80,Pain Relief,70
+Metformin 500mg,Tablet,150,Diabetes,130
+Omeprazole 20mg,Capsule,200,Gastroenterology,180
+Atorvastatin 10mg,Tablet,300,Cardiology,250
+Amlodipine 5mg,Tablet,90,Hypertension,80
+Cephalexin 500mg,Capsule,180,Antibiotic,160
+Diclofenac 50mg,Tablet,60,Pain Relief,50
+Insulin Glargine,Injection,800,Diabetes,720 
+poonam,Injection,800,Diabetes,720 

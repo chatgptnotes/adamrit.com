@@ -251,6 +251,7 @@ export default function Home() {
   ])
   const [doctors, setDoctors] = useState<Doctor[]>([])
   const [showAddDoctor, setShowAddDoctor] = useState(false)
+  const [editDoctor, setEditDoctor] = useState<Doctor | null>(null)
   const router = useRouter()
   const [searchValue, setSearchValue] = useState("")
   const [searchResults, setSearchResults] = useState<Array<{ id: string; name: string; unique_id: string }>>([])
@@ -1809,13 +1810,13 @@ export default function Home() {
                 </Button>
                 <div className="relative ml-auto">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <input
-                    type="text"
+                <input
+                  type="text"
                     placeholder="🔍 Search by name..."
-                    value={searchCGHS}
-                    onChange={e => { setSearchCGHS(e.target.value); setCGHSPage(1); }}
+                  value={searchCGHS}
+                  onChange={e => { setSearchCGHS(e.target.value); setCGHSPage(1); }}
                     className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg w-64 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-200 text-sm"
-                  />
+                />
                 </div>
               </div>
             </div>
@@ -2419,7 +2420,177 @@ export default function Home() {
           <div className="p-4">
             <div className="border rounded-lg p-4">
               <h3 className="text-lg font-medium mb-4">Radiology Master</h3>
-              <div className="mb-4 flex items-center gap-2">
+              <div className="mb-4 flex items-center gap-3">
+                <button
+                  onClick={async (clickEvent) => {
+                    // Store reference to the button that was clicked
+                    const buttonElement = clickEvent.currentTarget as HTMLButtonElement;
+                    const originalText = buttonElement.textContent;
+                    
+                    // Create file input for CSV upload
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.csv';
+                    input.onchange = async (e: any) => {
+                      const file = e.target?.files?.[0];
+                      if (!file) return;
+
+                      try {
+                        const reader = new FileReader();
+                        reader.onload = async (event) => {
+                          try {
+                            const csvText = event.target?.result as string;
+                            const lines = csvText.trim().split('\n');
+                            
+                            if (lines.length < 2) {
+                              alert('CSV file must contain at least one data row after the header');
+                              return;
+                            }
+
+                            const tests = [];
+                            let successCount = 0;
+                            let errorCount = 0;
+                            const errors = [];
+
+                            // Parse CSV data
+                            for (let i = 1; i < lines.length; i++) {
+                              const values = lines[i].split(',');
+                              if (values.length >= 3) {
+                                const testData = {
+                                  name: values[0]?.trim() || '',
+                                  code: values[1]?.trim() || '',
+                                  cost: values[2]?.trim() || '',
+                                  non_nabh_cost: values[3]?.trim() || ''
+                                };
+                                
+                                if (testData.name && testData.code && testData.cost) {
+                                  tests.push(testData);
+                                }
+                              }
+                            }
+
+                            if (tests.length === 0) {
+                              alert('No valid test data found in CSV file');
+                              return;
+                            }
+
+                            // Show progress using the stored button reference
+                            buttonElement.textContent = 'Importing...';
+                            buttonElement.disabled = true;
+
+                            // Add tests one by one with error handling
+                            for (const test of tests) {
+                              try {
+                                // Check if code already exists
+                                const { data: existingTests } = await supabase
+                                  .from('investigations')
+                                  .select('code')
+                                  .eq('code', test.code);
+
+                                if (existingTests && existingTests.length > 0) {
+                                  // Skip duplicate, but don't count as error
+                                  console.log(`Skipping duplicate code: ${test.code}`);
+                                  continue;
+                                }
+
+                                // Transform data for investigations table
+                                const investigationData = {
+                                  name: test.name,
+                                  code: test.code,
+                                  rate: parseFloat(test.cost || '0'),
+                                  non_nabh_cost: test.non_nabh_cost || ''
+                                };
+
+                                const { error } = await supabase
+                                  .from('investigations')
+                                  .insert([investigationData]);
+
+                                if (error) {
+                                  errorCount++;
+                                  errors.push(`${test.name}: ${error.message}`);
+                                } else {
+                                  successCount++;
+                                }
+                              } catch (err: any) {
+                                errorCount++;
+                                errors.push(`${test.name}: ${err.message || 'Unknown error'}`);
+                              }
+                            }
+
+                            // Reset button
+                            buttonElement.textContent = originalText;
+                            buttonElement.disabled = false;
+
+                            // Refresh the radiology list - try both 'radiology' and 'investigations' table
+                            try {
+                              // First try 'radiology' table
+                              let { data: newTests } = await supabase
+                                .from('radiology')
+                                .select('*')
+                                .order('code');
+                              
+                              if (!newTests || newTests.length === 0) {
+                                // If no data in radiology table, try investigations table
+                                const { data: investigationTests } = await supabase
+                                  .from('investigations')
+                                  .select('*')
+                                  .order('code');
+                                newTests = investigationTests;
+                              }
+                              
+                              if (newTests) {
+                                const radiologyData = newTests.map(item => ({
+                                  id: item.id,
+                                  name: item.name,
+                                  cost: item.rate?.toString() || item.cost?.toString() || '0',
+                                  code: item.code,
+                                  non_nabh_cost: item.non_nabh_cost || ''
+                                }));
+                                setRadiology(radiologyData);
+                              }
+                            } catch (refreshError) {
+                              console.error('Error refreshing radiology data:', refreshError);
+                            }
+
+                            // Show results
+                            let message = `Import Complete!\n`;
+                            message += `✅ Successfully imported: ${successCount} tests\n`;
+                            if (errorCount > 0) {
+                              message += `❌ Failed to import: ${errorCount} tests\n`;
+                              if (errors.length > 0) {
+                                message += `\nErrors:\n${errors.slice(0, 5).join('\n')}`;
+                                if (errors.length > 5) {
+                                  message += `\n... and ${errors.length - 5} more errors`;
+                                }
+                              }
+                            }
+                            alert(message);
+
+                          } catch (error: any) {
+                            // Reset button on error
+                            buttonElement.textContent = originalText;
+                            buttonElement.disabled = false;
+                            alert('Error processing CSV file: ' + error.message);
+                          }
+                        };
+                        reader.readAsText(file);
+                      } catch (error: any) {
+                        // Reset button on error
+                        buttonElement.textContent = originalText;
+                        buttonElement.disabled = false;
+                        alert('Error reading file: ' + error.message);
+                      }
+                    };
+                    input.click();
+                  }}
+                  className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-md border-2 border-blue-600 shadow-lg hover:bg-blue-600 hover:border-blue-700 active:bg-blue-700 active:shadow-inner active:transform active:translate-y-0.5 transition-all duration-150 font-medium text-sm"
+                  style={{
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                  }}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload Excel/CSV
+                </button>
                 <button className="bg-green-500 text-white px-3 py-1 rounded" onClick={() => setShowAddRadiology(true)}>+ Add More</button>
                 <input
                   type="text"
@@ -2527,7 +2698,141 @@ export default function Home() {
           <div className="p-4">
             <div className="border rounded-lg p-4">
               <h3 className="text-lg font-medium mb-4">Lab Master</h3>
-              <div className="mb-4 flex items-center gap-2">
+              <div className="mb-4 flex items-center gap-3">
+                <button
+                  onClick={async (clickEvent) => {
+                    // Store reference to the button that was clicked
+                    const buttonElement = clickEvent.currentTarget as HTMLButtonElement;
+                    const originalText = buttonElement.textContent;
+                    
+                    // Create file input for CSV upload
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.csv';
+                    input.onchange = async (e: any) => {
+                      const file = e.target?.files?.[0];
+                      if (!file) return;
+
+                      try {
+                        const reader = new FileReader();
+                        reader.onload = async (event) => {
+                          try {
+                            const csvText = event.target?.result as string;
+                            const lines = csvText.trim().split('\n');
+                            
+                            if (lines.length < 2) {
+                              alert('CSV file must contain at least one data row after the header');
+                              return;
+                            }
+
+                            const tests = [];
+                            let successCount = 0;
+                            let errorCount = 0;
+                            const errors = [];
+
+                            // Parse CSV data
+                            for (let i = 1; i < lines.length; i++) {
+                              const values = lines[i].split(',');
+                              if (values.length >= 3) {
+                                const testData = {
+                                  name: values[0]?.trim() || '',
+                                  cost: values[1]?.trim() || '',
+                                  code: values[2]?.trim() || ''
+                                };
+                                
+                                if (testData.name && testData.cost && testData.code) {
+                                  tests.push(testData);
+                                }
+                              }
+                            }
+
+                            if (tests.length === 0) {
+                              alert('No valid test data found in CSV file');
+                              return;
+                            }
+
+                            // Show progress using the stored button reference
+                            buttonElement.textContent = 'Importing...';
+                            buttonElement.disabled = true;
+
+                            // Add tests one by one with error handling
+                            for (const test of tests) {
+                              try {
+                                // Check if code already exists
+                                const { data: existingTests } = await supabase
+                                  .from('lab')
+                                  .select('code')
+                                  .eq('code', test.code);
+
+                                if (existingTests && existingTests.length > 0) {
+                                  // Skip duplicate, but don't count as error
+                                  console.log(`Skipping duplicate code: ${test.code}`);
+                                  continue;
+                                }
+
+                                const { error } = await supabase
+                                  .from('lab')
+                                  .insert([test]);
+
+                                if (error) {
+                                  errorCount++;
+                                  errors.push(`${test.name}: ${error.message}`);
+                                } else {
+                                  successCount++;
+                                }
+                              } catch (err: any) {
+                                errorCount++;
+                                errors.push(`${test.name}: ${err.message || 'Unknown error'}`);
+                              }
+                            }
+
+                            // Reset button
+                            buttonElement.textContent = originalText;
+                            buttonElement.disabled = false;
+
+                            // Refresh the lab list
+                            const { data: newTests } = await supabase.from('lab').select('*');
+                            setLab((newTests as LabTest[]) || []);
+
+                            // Show results
+                            let message = `Import Complete!\n`;
+                            message += `✅ Successfully imported: ${successCount} tests\n`;
+                            if (errorCount > 0) {
+                              message += `❌ Failed to import: ${errorCount} tests\n`;
+                              if (errors.length > 0) {
+                                message += `\nErrors:\n${errors.slice(0, 5).join('\n')}`;
+                                if (errors.length > 5) {
+                                  message += `\n... and ${errors.length - 5} more errors`;
+                                }
+                              }
+                            }
+                            alert(message);
+
+                          } catch (error: any) {
+                            // Reset button on error
+                            buttonElement.textContent = originalText;
+                            buttonElement.disabled = false;
+                            alert('Error processing CSV file: ' + error.message);
+                          }
+                        };
+                        reader.readAsText(file);
+                      } catch (error: any) {
+                        // Reset button on error
+                        buttonElement.textContent = originalText;
+                        buttonElement.disabled = false;
+                        alert('Error reading file: ' + error.message);
+                      }
+                    };
+                    input.click();
+                  }}
+                  className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-md border-2 border-blue-600 shadow-lg hover:bg-blue-600 hover:border-blue-700 active:bg-blue-700 active:shadow-inner active:transform active:translate-y-0.5 transition-all duration-150 font-medium text-sm"
+                  style={{
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                  }}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload Excel/CSV
+                </button>
                 <button className="bg-green-500 text-white px-3 py-1 rounded" onClick={() => setShowAddLab(true)}>+ Add More</button>
                 <input
                   type="text"
@@ -2671,11 +2976,133 @@ export default function Home() {
           <div className="p-4">
             <div className="border rounded-lg p-4">
               <h3 className="text-lg font-medium mb-4">Medications Master</h3>
-              <div className="mb-4 flex items-center gap-2">
-                <label htmlFor="medications-upload" className="bg-blue-500 text-white px-3 py-1 rounded cursor-pointer">Upload Excel/CSV</label>
-                <input id="medications-upload" type="file" accept=".csv,.xls,.xlsx" className="hidden" />
+              <div className="mb-4 flex items-center gap-3">
                 <button
-                  className="bg-green-500 text-white px-3 py-1 rounded ml-2"
+                  onClick={async (clickEvent) => {
+                    // Store reference to the button that was clicked
+                    const buttonElement = clickEvent.currentTarget as HTMLButtonElement;
+                    const originalText = buttonElement.textContent;
+                    
+                    // Create file input for CSV upload
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.csv';
+                    input.onchange = async (e: any) => {
+                      const file = e.target?.files?.[0];
+                      if (!file) return;
+
+                      try {
+                        const reader = new FileReader();
+                        reader.onload = async (event) => {
+                          try {
+                            const csvText = event.target?.result as string;
+                            const lines = csvText.trim().split('\n');
+                            
+                            if (lines.length < 2) {
+                              alert('CSV file must contain at least one data row after the header');
+                              return;
+                            }
+
+                            const medications = [];
+                            let successCount = 0;
+                            let errorCount = 0;
+                            const errors = [];
+
+                            // Parse CSV data
+                            for (let i = 1; i < lines.length; i++) {
+                              const values = lines[i].split(',');
+                              if (values.length >= 4) {
+                                const medicationData = {
+                                  name: values[0]?.trim() || '',
+                                  type: values[1]?.trim() || '',
+                                  cost: values[2]?.trim() || '',
+                                  speciality: values[3]?.trim() || '',
+                                  non_nabh_cost: values[4]?.trim() || ''
+                                };
+                                
+                                if (medicationData.name && medicationData.type && medicationData.cost) {
+                                  medications.push(medicationData);
+                                }
+                              }
+                            }
+
+                            if (medications.length === 0) {
+                              alert('No valid medication data found in CSV file');
+                              return;
+                            }
+
+                            // Show progress using the stored button reference
+                            buttonElement.textContent = 'Importing...';
+                            buttonElement.disabled = true;
+
+                            // Add medications one by one with error handling
+                            for (const medication of medications) {
+                              try {
+                                const { error } = await supabase
+                                  .from('medications')
+                                  .insert([medication]);
+
+                                if (error) {
+                                  errorCount++;
+                                  errors.push(`${medication.name}: ${error.message}`);
+                                } else {
+                                  successCount++;
+                                }
+                              } catch (err: any) {
+                                errorCount++;
+                                errors.push(`${medication.name}: ${err.message || 'Unknown error'}`);
+                              }
+                            }
+
+                            // Reset button
+                            buttonElement.textContent = originalText;
+                            buttonElement.disabled = false;
+
+                            // Refresh the medications list
+                            const { data: newMedications } = await supabase.from('medications').select('*');
+                            setMedications((newMedications as Medication[]) || []);
+
+                            // Show results
+                            let message = `Import Complete!\n`;
+                            message += `✅ Successfully imported: ${successCount} medications\n`;
+                            if (errorCount > 0) {
+                              message += `❌ Failed to import: ${errorCount} medications\n`;
+                              if (errors.length > 0) {
+                                message += `\nErrors:\n${errors.slice(0, 5).join('\n')}`;
+                                if (errors.length > 5) {
+                                  message += `\n... and ${errors.length - 5} more errors`;
+                                }
+                              }
+                            }
+                            alert(message);
+
+                          } catch (error: any) {
+                            // Reset button on error
+                            buttonElement.textContent = originalText;
+                            buttonElement.disabled = false;
+                            alert('Error processing CSV file: ' + error.message);
+                          }
+                        };
+                        reader.readAsText(file);
+                      } catch (error: any) {
+                        // Reset button on error
+                        buttonElement.textContent = originalText;
+                        buttonElement.disabled = false;
+                        alert('Error reading file: ' + error.message);
+                      }
+                    };
+                    input.click();
+                  }}
+                  className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-md border-2 border-blue-600 shadow-lg hover:bg-blue-600 hover:border-blue-700 active:bg-blue-700 active:shadow-inner active:transform active:translate-y-0.5 transition-all duration-150 font-medium text-sm"
+                  style={{
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                  }}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload Excel/CSV
+                </button>
+                <button
+                  className="bg-green-500 text-white px-3 py-1 rounded"
                   onClick={() => setShowAddMedication(true)}
                 >
                   + Add More
@@ -2705,14 +3132,13 @@ export default function Home() {
                       <td className="border px-2 py-1">{med.name}</td>
                       <td className="border px-2 py-1">{med.type}</td>
                       <td className="border px-2 py-1">{med.cost}</td>
-                      <td className="border px-2 py-1">{med.speciality}</td>
-                      <td className="border px-2 py-1">{med.non_nabh_cost}</td>
                       <td className="border px-2 py-1 flex gap-2">
                         <button title="View">👁</button>
                         <button title="Edit" onClick={() => setEditMedication(med)}>✏</button>
                         <button title="Delete" onClick={() => handleDeleteMedication(med.id)}>🗑</button>
                       </td>
-                      
+                      <td className="border px-2 py-1">{med.speciality}</td>
+                      <td className="border px-2 py-1">{med.non_nabh_cost}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -2755,11 +3181,31 @@ export default function Home() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr><td className="border px-2 py-1">Nurse Anjali</td><td className="border px-2 py-1">₹500</td><td className="border px-2 py-1">MS001</td></tr>
-                  <tr><td className="border px-2 py-1">Technician Ravi</td><td className="border px-2 py-1">₹600</td><td className="border px-2 py-1">MS002</td></tr>
-                  <tr><td className="border px-2 py-1">Ward Boy Suresh</td><td className="border px-2 py-1">₹400</td><td className="border px-2 py-1">MS003</td></tr>
-                  <tr><td className="border px-2 py-1">Receptionist Meena</td><td className="border px-2 py-1">₹450</td><td className="border px-2 py-1">MS004</td></tr>
-                  <tr><td className="border px-2 py-1">Pharmacist Ritu</td><td className="border px-2 py-1">₹550</td><td className="border px-2 py-1">MS005</td></tr>
+                  <tr>
+                    <td className="border px-2 py-1">Nurse Anjali</td>
+                    <td className="border px-2 py-1">₹500</td>
+                    <td className="border px-2 py-1">MS001</td>
+                  </tr>
+                  <tr>
+                    <td className="border px-2 py-1">Technician Ravi</td>
+                    <td className="border px-2 py-1">₹600</td>
+                    <td className="border px-2 py-1">MS002</td>
+                  </tr>
+                  <tr>
+                    <td className="border px-2 py-1">Ward Boy Suresh</td>
+                    <td className="border px-2 py-1">₹400</td>
+                    <td className="border px-2 py-1">MS003</td>
+                  </tr>
+                  <tr>
+                    <td className="border px-2 py-1">Receptionist Meena</td>
+                    <td className="border px-2 py-1">₹450</td>
+                    <td className="border px-2 py-1">MS004</td>
+                  </tr>
+                  <tr>
+                    <td className="border px-2 py-1">Pharmacist Ritu</td>
+                    <td className="border px-2 py-1">₹550</td>
+                    <td className="border px-2 py-1">MS005</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -2794,6 +3240,135 @@ export default function Home() {
             <div className="border rounded-lg p-4">
               <h3 className="text-lg font-medium mb-4">Doctor Master</h3>
               <div className="mb-4 flex items-center gap-2">
+                <button
+                  onClick={async (clickEvent) => {
+                    // Store reference to the button that was clicked
+                    const buttonElement = clickEvent.currentTarget as HTMLButtonElement;
+                    const originalText = buttonElement.textContent;
+                    
+                    // Create file input for CSV upload
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.csv';
+                    input.onchange = async (e: any) => {
+                      const file = e.target?.files?.[0];
+                      if (!file) return;
+
+                      try {
+                        const reader = new FileReader();
+                        reader.onload = async (event) => {
+                          try {
+                            const csvText = event.target?.result as string;
+                            const lines = csvText.trim().split('\n');
+                            
+                            if (lines.length < 2) {
+                              alert('CSV file must contain at least one data row after the header');
+                              return;
+                            }
+
+                            const doctorsData = [];
+                            let successCount = 0;
+                            let errorCount = 0;
+                            const errors = [];
+
+                            // Parse CSV data (expected format: name,degree,specialization,is_referring,is_anaesthetist,is_surgeon,is_radiologist,is_pathologist,is_physician,other_speciality)
+                            for (let i = 1; i < lines.length; i++) {
+                              const values = lines[i].split(',');
+                              if (values.length >= 3) {
+                                const doctorData = {
+                                  name: values[0]?.trim() || '',
+                                  degree: values[1]?.trim() || '',
+                                  specialization: values[2]?.trim() || '',
+                                  is_referring: values[3]?.trim().toLowerCase() === 'true' || values[3]?.trim().toLowerCase() === 'yes',
+                                  is_anaesthetist: values[4]?.trim().toLowerCase() === 'true' || values[4]?.trim().toLowerCase() === 'yes',
+                                  is_surgeon: values[5]?.trim().toLowerCase() === 'true' || values[5]?.trim().toLowerCase() === 'yes',
+                                  is_radiologist: values[6]?.trim().toLowerCase() === 'true' || values[6]?.trim().toLowerCase() === 'yes',
+                                  is_pathologist: values[7]?.trim().toLowerCase() === 'true' || values[7]?.trim().toLowerCase() === 'yes',
+                                  is_physician: values[8]?.trim().toLowerCase() === 'true' || values[8]?.trim().toLowerCase() === 'yes',
+                                  other_speciality: values[9]?.trim() || ''
+                                };
+                                
+                                if (doctorData.name && doctorData.degree && doctorData.specialization) {
+                                  doctorsData.push(doctorData);
+                                }
+                              }
+                            }
+
+                            if (doctorsData.length === 0) {
+                              alert('No valid doctor data found in CSV file');
+                              return;
+                            }
+
+                            // Show progress using the stored button reference
+                            buttonElement.textContent = 'Importing...';
+                            buttonElement.disabled = true;
+
+                            // Add doctors one by one with error handling
+                            for (const doctor of doctorsData) {
+                              try {
+                                const { error } = await supabase
+                                  .from('doctor')
+                                  .insert([doctor]);
+
+                                if (error) {
+                                  errorCount++;
+                                  errors.push(`${doctor.name}: ${error.message}`);
+                                } else {
+                                  successCount++;
+                                }
+                              } catch (err: any) {
+                                errorCount++;
+                                errors.push(`${doctor.name}: ${err.message || 'Unknown error'}`);
+                              }
+                            }
+
+                            // Reset button
+                            buttonElement.textContent = originalText;
+                            buttonElement.disabled = false;
+
+                            // Refresh the doctors list
+                            const { data: newDoctors } = await supabase.from('doctor').select('*');
+                            setDoctors((newDoctors as Doctor[]) || []);
+
+                            // Show results
+                            let message = `Import Complete!\n`;
+                            message += `✅ Successfully imported: ${successCount} doctors\n`;
+                            if (errorCount > 0) {
+                              message += `❌ Failed to import: ${errorCount} doctors\n`;
+                              if (errors.length > 0) {
+                                message += `\nErrors:\n${errors.slice(0, 5).join('\n')}`;
+                                if (errors.length > 5) {
+                                  message += `\n... and ${errors.length - 5} more errors`;
+                                }
+                              }
+                            }
+                            alert(message);
+
+                          } catch (error: any) {
+                            // Reset button on error
+                            buttonElement.textContent = originalText;
+                            buttonElement.disabled = false;
+                            alert('Error processing CSV file: ' + error.message);
+                          }
+                        };
+                        reader.readAsText(file);
+                      } catch (error: any) {
+                        // Reset button on error
+                        buttonElement.textContent = originalText;
+                        buttonElement.disabled = false;
+                        alert('Error reading file: ' + error.message);
+                      }
+                    };
+                    input.click();
+                  }}
+                  className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-md border-2 border-blue-600 shadow-lg hover:bg-blue-600 hover:border-blue-700 active:bg-blue-700 active:shadow-inner active:transform active:translate-y-0.5 transition-all duration-150 font-medium text-sm"
+                  style={{
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                  }}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload CSV/Excel
+                </button>
                 <button className="bg-green-500 text-white px-3 py-1 rounded" onClick={() => setShowAddDoctor(true)}>+ Add Doctor</button>
               </div>
               <div className="overflow-x-auto">
@@ -2828,7 +3403,7 @@ export default function Home() {
                         <td className="border px-2 py-1">{doc.other_speciality}</td>
                         <td className="border px-2 py-1 flex gap-2">
                           <button title="View">👁️</button>
-                          <button title="Edit" onClick={() => setEditDiagnosis(diagnosis)}>✏️</button>
+                          <button title="Edit" onClick={() => setEditDoctor(doc)}>✏️</button>
                           <button title="Delete">🗑️</button>
                         </td>
                       </tr>

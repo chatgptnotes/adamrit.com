@@ -1,0 +1,9 @@
+name,degree,specialization,is_referring,is_anaesthetist,is_surgeon,is_radiologist,is_pathologist,is_physician,other_speciality
+Dr. Rajesh Kumar,MBBS MD,Cardiology,yes,no,yes,no,no,yes,Heart Specialist
+Dr. Priya Sharma,MBBS MS,General Surgery,no,no,yes,no,no,no,Laparoscopic Surgery
+Dr. Amit Verma,MBBS MD,Radiology,yes,no,no,yes,no,no,Interventional Radiology
+Dr. Sunita Singh,MBBS MD,Pathology,yes,no,no,no,yes,no,Clinical Pathology
+Dr. Rohit Gupta,MBBS DA,Anaesthesiology,no,yes,no,no,no,no,Critical Care
+Dr. Meena Patel,MBBS MD,Internal Medicine,yes,no,no,no,no,yes,Diabetes Specialist
+Dr. Vikash Yadav,MBBS MS,Orthopedics,no,no,yes,no,no,no,Joint Replacement
+Dr. poonam Joshi,MBBS MD,Pediatrics,yes,no,no,no,no,yes,Child Specialist 
