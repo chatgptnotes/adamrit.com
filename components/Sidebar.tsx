@@ -120,78 +120,18 @@ const Sidebar = () => {
           </button>
           {!isCollapsed && openDropdowns.masters && (
             <div className="ml-4 mt-1 space-y-1">
-              <Link 
-                href="/?tab=diagnosis-master"
-                className="block px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors"
-              >
-                Diagnosis Master
-              </Link>
-              <Link 
-                href="/?tab=cghs-surgery-master"
-                className="block px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors"
-              >
-                CGHS Surgery Master
-              </Link>
-              <Link 
-                href="/?tab=yojna-surgery-master"
-                className="block px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors"
-              >
-                Yojna Surgery Master
-              </Link>
-              <Link 
-                href="/?tab=private-surgery-master"
-                className="block px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors"
-              >
-                Private Surgery Master
-              </Link>
-              <Link 
-                href="/complications"
-                className="block px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors"
-              >
-                Complication Master
-              </Link>
-              <Link 
-                href="/?tab=radiology-master"
-                className="block px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors"
-              >
-                Radiology Master
-              </Link>
-              <Link 
-                href="/?tab=lab-master"
-                className="block px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors"
-              >
-                Lab Master
-              </Link>
-              <Link 
-                href="/?tab=other-investigations-master"
-                className="block px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors"
-              >
-                Other Investigations
-              </Link>
-              <Link 
-                href="/?tab=medications-master"
-                className="block px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors"
-              >
-                Medications Master
-              </Link>
-              <Link 
-                href="/?tab=medical-staff-master"
-                className="block px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors"
-              >
-                Medical Staff
-              </Link>
-              <Link 
-                href="/?tab=doctor-master"
-                className="block px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors"
-              >
-                Doctor Master
-              </Link>
-              <Link 
-                href="/?tab=user-list"
-                className="block px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors"
-              >
-                User List
-              </Link>
+              <Link href="/?tab=diagnosis-master">Diagnosis Master</Link>
+              <Link href="/?tab=cghs-surgery-master">CGHS Surgery Master</Link>
+              <Link href="/?tab=yojna-surgery-master">Yojna Surgery Master</Link>
+              <Link href="/?tab=private-surgery-master">Private Surgery Master</Link>
+              <Link href="/?tab=complications-master">Complication Master</Link>
+              <Link href="/?tab=radiology-master">Radiology Master</Link>
+              <Link href="/?tab=lab-master">Lab Master</Link>
+              <Link href="/?tab=other-investigations-master">Other Investigations</Link>
+              <Link href="/?tab=medications-master">Medications Master</Link>
+              <Link href="/?tab=medical-staff-master">Medical Staff</Link>
+              <Link href="/?tab=doctor-master">Doctor Master</Link>
+              <Link href="/?tab=user-list">User List</Link>
             </div>
           )}
         </div>
