@@ -123,7 +123,7 @@ const TreatmentSheetPrintView: React.FC<TreatmentSheetPrintViewProps> = ({ visit
   }
 
   return (
-    <div className="bg-white p-4" style={{ fontFamily: 'Arial, sans-serif', fontSize: '12px' }}>
+    <div className="treatment-sheet-container bg-white p-4" style={{ fontFamily: 'Arial, sans-serif', fontSize: '12px' }}>
       <style>{`
         * {
           box-sizing: border-box;
@@ -183,42 +183,85 @@ const TreatmentSheetPrintView: React.FC<TreatmentSheetPrintViewProps> = ({ visit
             print-color-adjust: exact !important;
           }
 
-          body {
+          html, body {
             background: white !important;
             margin: 0 !important;
             padding: 0 !important;
+            height: auto !important;
+            overflow: visible !important;
           }
 
-          .no-print {
+          /* Hide everything that's not part of print */
+          .no-print,
+          button,
+          [role="dialog"] > :not(.print-dialog) {
             display: none !important;
+          }
+
+          /* Hide dialog overlays */
+          [data-radix-dialog-overlay] {
+            display: none !important;
+          }
+
+          /* Make dialog content behave like regular content for printing */
+          .print-dialog {
+            position: static !important;
+            transform: none !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            max-height: none !important;
+            height: auto !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: visible !important;
+          }
+
+          /* Ensure treatment sheet container is visible */
+          .treatment-sheet-container {
+            display: block !important;
+            visibility: visible !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            background: white !important;
+            padding: 10px !important;
+            margin: 0 !important;
           }
 
           .ts-header {
             page-break-after: avoid;
             page-break-inside: avoid;
+            margin-bottom: 10px !important;
+            text-align: center !important;
+            font-size: 16px !important;
+            font-weight: bold !important;
+            text-decoration: underline !important;
           }
 
           .ts-table {
-            page-break-inside: avoid;
+            page-break-inside: auto;
             table-layout: fixed !important;
             width: 100% !important;
             border: 2px solid #000 !important;
+            border-collapse: collapse !important;
+            margin-bottom: 10px !important;
           }
 
           .ts-table th,
           .ts-table td {
             border: 1px solid #000 !important;
-            padding: 3px 4px !important;
-            font-size: 11px !important;
-            line-height: 1.3 !important;
+            padding: 4px 6px !important;
+            font-size: 10px !important;
+            line-height: 1.2 !important;
             overflow: visible !important;
             word-wrap: break-word !important;
-            page-break-inside: avoid;
           }
 
           .ts-table th {
             background-color: #f0f0f0 !important;
             font-weight: bold !important;
+            text-align: center !important;
           }
 
           /* Fixed column widths for medication table */
@@ -244,23 +287,23 @@ const TreatmentSheetPrintView: React.FC<TreatmentSheetPrintViewProps> = ({ visit
           /* Time boxes layout */
           .ts-time-box {
             display: inline-block !important;
-            width: 38px !important;
-            height: 28px !important;
+            width: 35px !important;
+            height: 25px !important;
             border: 1px solid #000 !important;
             margin: 0 1px !important;
             padding: 1px !important;
-            font-size: 8px !important;
+            font-size: 7px !important;
             vertical-align: top !important;
             box-sizing: border-box !important;
           }
 
           .ts-time-label {
-            font-size: 8px !important;
+            font-size: 7px !important;
             line-height: 1 !important;
             display: block !important;
           }
 
-          /* Prevent page breaks inside sections */
+          /* Allow page breaks between rows if needed */
           .ts-table tbody tr {
             page-break-inside: avoid;
             page-break-after: auto;
@@ -268,7 +311,7 @@ const TreatmentSheetPrintView: React.FC<TreatmentSheetPrintViewProps> = ({ visit
 
           /* Small text styling */
           small {
-            font-size: 9px !important;
+            font-size: 8px !important;
           }
 
           /* Patient info table */
@@ -386,12 +429,6 @@ const TreatmentSheetPrintView: React.FC<TreatmentSheetPrintViewProps> = ({ visit
                   </div>
                 )}
               </>
-            )}
-
-            {groupIdx === 0 && (
-              <div style={{ marginBottom: '8px', fontWeight: 'bold', fontSize: '14px' }}>
-                Date: {dateKey}
-              </div>
             )}
 
             <table className="ts-table">

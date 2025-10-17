@@ -676,9 +676,9 @@ export const SalesDetails: React.FC = () => {
 
       {/* Treatment Sheet Dialog */}
       <Dialog open={showTreatmentSheet} onOpenChange={setShowTreatmentSheet}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto print-dialog">
+          <DialogHeader className="no-print">
+            <DialogTitle className="flex items-center justify-between no-print">
               <span>Treatment Sheet</span>
               <Button
                 size="sm"

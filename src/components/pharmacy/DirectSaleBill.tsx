@@ -54,7 +54,7 @@ const DirectSaleBill: React.FC = () => {
   const [patientName, setPatientName] = useState('');
   const [patientSearchTerm, setPatientSearchTerm] = useState('');
   const [showPatientResults, setShowPatientResults] = useState(false);
-  const [patientSuggestions, setPatientSuggestions] = useState<Array<{name: string, dob?: string, age?: number, gender?: string}>>([]);
+  const [patientSuggestions, setPatientSuggestions] = useState<Array<{name: string, dob?: string, age?: number, gender?: string, address?: string, doctor?: string}>>([]);
   const [doctorSearchTerm, setDoctorSearchTerm] = useState('');
   const [showDoctorResults, setShowDoctorResults] = useState(false);
   const [doctorSuggestions, setDoctorSuggestions] = useState<Array<{name: string}>>([]);
@@ -143,32 +143,40 @@ const DirectSaleBill: React.FC = () => {
         .from('visits')
         .select(`
           patient_id,
+          appointment_with,
           patients!inner(
             name,
             date_of_birth,
             age,
-            gender
+            gender,
+            address
           )
         `)
         .ilike('patients.name', `%${searchTerm}%`)
+        .order('created_at', { ascending: false })
         .limit(10);
 
       if (error) throw error;
 
-      // Remove duplicates based on patient name
-      const uniquePatients = data?.reduce((acc: Array<{name: string, dob?: string, age?: number, gender?: string}>, curr: any) => {
+      console.log('Patient search results from visits:', data);
+
+      // Remove duplicates based on patient name, keep the latest visit
+      const uniquePatients = data?.reduce((acc: Array<{name: string, dob?: string, age?: number, gender?: string, address?: string, doctor?: string}>, curr: any) => {
         const patientName = curr.patients?.name;
         if (patientName && !acc.some(p => p.name === patientName)) {
           acc.push({
             name: patientName,
             dob: curr.patients?.date_of_birth,
             age: curr.patients?.age,
-            gender: curr.patients?.gender
+            gender: curr.patients?.gender,
+            address: curr.patients?.address,
+            doctor: curr.appointment_with
           });
         }
         return acc;
       }, []) || [];
 
+      console.log('Unique patients after processing:', uniquePatients);
       setPatientSuggestions(uniquePatients);
     } catch (error: any) {
       console.error('Error searching patients:', error);
@@ -652,12 +660,36 @@ const DirectSaleBill: React.FC = () => {
                   <div
                     key={index}
                     className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                    onClick={() => {
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      console.log('Selected patient data:', patient);
                       setPatientName(patient.name);
                       setPatientSearchTerm('');
-                      if (patient.dob) setDateOfBirth(patient.dob);
-                      if (patient.age) setAge(patient.age.toString());
-                      if (patient.gender) setGender(patient.gender);
+                      if (patient.dob) {
+                        // Convert date to YYYY-MM-DD format if needed
+                        const dobDate = new Date(patient.dob);
+                        const formattedDob = dobDate.toISOString().split('T')[0];
+                        console.log('Setting DOB:', formattedDob);
+                        setDateOfBirth(formattedDob);
+                      }
+                      if (patient.age) {
+                        console.log('Setting age:', patient.age);
+                        setAge(patient.age.toString());
+                      }
+                      if (patient.gender) {
+                        // Capitalize first letter to match select options
+                        const capitalizedGender = patient.gender.charAt(0).toUpperCase() + patient.gender.slice(1).toLowerCase();
+                        console.log('Setting gender:', capitalizedGender);
+                        setGender(capitalizedGender);
+                      }
+                      if (patient.address) {
+                        console.log('Setting address:', patient.address);
+                        setAddress(patient.address);
+                      }
+                      if (patient.doctor) {
+                        console.log('Setting doctor name:', patient.doctor);
+                        setDoctorName(patient.doctor);
+                      }
                       setShowPatientResults(false);
                     }}
                   >
@@ -742,7 +774,8 @@ const DirectSaleBill: React.FC = () => {
                   <div
                     key={index}
                     className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                    onClick={() => {
+                    onMouseDown={(e) => {
+                      e.preventDefault();
                       setDoctorName(doctor.name);
                       setDoctorSearchTerm('');
                       setShowDoctorResults(false);
