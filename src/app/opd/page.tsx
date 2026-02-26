@@ -3,13 +3,10 @@ import { Calendar, Users, Stethoscope } from 'lucide-react'
 
 async function getOPDData() {
   try {
-    // Get all appointments with patient details
+    // Get all appointments
     const { data: appointments, error } = await supabase
       .from('appointments')
-      .select(`
-        *,
-        patients!inner(full_name, patient_id)
-      `)
+      .select('*')
       .order('appointment_date', { ascending: false })
 
     if (error) {
@@ -24,8 +21,26 @@ async function getOPDData() {
     const totalAppointments = appointments?.length || 0
     const uniqueDoctors = new Set(appointments?.map(apt => apt.doctor_id)).size
 
+    // Get patient details
+    let appointmentsWithNames = appointments || []
+    if (appointments && appointments.length > 0) {
+      const patientIds = appointments.map(apt => apt.legacy_patient_id)
+      const { data: patients } = await supabase
+        .from('patients')
+        .select('legacy_id, full_name, patient_id')
+        .in('legacy_id', patientIds)
+
+      appointmentsWithNames = appointments.map(appointment => {
+        const patient = patients?.find(p => p.legacy_id === appointment.legacy_patient_id)
+        return {
+          ...appointment,
+          patients: patient ? { full_name: patient.full_name, patient_id: patient.patient_id } : null
+        }
+      })
+    }
+
     return {
-      appointments: appointments || [],
+      appointments: appointmentsWithNames,
       totalAppointments,
       uniqueDoctors
     }

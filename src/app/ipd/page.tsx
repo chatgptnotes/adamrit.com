@@ -3,13 +3,10 @@ import { BedDouble, UserCheck, UserX } from 'lucide-react'
 
 async function getIPDData() {
   try {
-    // Get all ward patients with patient details
+    // Get all ward patients
     const { data: wardPatients, error } = await supabase
       .from('ward_patients')
-      .select(`
-        *,
-        patients!inner(full_name, patient_id)
-      `)
+      .select('*')
       .order('in_date', { ascending: false })
 
     if (error) {
@@ -26,8 +23,26 @@ async function getIPDData() {
     const currentlyAdmitted = wardPatients?.filter(wp => !wp.is_discharge).length || 0
     const discharged = wardPatients?.filter(wp => wp.is_discharge).length || 0
 
+    // Get patient details
+    let wardPatientsWithNames = wardPatients || []
+    if (wardPatients && wardPatients.length > 0) {
+      const patientIds = wardPatients.map(wp => wp.legacy_patient_id)
+      const { data: patients } = await supabase
+        .from('patients')
+        .select('legacy_id, full_name, patient_id')
+        .in('legacy_id', patientIds)
+
+      wardPatientsWithNames = wardPatients.map(admission => {
+        const patient = patients?.find(p => p.legacy_id === admission.legacy_patient_id)
+        return {
+          ...admission,
+          patients: patient ? { full_name: patient.full_name, patient_id: patient.patient_id } : null
+        }
+      })
+    }
+
     return {
-      wardPatients: wardPatients || [],
+      wardPatients: wardPatientsWithNames,
       totalAdmissions,
       currentlyAdmitted,
       discharged

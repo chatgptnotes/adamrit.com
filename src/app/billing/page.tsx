@@ -3,13 +3,10 @@ import { Receipt, IndianRupee, CheckCircle, AlertCircle } from 'lucide-react'
 
 async function getBillingData() {
   try {
-    // Get all billings with patient details
+    // Get all billings
     const { data: billings, error } = await supabase
       .from('billings')
-      .select(`
-        *,
-        patients!inner(full_name, patient_id)
-      `)
+      .select('*')
       .order('billing_date', { ascending: false })
 
     if (error) {
@@ -28,8 +25,26 @@ async function getBillingData() {
     const paidCount = billings?.filter(billing => billing.payment_status?.toLowerCase() === 'paid').length || 0
     const pendingCount = billings?.filter(billing => billing.payment_status?.toLowerCase() !== 'paid').length || 0
 
+    // Get patient details
+    let billingsWithNames = billings || []
+    if (billings && billings.length > 0) {
+      const patientIds = billings.map(billing => billing.legacy_patient_id)
+      const { data: patients } = await supabase
+        .from('patients')
+        .select('legacy_id, full_name, patient_id')
+        .in('legacy_id', patientIds)
+
+      billingsWithNames = billings.map(billing => {
+        const patient = patients?.find(p => p.legacy_id === billing.legacy_patient_id)
+        return {
+          ...billing,
+          patients: patient ? { full_name: patient.full_name, patient_id: patient.patient_id } : null
+        }
+      })
+    }
+
     return {
-      billings: billings || [],
+      billings: billingsWithNames,
       totalRevenue,
       totalBills,
       paidCount,

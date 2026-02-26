@@ -4,10 +4,7 @@ async function getRecentAdmissions() {
   try {
     const { data: wardPatients, error } = await supabase
       .from('ward_patients')
-      .select(`
-        *,
-        patients!inner(full_name, patient_id)
-      `)
+      .select('*')
       .order('in_date', { ascending: false })
       .limit(10)
 
@@ -16,7 +13,27 @@ async function getRecentAdmissions() {
       return []
     }
 
-    return wardPatients || []
+    if (!wardPatients || wardPatients.length === 0) {
+      return []
+    }
+
+    // Get patient details for each ward patient
+    const patientIds = wardPatients.map(wp => wp.legacy_patient_id)
+    const { data: patients } = await supabase
+      .from('patients')
+      .select('legacy_id, full_name, patient_id')
+      .in('legacy_id', patientIds)
+
+    // Join the data
+    const admissionsWithPatients = wardPatients.map(admission => {
+      const patient = patients?.find(p => p.legacy_id === admission.legacy_patient_id)
+      return {
+        ...admission,
+        patients: patient ? { full_name: patient.full_name, patient_id: patient.patient_id } : null
+      }
+    })
+
+    return admissionsWithPatients || []
   } catch (error) {
     console.error('Error fetching recent admissions:', error)
     return []
