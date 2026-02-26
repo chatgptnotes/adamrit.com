@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { 
   PieChart, 
   Pie, 
@@ -66,7 +67,8 @@ export function ReportsClient({ data }: ReportsClientProps) {
 
   const formatCurrency = (value: number) => `₹${value.toLocaleString()}`
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  // eslint-disable-next-line react/no-unstable-nested-components
+  const CustomTooltip: React.FC<any> = React.memo(({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
@@ -78,7 +80,7 @@ export function ReportsClient({ data }: ReportsClientProps) {
       )
     }
     return null
-  }
+  })
 
   return (
     <>
