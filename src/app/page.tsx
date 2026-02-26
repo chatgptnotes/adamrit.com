@@ -1,65 +1,159 @@
-import Image from "next/image";
+import { supabase } from '@/lib/supabase'
+import { Users, BedDouble, Calendar, FileCheck, Receipt, IndianRupee } from 'lucide-react'
+import { PatientTypeChart } from '@/components/PatientTypeChart'
+import { RecentAdmissions } from '@/components/RecentAdmissions'
 
-export default function Home() {
+async function getDashboardData() {
+  try {
+    // Get total patients count
+    const { count: totalPatients } = await supabase
+      .from('patients')
+      .select('*', { count: 'exact', head: true })
+
+    // Get IPD count
+    const { count: ipdCount } = await supabase
+      .from('ward_patients')
+      .select('*', { count: 'exact', head: true })
+
+    // Get OPD count
+    const { count: opdCount } = await supabase
+      .from('appointments')
+      .select('*', { count: 'exact', head: true })
+
+    // Get discharge count
+    const { count: dischargeCount } = await supabase
+      .from('discharge_summaries')
+      .select('*', { count: 'exact', head: true })
+
+    // Get total billings count
+    const { count: billingsCount } = await supabase
+      .from('billings')
+      .select('*', { count: 'exact', head: true })
+
+    // Get total revenue
+    const { data: revenueData } = await supabase
+      .from('billings')
+      .select('amount')
+
+    const totalRevenue = revenueData?.reduce((sum, billing) => sum + billing.amount, 0) || 0
+
+    // Get patient type distribution
+    const { data: patientTypes } = await supabase
+      .from('patients')
+      .select('admission_type')
+
+    const opdPatients = patientTypes?.filter(p => p.admission_type === 'OPD').length || 0
+    const ipdPatients = patientTypes?.filter(p => p.admission_type === 'IPD').length || 0
+
+    return {
+      totalPatients: totalPatients || 0,
+      ipdCount: ipdCount || 0,
+      opdCount: opdCount || 0,
+      dischargeCount: dischargeCount || 0,
+      billingsCount: billingsCount || 0,
+      totalRevenue,
+      patientTypeData: [
+        { name: 'OPD', value: opdPatients },
+        { name: 'IPD', value: ipdPatients }
+      ]
+    }
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error)
+    return {
+      totalPatients: 0,
+      ipdCount: 0,
+      opdCount: 0,
+      dischargeCount: 0,
+      billingsCount: 0,
+      totalRevenue: 0,
+      patientTypeData: []
+    }
+  }
+}
+
+export default async function Dashboard() {
+  const data = await getDashboardData()
+
+  const kpiCards = [
+    {
+      title: 'Total Patients',
+      value: data.totalPatients.toLocaleString(),
+      icon: Users,
+      color: 'bg-blue-500'
+    },
+    {
+      title: 'IPD Admissions',
+      value: data.ipdCount.toLocaleString(),
+      icon: BedDouble,
+      color: 'bg-teal-500'
+    },
+    {
+      title: 'OPD Appointments',
+      value: data.opdCount.toLocaleString(),
+      icon: Calendar,
+      color: 'bg-green-500'
+    },
+    {
+      title: 'Discharges',
+      value: data.dischargeCount.toLocaleString(),
+      icon: FileCheck,
+      color: 'bg-purple-500'
+    },
+    {
+      title: 'Total Billings',
+      value: data.billingsCount.toLocaleString(),
+      icon: Receipt,
+      color: 'bg-orange-500'
+    },
+    {
+      title: 'Total Revenue',
+      value: `₹${data.totalRevenue.toLocaleString()}`,
+      icon: IndianRupee,
+      color: 'bg-red-500'
+    }
+  ]
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p className="mt-1 text-sm text-gray-500">
+          Hospital management system overview and key metrics
+        </p>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        {kpiCards.map((card, index) => (
+          <div key={index} className="bg-white overflow-hidden shadow-sm rounded-xl border">
+            <div className="p-6">
+              <div className="flex items-center">
+                <div className={`flex-shrink-0 p-3 rounded-lg ${card.color}`}>
+                  <card.icon className="h-6 w-6 text-white" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-500 truncate">{card.title}</p>
+                  <p className="text-2xl font-bold text-gray-900">{card.value}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Patient Type Distribution */}
+        <div className="bg-white shadow-sm rounded-xl border p-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Patient Type Distribution</h3>
+          <PatientTypeChart data={data.patientTypeData} />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Recent IPD Admissions */}
+        <div className="bg-white shadow-sm rounded-xl border p-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Recent IPD Admissions</h3>
+          <RecentAdmissions />
         </div>
-      </main>
+      </div>
     </div>
-  );
+  )
 }
