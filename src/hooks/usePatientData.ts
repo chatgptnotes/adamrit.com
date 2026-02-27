@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from '@/lib/supabase';
 import type { Patient } from '../types/patient';
 import { useAuth } from '@/contexts/AuthContext';
 

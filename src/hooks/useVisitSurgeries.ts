@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { VisitSurgery, SanctionStatus, isValidSanctionStatus } from '@/types/surgery';
 import { safeArrayAccess } from '@/utils/arrayHelpers';
 

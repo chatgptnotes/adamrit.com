@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { useQuery } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { differenceInDays, parseISO } from 'date-fns';
 import { AgingBucket } from '@/types/accounting';
 import {

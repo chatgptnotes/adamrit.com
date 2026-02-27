@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 
 /**
  * Interface for combined voucher and payment details

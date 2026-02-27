@@ -61,10 +61,23 @@ const navigationGroups = [
     ]
   },
   {
-    title: 'Billing & Reports',
+    title: 'Billing & Finance',
     items: [
-      { name: 'Billing', href: '/billing', icon: Receipt },
-      { name: 'Reports', href: '/reports', icon: BarChart3 },
+      { name: 'Old Bills', href: '/old-bills', icon: Receipt },
+      { name: 'Daywise Bills', href: '/daywise-bills', icon: Receipt },
+      { name: 'Accounting', href: '/accounting', icon: BarChart3 },
+      { name: 'Cash Book', href: '/cash-book', icon: FileText },
+      { name: 'Day Book', href: '/day-book', icon: FileText },
+      { name: 'Patient Ledger', href: '/patient-ledger', icon: Users },
+      { name: 'Ledger Statement', href: '/ledger-statement', icon: FileText },
+      { name: 'Bill Submission', href: '/bill-submission', icon: ClipboardList },
+      { name: 'Bill Aging', href: '/bill-aging-statement', icon: BarChart3 },
+      { name: 'Financial Summary', href: '/financial-summary', icon: BarChart3 },
+      { name: 'Advance Statement', href: '/advance-statement-report', icon: FileText },
+      { name: 'Expected Payments', href: '/expected-payment-date-report', icon: Calendar },
+      { name: 'Corporate', href: '/corporate', icon: Home },
+      { name: 'Corporate Bulk Payments', href: '/corporate-bulk-payments', icon: Receipt },
+      { name: 'IT Transactions', href: '/it-transaction-register', icon: FileText },
     ]
   },
 ]

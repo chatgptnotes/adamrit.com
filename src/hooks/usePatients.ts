@@ -2,7 +2,7 @@
 // @ts-nocheck
 
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { useDiagnoses } from './useDiagnoses';
 import { usePatientOperations } from './usePatientOperations';
 import { transformPatientsData } from '@/utils/patientDataTransformer';
