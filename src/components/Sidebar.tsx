@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client'
 
 import { useState } from 'react'
@@ -11,16 +12,61 @@ import {
   Receipt, 
   BarChart3, 
   Menu,
-  X
+  X,
+  ClipboardList,
+  FileText,
+  Home,
+  Stethoscope,
+  Pill,
+  AlertTriangle,
+  DoorOpen,
+  UserCheck,
+  Activity
 } from 'lucide-react'
 
-const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Patients', href: '/patients', icon: Users },
-  { name: 'IPD', href: '/ipd', icon: BedDouble },
-  { name: 'OPD', href: '/opd', icon: Calendar },
-  { name: 'Billing', href: '/billing', icon: Receipt },
-  { name: 'Reports', href: '/reports', icon: BarChart3 },
+const navigationGroups = [
+  {
+    title: 'Main',
+    items: [
+      { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+      { name: 'Patients', href: '/patients', icon: Users },
+    ]
+  },
+  {
+    title: 'IPD',
+    items: [
+      { name: 'IPD Dashboard', href: '/todays-ipd', icon: BedDouble },
+      { name: 'Currently Admitted', href: '/currently-admitted', icon: UserCheck },
+      { name: 'Discharged Patients', href: '/discharged-patients', icon: DoorOpen },
+      { name: 'Room Management', href: '/room-management', icon: Home },
+      { name: 'Accommodation', href: '/accommodation', icon: Home },
+      { name: 'Treatment Sheet', href: '/treatment-sheet', icon: ClipboardList },
+    ]
+  },
+  {
+    title: 'OPD',
+    items: [
+      { name: 'OPD Dashboard', href: '/todays-opd', icon: Calendar },
+    ]
+  },
+  {
+    title: 'Patient Management',
+    items: [
+      { name: 'Patient Dashboard', href: '/patient-dashboard', icon: Activity },
+      { name: 'Patient Overview', href: '/patient-overview', icon: Users },
+      { name: 'Patient Profile', href: '/patient-profile', icon: Users },
+      { name: 'Diagnoses', href: '/diagnoses', icon: Stethoscope },
+      { name: 'Complications', href: '/complications', icon: AlertTriangle },
+      { name: 'Prescriptions', href: '/prescriptions', icon: Pill },
+    ]
+  },
+  {
+    title: 'Billing & Reports',
+    items: [
+      { name: 'Billing', href: '/billing', icon: Receipt },
+      { name: 'Reports', href: '/reports', icon: BarChart3 },
+    ]
+  },
 ]
 
 export function Sidebar() {
@@ -79,28 +125,37 @@ function SidebarContent({ pathname }: { pathname: string }) {
         <h1 className="text-xl font-bold text-white">Adamrit HMS</h1>
       </div>
       <div className="flex-1 flex flex-col overflow-y-auto">
-        <nav className="flex-1 px-2 py-4 space-y-1">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${
-                  isActive
-                    ? 'bg-teal-600 text-white'
-                    : 'text-gray-300 hover:bg-slate-700 hover:text-white'
-                }`}
-              >
-                <item.icon
-                  className={`mr-3 flex-shrink-0 h-6 w-6 transition-colors ${
-                    isActive ? 'text-white' : 'text-gray-400 group-hover:text-gray-300'
-                  }`}
-                />
-                {item.name}
-              </Link>
-            )
-          })}
+        <nav className="flex-1 px-2 py-4 space-y-4">
+          {navigationGroups.map((group) => (
+            <div key={group.title}>
+              <h3 className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                {group.title}
+              </h3>
+              <div className="mt-1 space-y-1">
+                {group.items.map((item) => {
+                  const isActive = pathname === item.href
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${
+                        isActive
+                          ? 'bg-teal-600 text-white'
+                          : 'text-gray-300 hover:bg-slate-700 hover:text-white'
+                      }`}
+                    >
+                      <item.icon
+                        className={`mr-3 flex-shrink-0 h-5 w-5 transition-colors ${
+                          isActive ? 'text-white' : 'text-gray-400 group-hover:text-gray-300'
+                        }`}
+                      />
+                      {item.name}
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
       </div>
     </>

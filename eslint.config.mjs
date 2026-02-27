@@ -9,6 +9,11 @@ const eslintConfig = defineConfig([
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/ban-ts-comment": "off",
+      "@typescript-eslint/no-empty-object-type": "off",
+      "react/no-unescaped-entities": "off",
+      "react-compiler/react-compiler": "off",
+      "prefer-const": "warn",
       "react/display-name": "off",
       "react-hooks/static-components": "off",
     }

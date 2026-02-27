@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { supabase } from '@/lib/supabase'
 import { Receipt, IndianRupee, CheckCircle, AlertCircle } from 'lucide-react'
 

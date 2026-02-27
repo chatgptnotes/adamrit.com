@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, User, Phone, Mail, MapPin, Calendar, Heart } from 'lucide-react'

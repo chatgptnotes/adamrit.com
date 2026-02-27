@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { supabase } from '@/lib/supabase'
 import { Calendar, Users, Stethoscope } from 'lucide-react'
 

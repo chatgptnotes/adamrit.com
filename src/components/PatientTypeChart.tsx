@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client'
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'

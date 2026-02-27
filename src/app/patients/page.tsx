@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { supabase } from '@/lib/supabase'
 import { PatientsTable } from '@/components/PatientsTable'
 

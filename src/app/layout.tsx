@@ -1,6 +1,7 @@
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { Sidebar } from '@/components/Sidebar'
+import { Providers } from './providers'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -17,21 +18,23 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="flex h-screen bg-gray-100">
-          <Sidebar />
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <header className="bg-white shadow-sm border-b">
-              <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Hope Hospital — Historical Data
-                </h1>
-              </div>
-            </header>
-            <main className="flex-1 overflow-auto bg-gray-50 p-6">
-              {children}
-            </main>
+        <Providers>
+          <div className="flex h-screen bg-gray-100">
+            <Sidebar />
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <header className="bg-white shadow-sm border-b">
+                <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    Hope Hospital — Historical Data
+                  </h1>
+                </div>
+              </header>
+              <main className="flex-1 overflow-auto bg-gray-50 p-6">
+                {children}
+              </main>
+            </div>
           </div>
-        </div>
+        </Providers>
       </body>
     </html>
   )
