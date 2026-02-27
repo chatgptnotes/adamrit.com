@@ -1,7 +1,9 @@
 // @ts-nocheck
+'use client';
+// @ts-nocheck
 // Treatment Sheet - Print Optimized View
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 
 interface TreatmentSheetPrintViewProps {

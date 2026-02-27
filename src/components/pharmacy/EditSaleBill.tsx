@@ -1,7 +1,9 @@
 // @ts-nocheck
+'use client';
+// @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { useParams, useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -41,7 +43,7 @@ interface Sale {
 
 export const EditSaleBill: React.FC = () => {
   const { saleId } = useParams<{ saleId: string }>();
-  const navigate = useNavigate();
+  const router = useRouter();
   const { hospitalConfig } = useAuth();
 
   const [sale, setSale] = useState<Sale | null>(null);
@@ -214,7 +216,7 @@ export const EditSaleBill: React.FC = () => {
     }
 
     alert('Sale bill updated successfully!');
-    navigate('/pharmacy');
+    router.push('/pharmacy');
   };
 
   const formatCurrency = (amount: number) =>
@@ -235,7 +237,7 @@ export const EditSaleBill: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Edit Sale Bill</h2>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => navigate(`/pharmacy?tab=view_sales&saleId=${saleId}`)}>Back</Button>
+          <Button variant="outline" onClick={() => router.push(`/pharmacy?tab=view_sales&saleId=${saleId}`)}>Back</Button>
           <Button onClick={handleSubmit}>Submit</Button>
         </div>
       </div>

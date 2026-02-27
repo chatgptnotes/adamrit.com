@@ -1,4 +1,6 @@
 // @ts-nocheck
+'use client';
+// @ts-nocheck
 // Return to Vendor Component
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

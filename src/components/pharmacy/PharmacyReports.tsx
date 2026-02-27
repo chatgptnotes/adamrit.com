@@ -1,4 +1,6 @@
 // @ts-nocheck
+'use client';
+// @ts-nocheck
 // Pharmacy Reports and Analytics Component
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

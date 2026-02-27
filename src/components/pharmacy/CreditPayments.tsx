@@ -1,10 +1,12 @@
 // @ts-nocheck
+'use client';
+// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Search, Eye, CreditCard, X, Wallet, DollarSign, Calendar, User, Receipt, History, ChevronLeft, ChevronRight, Printer } from 'lucide-react';
 import { toast } from 'sonner';

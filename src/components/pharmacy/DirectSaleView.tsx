@@ -1,4 +1,6 @@
 // @ts-nocheck
+'use client';
+// @ts-nocheck
 // Direct Sale Bills View Component
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +16,7 @@ import {
 } from '@/components/ui/table';
 import { Search, Eye, Printer, FileText, Edit, Download, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface DirectSaleBill {

@@ -1,4 +1,6 @@
 // @ts-nocheck
+'use client';
+// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,9 +34,9 @@ import {
 import { PurchaseOrderService } from '@/lib/purchase-order-service';
 import { SupplierService, Supplier } from '@/lib/supplier-service';
 import { MedicineService, Medicine } from '@/lib/medicine-service';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { Loader2, Plus, Trash2, Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -61,7 +63,7 @@ interface AddPurchaseOrderProps {
 
 const AddPurchaseOrder: React.FC<AddPurchaseOrderProps> = ({ onBack }) => {
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
@@ -392,7 +394,7 @@ const AddPurchaseOrder: React.FC<AddPurchaseOrderProps> = ({ onBack }) => {
               if (onBack) {
                 onBack();
               } else {
-                navigate('/pharmacy/purchase-orders/list');
+                router.push('/pharmacy/purchase-orders/list');
               }
             }}
           >

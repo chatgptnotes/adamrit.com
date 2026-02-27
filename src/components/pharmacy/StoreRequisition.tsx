@@ -1,4 +1,6 @@
 // @ts-nocheck
+'use client';
+// @ts-nocheck
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +12,7 @@ import {
   BarChart3,
   ArrowLeft
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 const StoreRequisition: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState('add-order');
@@ -21,7 +23,7 @@ const StoreRequisition: React.FC = () => {
   const [showCurrentStock, setShowCurrentStock] = useState(false);
   const [department, setDepartment] = useState('');
   const [itemName, setItemName] = useState('');
-  const navigate = useNavigate();
+  const router = useRouter();
 
   // Dummy data for table
   const currentStockData = [
@@ -37,7 +39,7 @@ const StoreRequisition: React.FC = () => {
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={() => navigate('/pharmacy')}
+            onClick={() => router.push('/pharmacy')}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -76,11 +78,11 @@ const StoreRequisition: React.FC = () => {
               {requisitionDropdownOpen && (
                 <div className="absolute left-0 top-full z-10 min-w-[220px] bg-white text-blue-900 rounded-b shadow-lg border border-blue-200 mt-1">
                   <ul className="flex flex-col divide-y divide-blue-100">
-                    <li><button className="w-full text-left px-4 py-2 hover:bg-blue-50" onClick={() => navigate('/pharmacy/purchase-orders/add')}>Add Order</button></li>
-                    <li><button className="w-full text-left px-4 py-2 hover:bg-blue-50" onClick={() => navigate('/pharmacy/purchase-orders/list')}>Orders list</button></li>
-                    <li><button className="w-full text-left px-4 py-2 hover:bg-blue-50" onClick={() => navigate('/pharmacy/goods-received-note')}>Goods Received Note</button></li>
-                    <li><button className="w-full text-left px-4 py-2 hover:bg-blue-50" onClick={() => navigate('/pharmacy/product-purchase-report')}>Product Purchase Report</button></li>
-                    <li><button className="w-full text-left px-4 py-2 hover:bg-blue-50" onClick={() => navigate('/pharmacy/inventory-tracking')}>Inventory Tracking</button></li>
+                    <li><button className="w-full text-left px-4 py-2 hover:bg-blue-50" onClick={() => router.push('/pharmacy/purchase-orders/add')}>Add Order</button></li>
+                    <li><button className="w-full text-left px-4 py-2 hover:bg-blue-50" onClick={() => router.push('/pharmacy/purchase-orders/list')}>Orders list</button></li>
+                    <li><button className="w-full text-left px-4 py-2 hover:bg-blue-50" onClick={() => router.push('/pharmacy/goods-received-note')}>Goods Received Note</button></li>
+                    <li><button className="w-full text-left px-4 py-2 hover:bg-blue-50" onClick={() => router.push('/pharmacy/product-purchase-report')}>Product Purchase Report</button></li>
+                    <li><button className="w-full text-left px-4 py-2 hover:bg-blue-50" onClick={() => router.push('/pharmacy/inventory-tracking')}>Inventory Tracking</button></li>
                   </ul>
                 </div>
               )}

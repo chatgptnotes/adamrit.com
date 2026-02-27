@@ -1,4 +1,6 @@
 // @ts-nocheck
+'use client';
+// @ts-nocheck
 // Medicine Items Management Component - Medicine Master
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,7 +41,7 @@ import {
   ChevronRight,
   Printer
 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { MedicineMaster, ManufacturerCompany, Supplier } from '@/types/medicine';
 import { useAuth } from '@/contexts/AuthContext';

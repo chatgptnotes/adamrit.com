@@ -1,4 +1,6 @@
 // @ts-nocheck
+'use client';
+// @ts-nocheck
 // Low Stock Medicines Component - Shows medicines with < 20 tablets in stock
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,7 +21,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { MedicineMaster } from '@/types/medicine';
 import { useAuth } from '@/contexts/AuthContext';

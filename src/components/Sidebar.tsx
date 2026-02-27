@@ -21,7 +21,16 @@ import {
   AlertTriangle,
   DoorOpen,
   UserCheck,
-  Activity
+  Activity,
+  FlaskConical,
+  Scan,
+  Package,
+  HeartHandshake,
+  ShieldCheck,
+  Syringe,
+  Building2,
+  User,
+  Scissors
 } from 'lucide-react'
 
 const navigationGroups = [
@@ -78,6 +87,38 @@ const navigationGroups = [
       { name: 'Corporate', href: '/corporate', icon: Home },
       { name: 'Corporate Bulk Payments', href: '/corporate-bulk-payments', icon: Receipt },
       { name: 'IT Transactions', href: '/it-transaction-register', icon: FileText },
+    ]
+  },
+  {
+    title: 'Clinical',
+    items: [
+      { name: 'Lab', href: '/lab', icon: FlaskConical },
+      { name: 'Radiology', href: '/radiology', icon: Scan },
+      { name: 'Pharmacy', href: '/pharmacy', icon: Package },
+      { name: 'Clinical Services', href: '/clinical-services', icon: HeartHandshake },
+      { name: 'Mandatory Service', href: '/mandatory-service', icon: ShieldCheck },
+    ]
+  },
+  {
+    title: 'Surgeons & Consultants',
+    items: [
+      { name: 'Hope Surgeons', href: '/hope-surgeons', icon: Scissors },
+      { name: 'Hope Consultants', href: '/hope-consultants', icon: Stethoscope },
+      { name: 'Hope Anaesthetists', href: '/hope-anaesthetists', icon: Stethoscope },
+      { name: 'Ayushman Surgeons', href: '/ayushman-surgeons', icon: Scissors },
+      { name: 'Ayushman Consultants', href: '/ayushman-consultants', icon: Stethoscope },
+      { name: 'Ayushman Anaesthetists', href: '/ayushman-anaesthetists', icon: Stethoscope },
+      { name: 'ESIC Surgeons', href: '/esic-surgeons', icon: Scissors },
+      { name: 'CGHS Surgery', href: '/cghs-surgery', icon: Scissors },
+      { name: 'CGHS Surgery Master', href: '/cghs-surgery-master', icon: Scissors },
+    ]
+  },
+  {
+    title: 'Masters',
+    items: [
+      { name: 'Implant Master', href: '/implant-master', icon: Syringe },
+      { name: 'Referees', href: '/referees', icon: Building2 },
+      { name: 'Users', href: '/users', icon: User },
     ]
   },
 ]

@@ -1,4 +1,6 @@
 // @ts-nocheck
+'use client';
+// @ts-nocheck
 // Purchase Orders Component
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,7 +15,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { FileText, Plus, Loader2, Eye, Edit, Trash2, Search, Lock, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { PurchaseOrderService, PurchaseOrder } from '@/lib/purchase-order-service';
 import { SupplierService, Supplier } from '@/lib/supplier-service';
 import { GRNService } from '@/lib/grn-service';
@@ -53,7 +55,7 @@ interface PurchaseOrderItem {
 }
 
 const PurchaseOrders: React.FC<PurchaseOrdersProps> = ({ onAddClick, onEditClick }) => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { toast } = useToast();
 
   // State
@@ -184,7 +186,7 @@ const PurchaseOrders: React.FC<PurchaseOrdersProps> = ({ onAddClick, onEditClick
     if (onAddClick) {
       onAddClick();
     } else {
-      navigate('/pharmacy/purchase-orders/add');
+      router.push('/pharmacy/purchase-orders/add');
     }
   };
 
@@ -192,7 +194,7 @@ const PurchaseOrders: React.FC<PurchaseOrdersProps> = ({ onAddClick, onEditClick
     if (onEditClick) {
       onEditClick(orderId);
     } else {
-      navigate(`/pharmacy/purchase-orders/edit/${orderId}`);
+      router.push(`/pharmacy/purchase-orders/edit/${orderId}`);
     }
   };
 
@@ -291,7 +293,7 @@ const PurchaseOrders: React.FC<PurchaseOrdersProps> = ({ onAddClick, onEditClick
           <Button
             variant="outline"
             className="border-gray-300 hover:bg-gray-100"
-            onClick={() => navigate('/pharmacy')}
+            onClick={() => router.push('/pharmacy')}
           >
             Back
           </Button>

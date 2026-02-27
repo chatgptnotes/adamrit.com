@@ -1,4 +1,6 @@
 // @ts-nocheck
+'use client';
+// @ts-nocheck
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +8,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Calendar, FileText, User, Building2, Search } from 'lucide-react';
 import TreatmentSheetForm from './TreatmentSheetForm';
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface TreatmentRow {

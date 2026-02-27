@@ -1,4 +1,6 @@
 // @ts-nocheck
+'use client';
+// @ts-nocheck
 
 // Medicine Inventory Management Component
 import React, { useState, useEffect } from 'react';
@@ -37,7 +39,7 @@ import {
   Download,
   Upload
 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 
 interface Medicine {
   id: string;

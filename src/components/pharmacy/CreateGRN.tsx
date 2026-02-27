@@ -1,4 +1,6 @@
 // @ts-nocheck
+'use client';
+// @ts-nocheck
 // Create Goods Received Note (GRN) Component
 // Allows creating GRN from Purchase Orders with batch details
 

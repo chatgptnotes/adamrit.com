@@ -1,4 +1,6 @@
 // @ts-nocheck
+'use client';
+// @ts-nocheck
 // Pharmacy Billing and Dispensing Component
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -43,7 +45,7 @@ import {
   Users,
   Calendar
 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { useDebounce } from 'use-debounce';
 import { useAuth } from '@/contexts/AuthContext';
 import { savePharmacySale, SaleData } from '@/lib/pharmacy-billing-service';

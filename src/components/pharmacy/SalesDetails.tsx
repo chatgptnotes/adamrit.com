@@ -1,9 +1,11 @@
 // @ts-nocheck
+'use client';
+// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import TreatmentSheetForm from './TreatmentSheetForm';
 import TreatmentSheetPrintView from './TreatmentSheetPrintView';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { FileText, Printer, Eye, Download, Search, Calendar, ChevronLeft, ChevronRight, Receipt, X, Pencil, Copy, Trash2, User, RotateCcw, Wallet, Pill, FileSpreadsheet } from 'lucide-react';
 import * as XLSX from 'xlsx';
@@ -78,7 +80,7 @@ export const SalesDetails: React.FC = () => {
   const [patientName, setPatientName] = useState('');
   const [allEncounter, setAllEncounter] = useState(false);
   const [date, setDate] = useState('');
-  const navigate = useNavigate();
+  const router = useRouter();
   const [searchParams] = useSearchParams();
   const { hospitalConfig } = useAuth();
 
@@ -1956,7 +1958,7 @@ export const SalesDetails: React.FC = () => {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => navigate(`/pharmacy/edit-sale/${bill.sale_id}`)}
+                              onClick={() => router.push(`/pharmacy/edit-sale/${bill.sale_id}`)}
                               className="h-6 w-6 p-0 hover:bg-cyan-100 hover:text-cyan-600"
                               title="Edit"
                             >

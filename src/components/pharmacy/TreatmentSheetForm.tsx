@@ -1,8 +1,10 @@
 // @ts-nocheck
+'use client';
+// @ts-nocheck
 
 import React, { useState, useEffect } from 'react';
 import { Printer } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 
 const initialRow = {
