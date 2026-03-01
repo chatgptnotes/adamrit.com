@@ -30,7 +30,8 @@ import {
   Syringe,
   Building2,
   User,
-  Scissors
+  Scissors,
+  ArrowLeftRight
 } from 'lucide-react'
 
 const navigationGroups = [
@@ -87,6 +88,7 @@ const navigationGroups = [
       { name: 'Corporate', href: '/corporate', icon: Home },
       { name: 'Corporate Bulk Payments', href: '/corporate-bulk-payments', icon: Receipt },
       { name: 'IT Transactions', href: '/it-transaction-register', icon: FileText },
+      { name: 'Tally Integration', href: '/tally', icon: ArrowLeftRight },
     ]
   },
   {
