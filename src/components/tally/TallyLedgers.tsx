@@ -6,8 +6,9 @@ import { supabase } from '@/integrations/supabase/client'
 import { toast } from 'sonner'
 import {
   Search, Filter, Plus, X, Loader2, Download,
-  BookOpen, Link2, ChevronDown
+  BookOpen, Link2, ChevronDown, Eye
 } from 'lucide-react'
+import TallyLedgerView from './TallyLedgerView'
 
 const GROUP_OPTIONS = [
   'All',
@@ -57,6 +58,8 @@ export default function TallyLedgers({ serverUrl, companyName }) {
   const [groupFilter, setGroupFilter] = useState('All')
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [creating, setCreating] = useState(false)
+
+  const [viewLedger, setViewLedger] = useState(null)
 
   // Create form state
   const [form, setForm] = useState({
@@ -277,11 +280,12 @@ export default function TallyLedgers({ serverUrl, companyName }) {
                   return (
                     <tr
                       key={ledger.id}
-                      className={`border-b border-gray-100 hover:bg-blue-50 transition-colors ${
+                      onClick={() => setViewLedger(ledger.name)}
+                      className={`border-b border-gray-100 hover:bg-blue-50 transition-colors cursor-pointer ${
                         idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
                       }`}
                     >
-                      <td className="py-2.5 px-4 font-medium text-gray-900 max-w-[250px] truncate">
+                      <td className="py-2.5 px-4 font-medium text-blue-700 max-w-[250px] truncate hover:underline">
                         {ledger.name}
                       </td>
                       <td className="py-2.5 px-4 text-gray-600">{ledger.parent_group || '-'}</td>
@@ -338,6 +342,16 @@ export default function TallyLedgers({ serverUrl, companyName }) {
           </div>
         )}
       </div>
+
+      {/* Ledger Account View Modal */}
+      {viewLedger && (
+        <TallyLedgerView
+          ledgerName={viewLedger}
+          onClose={() => setViewLedger(null)}
+          serverUrl={serverUrl}
+          companyName={companyName}
+        />
+      )}
 
       {/* Create Ledger Modal */}
       {showCreateModal && (

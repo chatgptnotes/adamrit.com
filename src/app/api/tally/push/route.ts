@@ -176,6 +176,211 @@ export async function POST(request: NextRequest) {
         break;
       }
 
+      case 'create-payment-voucher': {
+        const creditLedger = data.bankLedger || (data.paymentMode === 'Cash' ? 'Cash' : 'Bank Account');
+        const billRefXml = data.billRef ? `<BILLALLOCATIONS.LIST><NAME>${escapeXml(data.billRef)}</NAME><BILLTYPE>Agst Ref</BILLTYPE><AMOUNT>${data.amount}</AMOUNT></BILLALLOCATIONS.LIST>` : '';
+        xmlBody = `<ENVELOPE>
+  <HEADER><VERSION>1</VERSION><TALLYREQUEST>Import</TALLYREQUEST><TYPE>Data</TYPE><ID>Vouchers</ID></HEADER>
+  <BODY>
+    <DESC><STATICVARIABLES><SVCURRENTCOMPANY>${escapeXml(companyName)}</SVCURRENTCOMPANY></STATICVARIABLES></DESC>
+    <DATA><TALLYMESSAGE xmlns:UDF="TallyUDF">
+      <VOUCHER VCHTYPE="Payment" ACTION="Create">
+        <DATE>${formatDate(data.date)}</DATE>
+        <NARRATION>${escapeXml(data.narration || 'Payment to ' + (data.partyLedger || ''))}</NARRATION>
+        <VOUCHERTYPENAME>Payment</VOUCHERTYPENAME>
+        <PARTYLEDGERNAME>${escapeXml(data.partyLedger)}</PARTYLEDGERNAME>
+        <ALLLEDGERENTRIES.LIST>
+          <LEDGERNAME>${escapeXml(data.partyLedger)}</LEDGERNAME>
+          <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+          <AMOUNT>-${data.amount}</AMOUNT>
+          ${billRefXml}
+        </ALLLEDGERENTRIES.LIST>
+        <ALLLEDGERENTRIES.LIST>
+          <LEDGERNAME>${escapeXml(creditLedger)}</LEDGERNAME>
+          <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+          <AMOUNT>${data.amount}</AMOUNT>
+        </ALLLEDGERENTRIES.LIST>
+      </VOUCHER>
+    </TALLYMESSAGE></DATA>
+  </BODY>
+</ENVELOPE>`;
+        break;
+      }
+
+      case 'create-contra-voucher': {
+        xmlBody = `<ENVELOPE>
+  <HEADER><VERSION>1</VERSION><TALLYREQUEST>Import</TALLYREQUEST><TYPE>Data</TYPE><ID>Vouchers</ID></HEADER>
+  <BODY>
+    <DESC><STATICVARIABLES><SVCURRENTCOMPANY>${escapeXml(companyName)}</SVCURRENTCOMPANY></STATICVARIABLES></DESC>
+    <DATA><TALLYMESSAGE xmlns:UDF="TallyUDF">
+      <VOUCHER VCHTYPE="Contra" ACTION="Create">
+        <DATE>${formatDate(data.date)}</DATE>
+        <NARRATION>${escapeXml(data.narration || 'Transfer from ' + (data.fromLedger || '') + ' to ' + (data.toLedger || ''))}</NARRATION>
+        <VOUCHERTYPENAME>Contra</VOUCHERTYPENAME>
+        <ALLLEDGERENTRIES.LIST>
+          <LEDGERNAME>${escapeXml(data.toLedger)}</LEDGERNAME>
+          <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+          <AMOUNT>-${data.amount}</AMOUNT>
+        </ALLLEDGERENTRIES.LIST>
+        <ALLLEDGERENTRIES.LIST>
+          <LEDGERNAME>${escapeXml(data.fromLedger)}</LEDGERNAME>
+          <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+          <AMOUNT>${data.amount}</AMOUNT>
+        </ALLLEDGERENTRIES.LIST>
+      </VOUCHER>
+    </TALLYMESSAGE></DATA>
+  </BODY>
+</ENVELOPE>`;
+        break;
+      }
+
+      case 'create-purchase-voucher': {
+        let invXml = '';
+        for (const item of (data.items || [])) {
+          invXml += `
+          <ALLINVENTORYENTRIES.LIST>
+            <STOCKITEMNAME>${escapeXml(item.name)}</STOCKITEMNAME>
+            <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+            <RATE>${item.rate}</RATE>
+            <AMOUNT>-${item.amount}</AMOUNT>
+            <ACTUALQTY>${item.qty}</ACTUALQTY>
+            <BILLEDQTY>${item.qty}</BILLEDQTY>
+          </ALLINVENTORYENTRIES.LIST>`;
+        }
+        const refXml = data.invoiceNumber ? `<REFERENCE>${escapeXml(data.invoiceNumber)}</REFERENCE>` : '';
+        xmlBody = `<ENVELOPE>
+  <HEADER><VERSION>1</VERSION><TALLYREQUEST>Import</TALLYREQUEST><TYPE>Data</TYPE><ID>Vouchers</ID></HEADER>
+  <BODY>
+    <DESC><STATICVARIABLES><SVCURRENTCOMPANY>${escapeXml(companyName)}</SVCURRENTCOMPANY></STATICVARIABLES></DESC>
+    <DATA><TALLYMESSAGE xmlns:UDF="TallyUDF">
+      <VOUCHER VCHTYPE="Purchase" ACTION="Create">
+        <DATE>${formatDate(data.date)}</DATE>
+        <NARRATION>${escapeXml(data.narration || 'Purchase from ' + (data.supplierLedger || ''))}</NARRATION>
+        <VOUCHERTYPENAME>Purchase</VOUCHERTYPENAME>
+        <PARTYLEDGERNAME>${escapeXml(data.supplierLedger)}</PARTYLEDGERNAME>
+        ${refXml}
+        <ALLLEDGERENTRIES.LIST>
+          <LEDGERNAME>${escapeXml(data.supplierLedger)}</LEDGERNAME>
+          <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+          <AMOUNT>${data.totalAmount}</AMOUNT>
+        </ALLLEDGERENTRIES.LIST>
+        <ALLLEDGERENTRIES.LIST>
+          <LEDGERNAME>${escapeXml(data.purchaseLedger || 'Purchase Accounts')}</LEDGERNAME>
+          <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+          <AMOUNT>-${data.totalAmount}</AMOUNT>
+        </ALLLEDGERENTRIES.LIST>${invXml}
+      </VOUCHER>
+    </TALLYMESSAGE></DATA>
+  </BODY>
+</ENVELOPE>`;
+        break;
+      }
+
+      case 'create-debit-note': {
+        const dnRefXml = data.originalVoucherRef ? `<BILLALLOCATIONS.LIST><NAME>${escapeXml(data.originalVoucherRef)}</NAME><BILLTYPE>Agst Ref</BILLTYPE><AMOUNT>-${data.amount}</AMOUNT></BILLALLOCATIONS.LIST>` : '';
+        xmlBody = `<ENVELOPE>
+  <HEADER><VERSION>1</VERSION><TALLYREQUEST>Import</TALLYREQUEST><TYPE>Data</TYPE><ID>Vouchers</ID></HEADER>
+  <BODY>
+    <DESC><STATICVARIABLES><SVCURRENTCOMPANY>${escapeXml(companyName)}</SVCURRENTCOMPANY></STATICVARIABLES></DESC>
+    <DATA><TALLYMESSAGE xmlns:UDF="TallyUDF">
+      <VOUCHER VCHTYPE="Debit Note" ACTION="Create">
+        <DATE>${formatDate(data.date)}</DATE>
+        <NARRATION>${escapeXml(data.reason || '')}</NARRATION>
+        <VOUCHERTYPENAME>Debit Note</VOUCHERTYPENAME>
+        <PARTYLEDGERNAME>${escapeXml(data.partyLedger)}</PARTYLEDGERNAME>
+        <ALLLEDGERENTRIES.LIST>
+          <LEDGERNAME>${escapeXml(data.partyLedger)}</LEDGERNAME>
+          <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+          <AMOUNT>-${data.amount}</AMOUNT>
+          ${dnRefXml}
+        </ALLLEDGERENTRIES.LIST>
+        <ALLLEDGERENTRIES.LIST>
+          <LEDGERNAME>Purchase Accounts</LEDGERNAME>
+          <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+          <AMOUNT>${data.amount}</AMOUNT>
+        </ALLLEDGERENTRIES.LIST>
+      </VOUCHER>
+    </TALLYMESSAGE></DATA>
+  </BODY>
+</ENVELOPE>`;
+        break;
+      }
+
+      case 'create-credit-note': {
+        const cnRefXml = data.originalVoucherRef ? `<BILLALLOCATIONS.LIST><NAME>${escapeXml(data.originalVoucherRef)}</NAME><BILLTYPE>Agst Ref</BILLTYPE><AMOUNT>${data.amount}</AMOUNT></BILLALLOCATIONS.LIST>` : '';
+        xmlBody = `<ENVELOPE>
+  <HEADER><VERSION>1</VERSION><TALLYREQUEST>Import</TALLYREQUEST><TYPE>Data</TYPE><ID>Vouchers</ID></HEADER>
+  <BODY>
+    <DESC><STATICVARIABLES><SVCURRENTCOMPANY>${escapeXml(companyName)}</SVCURRENTCOMPANY></STATICVARIABLES></DESC>
+    <DATA><TALLYMESSAGE xmlns:UDF="TallyUDF">
+      <VOUCHER VCHTYPE="Credit Note" ACTION="Create">
+        <DATE>${formatDate(data.date)}</DATE>
+        <NARRATION>${escapeXml(data.reason || '')}</NARRATION>
+        <VOUCHERTYPENAME>Credit Note</VOUCHERTYPENAME>
+        <PARTYLEDGERNAME>${escapeXml(data.partyLedger)}</PARTYLEDGERNAME>
+        <ALLLEDGERENTRIES.LIST>
+          <LEDGERNAME>Sales Accounts</LEDGERNAME>
+          <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+          <AMOUNT>-${data.amount}</AMOUNT>
+        </ALLLEDGERENTRIES.LIST>
+        <ALLLEDGERENTRIES.LIST>
+          <LEDGERNAME>${escapeXml(data.partyLedger)}</LEDGERNAME>
+          <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+          <AMOUNT>${data.amount}</AMOUNT>
+          ${cnRefXml}
+        </ALLLEDGERENTRIES.LIST>
+      </VOUCHER>
+    </TALLYMESSAGE></DATA>
+  </BODY>
+</ENVELOPE>`;
+        break;
+      }
+
+      case 'alter-voucher': {
+        let alterEntriesXml = '';
+        for (const entry of (data.ledgerEntries || [])) {
+          const amt = entry.isDeemedPositive ? -Math.abs(entry.amount) : Math.abs(entry.amount);
+          alterEntriesXml += `
+          <ALLLEDGERENTRIES.LIST>
+            <LEDGERNAME>${escapeXml(entry.ledger)}</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>${entry.isDeemedPositive ? 'Yes' : 'No'}</ISDEEMEDPOSITIVE>
+            <AMOUNT>${amt}</AMOUNT>
+          </ALLLEDGERENTRIES.LIST>`;
+        }
+        xmlBody = `<ENVELOPE>
+  <HEADER><VERSION>1</VERSION><TALLYREQUEST>Import</TALLYREQUEST><TYPE>Data</TYPE><ID>Vouchers</ID></HEADER>
+  <BODY>
+    <DESC><STATICVARIABLES><SVCURRENTCOMPANY>${escapeXml(companyName)}</SVCURRENTCOMPANY></STATICVARIABLES></DESC>
+    <DATA><TALLYMESSAGE xmlns:UDF="TallyUDF">
+      <VOUCHER VCHTYPE="${escapeXml(data.voucherType)}" ACTION="Alter" VOUCHERNUMBER="${escapeXml(data.originalVoucherNumber)}">
+        <VOUCHERNUMBER>${escapeXml(data.originalVoucherNumber)}</VOUCHERNUMBER>
+        <DATE>${formatDate(data.date)}</DATE>
+        <NARRATION>${escapeXml(data.narration || '')}</NARRATION>
+        <VOUCHERTYPENAME>${escapeXml(data.voucherType)}</VOUCHERTYPENAME>
+        <PARTYLEDGERNAME>${escapeXml(data.partyLedger)}</PARTYLEDGERNAME>${alterEntriesXml}
+      </VOUCHER>
+    </TALLYMESSAGE></DATA>
+  </BODY>
+</ENVELOPE>`;
+        break;
+      }
+
+      case 'cancel-voucher': {
+        xmlBody = `<ENVELOPE>
+  <HEADER><VERSION>1</VERSION><TALLYREQUEST>Import</TALLYREQUEST><TYPE>Data</TYPE><ID>Vouchers</ID></HEADER>
+  <BODY>
+    <DESC><STATICVARIABLES><SVCURRENTCOMPANY>${escapeXml(companyName)}</SVCURRENTCOMPANY></STATICVARIABLES></DESC>
+    <DATA><TALLYMESSAGE xmlns:UDF="TallyUDF">
+      <VOUCHER VCHTYPE="${escapeXml(data.voucherType)}" ACTION="Delete" VOUCHERNUMBER="${escapeXml(data.voucherNumber)}">
+        <VOUCHERNUMBER>${escapeXml(data.voucherNumber)}</VOUCHERNUMBER>
+        <VOUCHERTYPENAME>${escapeXml(data.voucherType)}</VOUCHERTYPENAME>
+      </VOUCHER>
+    </TALLYMESSAGE></DATA>
+  </BODY>
+</ENVELOPE>`;
+        break;
+      }
+
       default:
         return NextResponse.json({ error: `Unknown action: ${action}` }, { status: 400 });
     }

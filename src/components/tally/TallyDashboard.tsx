@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { supabase } from '@/integrations/supabase/client'
 import { toast } from 'sonner'
 import {
@@ -35,6 +35,15 @@ export default function TallyDashboard() {
 
   // Sync logs
   const [syncLogs, setSyncLogs] = useState([])
+
+  // Auto-sync scheduler state
+  const autoSyncTimerRef = useRef(null)
+  const [nextSyncAt, setNextSyncAt] = useState(null)
+  const [lastSyncAt, setLastSyncAt] = useState(null)
+  const [autoSyncQueue, setAutoSyncQueue] = useState([])
+  const [autoSyncCurrent, setAutoSyncCurrent] = useState(null)
+  const [autoSyncCompleted, setAutoSyncCompleted] = useState(0)
+  const [countdown, setCountdown] = useState(0)
 
   useEffect(() => {
     loadConfig()
@@ -167,6 +176,72 @@ export default function TallyDashboard() {
     setIsSaving(false)
   }
 
+  // Auto-sync scheduler
+  const runAutoSync = useCallback(async () => {
+    if (!serverUrl || !companyName) return
+    const syncTypes = ['ledgers', 'vouchers', 'stock', 'reports']
+    setAutoSyncQueue(syncTypes)
+    setAutoSyncCompleted(0)
+
+    for (let i = 0; i < syncTypes.length; i++) {
+      setAutoSyncCurrent(syncTypes[i])
+      setAutoSyncCompleted(i)
+      try {
+        await fetch('/api/tally/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: syncTypes[i], serverUrl, companyName }),
+        })
+      } catch {}
+    }
+
+    setAutoSyncCurrent(null)
+    setAutoSyncCompleted(syncTypes.length)
+    setAutoSyncQueue([])
+    setLastSyncAt(new Date())
+    await loadStats()
+    await loadSyncLogs()
+  }, [serverUrl, companyName])
+
+  useEffect(() => {
+    if (autoSyncTimerRef.current) {
+      clearInterval(autoSyncTimerRef.current)
+      autoSyncTimerRef.current = null
+    }
+
+    if (autoSync && companyName && serverUrl) {
+      const intervalMs = syncInterval * 60 * 1000
+      setNextSyncAt(new Date(Date.now() + intervalMs))
+
+      autoSyncTimerRef.current = setInterval(() => {
+        runAutoSync()
+        setNextSyncAt(new Date(Date.now() + intervalMs))
+      }, intervalMs)
+    } else {
+      setNextSyncAt(null)
+    }
+
+    return () => {
+      if (autoSyncTimerRef.current) clearInterval(autoSyncTimerRef.current)
+    }
+  }, [autoSync, syncInterval, companyName, serverUrl, runAutoSync])
+
+  // Countdown timer
+  useEffect(() => {
+    if (!nextSyncAt || !autoSync) { setCountdown(0); return }
+    const timer = setInterval(() => {
+      const diff = Math.max(0, Math.round((nextSyncAt.getTime() - Date.now()) / 1000))
+      setCountdown(diff)
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [nextSyncAt, autoSync])
+
+  function formatCountdown(secs) {
+    const m = Math.floor(secs / 60)
+    const s = secs % 60
+    return `${m}:${String(s).padStart(2, '0')}`
+  }
+
   async function runSync(action) {
     setSyncing(action)
     setSyncProgress(10)
@@ -291,6 +366,42 @@ export default function TallyDashboard() {
             </div>
           )}
         </div>
+
+        {/* Auto-sync status bar */}
+        {autoSync && companyName && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                </span>
+                <span className="text-sm font-medium text-green-800">Auto-Sync Active</span>
+                <span className="text-xs text-green-600">Every {syncInterval} min</span>
+              </div>
+              <div className="flex items-center gap-4 text-xs text-green-700">
+                {countdown > 0 && (
+                  <span>Next sync in <span className="font-mono font-bold">{formatCountdown(countdown)}</span></span>
+                )}
+                {lastSyncAt && (
+                  <span>Last: {lastSyncAt.toLocaleTimeString('en-IN')}</span>
+                )}
+              </div>
+            </div>
+            {autoSyncCurrent && (
+              <div className="mt-2">
+                <div className="flex items-center justify-between text-xs text-green-700 mb-1">
+                  <span>Syncing {autoSyncCurrent}...</span>
+                  <span>{autoSyncCompleted}/{autoSyncQueue.length} complete</span>
+                </div>
+                <div className="w-full bg-green-200 rounded-full h-1.5">
+                  <div className="bg-green-600 h-1.5 rounded-full transition-all"
+                    style={{ width: `${autoSyncQueue.length > 0 ? (autoSyncCompleted / autoSyncQueue.length) * 100 : 0}%` }} />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="flex gap-3">
           <button

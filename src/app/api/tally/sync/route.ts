@@ -268,6 +268,41 @@ export async function POST(request: NextRequest) {
         break;
       }
 
+      case 'gst-r1':
+      case 'gst-r3b':
+      case 'gst-ledger': {
+        const gstFrom = dateRange?.from || `${new Date().getFullYear()}-04-01`;
+        const gstTo = dateRange?.to || new Date().toISOString().split('T')[0];
+        const gstFromFmt = gstFrom.replace(/-/g, '');
+        const gstToFmt = gstTo.replace(/-/g, '');
+
+        let gstReportId = '';
+        let gstType = '';
+        if (action === 'gst-r1') { gstReportId = 'GSTR-1'; gstType = 'gstr1'; }
+        else if (action === 'gst-r3b') { gstReportId = 'GSTR-3B'; gstType = 'gstr3b'; }
+        else { gstReportId = 'Day Book'; gstType = 'gst_ledger'; }
+
+        try {
+          const xml = buildExportXml(gstReportId, companyName,
+            `<SVFROMDATE>${gstFromFmt}</SVFROMDATE><SVTODATE>${gstToFmt}</SVTODATE>`
+          );
+          const response = await fetchFromTally(serverUrl, xml);
+
+          await supabase.from('tally_gst_data').insert({
+            report_type: gstType,
+            period_from: gstFrom,
+            period_to: gstTo,
+            data: { raw: response },
+            fetched_at: new Date().toISOString(),
+          });
+          recordsSynced++;
+        } catch (e) {
+          recordsFailed++;
+          errors.push(`${gstType}: ${e.message}`);
+        }
+        break;
+      }
+
       case 'full': {
         const syncActions = ['groups', 'ledgers', 'stock', 'vouchers', 'reports'];
         for (const subAction of syncActions) {

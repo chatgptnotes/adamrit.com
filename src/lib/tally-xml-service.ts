@@ -846,3 +846,382 @@ export async function createCostCentre(serverUrl: string, companyName: string, n
   const response = await sendRequest(serverUrl, xmlBody);
   return parseImportResponse(response);
 }
+
+// ============ ITEM 1: Payment Voucher ============
+export async function createPaymentVoucher(serverUrl: string, companyName: string, payment: {
+  date: string;
+  partyLedger: string;
+  amount: number;
+  paymentMode: string;
+  bankLedger?: string;
+  narration?: string;
+  billRef?: string;
+}): Promise<TallyResponse> {
+  const creditLedger = payment.bankLedger || (payment.paymentMode === 'Cash' ? 'Cash' : 'Bank Account');
+  const billRefXml = payment.billRef ? `<BILLALLOCATIONS.LIST>
+              <NAME>${escapeXml(payment.billRef)}</NAME>
+              <BILLTYPE>Agst Ref</BILLTYPE>
+              <AMOUNT>${payment.amount}</AMOUNT>
+            </BILLALLOCATIONS.LIST>` : '';
+
+  const dataXml = `<VOUCHER VCHTYPE="Payment" ACTION="Create">
+          <DATE>${formatTallyDate(payment.date)}</DATE>
+          <NARRATION>${escapeXml(payment.narration || `Payment to ${payment.partyLedger}`)}</NARRATION>
+          <VOUCHERTYPENAME>Payment</VOUCHERTYPENAME>
+          <PARTYLEDGERNAME>${escapeXml(payment.partyLedger)}</PARTYLEDGERNAME>
+          <ALLLEDGERENTRIES.LIST>
+            <LEDGERNAME>${escapeXml(payment.partyLedger)}</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+            <AMOUNT>-${payment.amount}</AMOUNT>
+            ${billRefXml}
+          </ALLLEDGERENTRIES.LIST>
+          <ALLLEDGERENTRIES.LIST>
+            <LEDGERNAME>${escapeXml(creditLedger)}</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+            <AMOUNT>${payment.amount}</AMOUNT>
+          </ALLLEDGERENTRIES.LIST>
+        </VOUCHER>`;
+
+  const xmlBody = buildVoucherImportRequest(companyName, dataXml);
+  const response = await sendRequest(serverUrl, xmlBody);
+  return parseImportResponse(response);
+}
+
+// ============ ITEM 2: Contra Voucher ============
+export async function createContraVoucher(serverUrl: string, companyName: string, contra: {
+  date: string;
+  fromLedger: string;
+  toLedger: string;
+  amount: number;
+  narration?: string;
+}): Promise<TallyResponse> {
+  const dataXml = `<VOUCHER VCHTYPE="Contra" ACTION="Create">
+          <DATE>${formatTallyDate(contra.date)}</DATE>
+          <NARRATION>${escapeXml(contra.narration || `Transfer from ${contra.fromLedger} to ${contra.toLedger}`)}</NARRATION>
+          <VOUCHERTYPENAME>Contra</VOUCHERTYPENAME>
+          <ALLLEDGERENTRIES.LIST>
+            <LEDGERNAME>${escapeXml(contra.toLedger)}</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+            <AMOUNT>-${contra.amount}</AMOUNT>
+          </ALLLEDGERENTRIES.LIST>
+          <ALLLEDGERENTRIES.LIST>
+            <LEDGERNAME>${escapeXml(contra.fromLedger)}</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+            <AMOUNT>${contra.amount}</AMOUNT>
+          </ALLLEDGERENTRIES.LIST>
+        </VOUCHER>`;
+
+  const xmlBody = buildVoucherImportRequest(companyName, dataXml);
+  const response = await sendRequest(serverUrl, xmlBody);
+  return parseImportResponse(response);
+}
+
+// ============ ITEM 3: Purchase Voucher ============
+export async function createPurchaseVoucher(serverUrl: string, companyName: string, purchase: {
+  date: string;
+  supplierLedger: string;
+  purchaseLedger: string;
+  items: Array<{ name: string; qty: number; rate: number; amount: number }>;
+  totalAmount: number;
+  narration?: string;
+  invoiceNumber?: string;
+}): Promise<TallyResponse> {
+  let inventoryXml = '';
+  for (const item of purchase.items) {
+    inventoryXml += `
+          <ALLINVENTORYENTRIES.LIST>
+            <STOCKITEMNAME>${escapeXml(item.name)}</STOCKITEMNAME>
+            <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+            <RATE>${item.rate}</RATE>
+            <AMOUNT>-${item.amount}</AMOUNT>
+            <ACTUALQTY>${item.qty}</ACTUALQTY>
+            <BILLEDQTY>${item.qty}</BILLEDQTY>
+          </ALLINVENTORYENTRIES.LIST>`;
+  }
+
+  const refXml = purchase.invoiceNumber ? `<REFERENCE>${escapeXml(purchase.invoiceNumber)}</REFERENCE>` : '';
+
+  const dataXml = `<VOUCHER VCHTYPE="Purchase" ACTION="Create">
+          <DATE>${formatTallyDate(purchase.date)}</DATE>
+          <NARRATION>${escapeXml(purchase.narration || `Purchase from ${purchase.supplierLedger}`)}</NARRATION>
+          <VOUCHERTYPENAME>Purchase</VOUCHERTYPENAME>
+          <PARTYLEDGERNAME>${escapeXml(purchase.supplierLedger)}</PARTYLEDGERNAME>
+          ${refXml}
+          <ALLLEDGERENTRIES.LIST>
+            <LEDGERNAME>${escapeXml(purchase.supplierLedger)}</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+            <AMOUNT>${purchase.totalAmount}</AMOUNT>
+          </ALLLEDGERENTRIES.LIST>
+          <ALLLEDGERENTRIES.LIST>
+            <LEDGERNAME>${escapeXml(purchase.purchaseLedger)}</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+            <AMOUNT>-${purchase.totalAmount}</AMOUNT>
+          </ALLLEDGERENTRIES.LIST>${inventoryXml}
+        </VOUCHER>`;
+
+  const xmlBody = buildVoucherImportRequest(companyName, dataXml);
+  const response = await sendRequest(serverUrl, xmlBody);
+  return parseImportResponse(response);
+}
+
+// ============ ITEM 4: Debit Note ============
+export async function createDebitNote(serverUrl: string, companyName: string, note: {
+  date: string;
+  partyLedger: string;
+  amount: number;
+  reason: string;
+  originalVoucherRef?: string;
+}): Promise<TallyResponse> {
+  const refXml = note.originalVoucherRef
+    ? `<BILLALLOCATIONS.LIST>
+              <NAME>${escapeXml(note.originalVoucherRef)}</NAME>
+              <BILLTYPE>Agst Ref</BILLTYPE>
+              <AMOUNT>-${note.amount}</AMOUNT>
+            </BILLALLOCATIONS.LIST>` : '';
+
+  const dataXml = `<VOUCHER VCHTYPE="Debit Note" ACTION="Create">
+          <DATE>${formatTallyDate(note.date)}</DATE>
+          <NARRATION>${escapeXml(note.reason)}</NARRATION>
+          <VOUCHERTYPENAME>Debit Note</VOUCHERTYPENAME>
+          <PARTYLEDGERNAME>${escapeXml(note.partyLedger)}</PARTYLEDGERNAME>
+          <ALLLEDGERENTRIES.LIST>
+            <LEDGERNAME>${escapeXml(note.partyLedger)}</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+            <AMOUNT>-${note.amount}</AMOUNT>
+            ${refXml}
+          </ALLLEDGERENTRIES.LIST>
+          <ALLLEDGERENTRIES.LIST>
+            <LEDGERNAME>Purchase Accounts</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+            <AMOUNT>${note.amount}</AMOUNT>
+          </ALLLEDGERENTRIES.LIST>
+        </VOUCHER>`;
+
+  const xmlBody = buildVoucherImportRequest(companyName, dataXml);
+  const response = await sendRequest(serverUrl, xmlBody);
+  return parseImportResponse(response);
+}
+
+// ============ ITEM 4: Credit Note ============
+export async function createCreditNote(serverUrl: string, companyName: string, note: {
+  date: string;
+  partyLedger: string;
+  amount: number;
+  reason: string;
+  originalVoucherRef?: string;
+}): Promise<TallyResponse> {
+  const refXml = note.originalVoucherRef
+    ? `<BILLALLOCATIONS.LIST>
+              <NAME>${escapeXml(note.originalVoucherRef)}</NAME>
+              <BILLTYPE>Agst Ref</BILLTYPE>
+              <AMOUNT>${note.amount}</AMOUNT>
+            </BILLALLOCATIONS.LIST>` : '';
+
+  const dataXml = `<VOUCHER VCHTYPE="Credit Note" ACTION="Create">
+          <DATE>${formatTallyDate(note.date)}</DATE>
+          <NARRATION>${escapeXml(note.reason)}</NARRATION>
+          <VOUCHERTYPENAME>Credit Note</VOUCHERTYPENAME>
+          <PARTYLEDGERNAME>${escapeXml(note.partyLedger)}</PARTYLEDGERNAME>
+          <ALLLEDGERENTRIES.LIST>
+            <LEDGERNAME>Sales Accounts</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+            <AMOUNT>-${note.amount}</AMOUNT>
+          </ALLLEDGERENTRIES.LIST>
+          <ALLLEDGERENTRIES.LIST>
+            <LEDGERNAME>${escapeXml(note.partyLedger)}</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+            <AMOUNT>${note.amount}</AMOUNT>
+            ${refXml}
+          </ALLLEDGERENTRIES.LIST>
+        </VOUCHER>`;
+
+  const xmlBody = buildVoucherImportRequest(companyName, dataXml);
+  const response = await sendRequest(serverUrl, xmlBody);
+  return parseImportResponse(response);
+}
+
+// ============ ITEM 8: Alter Voucher ============
+export async function alterVoucher(serverUrl: string, companyName: string, voucher: {
+  originalVoucherNumber: string;
+  voucherType: string;
+  date: string;
+  partyLedger: string;
+  amount: number;
+  narration?: string;
+  ledgerEntries: Array<{ ledger: string; amount: number; isDeemedPositive: boolean }>;
+}): Promise<TallyResponse> {
+  let entriesXml = '';
+  for (const entry of voucher.ledgerEntries) {
+    const amount = entry.isDeemedPositive ? -Math.abs(entry.amount) : Math.abs(entry.amount);
+    entriesXml += `
+          <ALLLEDGERENTRIES.LIST>
+            <LEDGERNAME>${escapeXml(entry.ledger)}</LEDGERNAME>
+            <ISDEEMEDPOSITIVE>${entry.isDeemedPositive ? 'Yes' : 'No'}</ISDEEMEDPOSITIVE>
+            <AMOUNT>${amount}</AMOUNT>
+          </ALLLEDGERENTRIES.LIST>`;
+  }
+
+  const dataXml = `<VOUCHER VCHTYPE="${escapeXml(voucher.voucherType)}" ACTION="Alter" VOUCHERNUMBER="${escapeXml(voucher.originalVoucherNumber)}">
+          <VOUCHERNUMBER>${escapeXml(voucher.originalVoucherNumber)}</VOUCHERNUMBER>
+          <DATE>${formatTallyDate(voucher.date)}</DATE>
+          <NARRATION>${escapeXml(voucher.narration || '')}</NARRATION>
+          <VOUCHERTYPENAME>${escapeXml(voucher.voucherType)}</VOUCHERTYPENAME>
+          <PARTYLEDGERNAME>${escapeXml(voucher.partyLedger)}</PARTYLEDGERNAME>${entriesXml}
+        </VOUCHER>`;
+
+  const xmlBody = buildVoucherImportRequest(companyName, dataXml);
+  const response = await sendRequest(serverUrl, xmlBody);
+  return parseImportResponse(response);
+}
+
+// ============ ITEM 9: Cancel/Delete Voucher ============
+export async function cancelVoucher(serverUrl: string, companyName: string, voucher: {
+  voucherNumber: string;
+  voucherType: string;
+}): Promise<TallyResponse> {
+  const dataXml = `<VOUCHER VCHTYPE="${escapeXml(voucher.voucherType)}" ACTION="Delete" VOUCHERNUMBER="${escapeXml(voucher.voucherNumber)}">
+          <VOUCHERNUMBER>${escapeXml(voucher.voucherNumber)}</VOUCHERNUMBER>
+          <VOUCHERTYPENAME>${escapeXml(voucher.voucherType)}</VOUCHERTYPENAME>
+        </VOUCHER>`;
+
+  const xmlBody = buildVoucherImportRequest(companyName, dataXml);
+  const response = await sendRequest(serverUrl, xmlBody);
+  return parseImportResponse(response);
+}
+
+// ============ ITEM 10: GST Data Sync ============
+export interface GSTR1Data {
+  b2b: Array<{ partyName: string; gstin: string; invoices: Array<{ number: string; date: string; value: number; taxableValue: number; igst: number; cgst: number; sgst: number }> }>;
+  b2c: Array<{ invoiceNumber: string; date: string; value: number; taxableValue: number }>;
+  hsnSummary: Array<{ hsnCode: string; description: string; qty: number; taxableValue: number; igst: number; cgst: number; sgst: number }>;
+}
+
+export interface GSTR3BData {
+  outwardSupplies: { taxable: number; igst: number; cgst: number; sgst: number };
+  inwardSupplies: { taxable: number; igst: number; cgst: number; sgst: number };
+  itcAvailed: { igst: number; cgst: number; sgst: number };
+  taxPayable: { igst: number; cgst: number; sgst: number };
+}
+
+export interface GSTLedgerEntry {
+  date: string;
+  voucherNumber: string;
+  voucherType: string;
+  partyName: string;
+  taxableValue: number;
+  igst: number;
+  cgst: number;
+  sgst: number;
+}
+
+export async function getGSTR1Summary(serverUrl: string, companyName: string, fromDate: string, toDate: string): Promise<GSTR1Data> {
+  const xml = buildExportRequest('GSTR-1', companyName, {
+    SVFROMDATE: formatTallyDate(fromDate),
+    SVTODATE: formatTallyDate(toDate),
+  });
+
+  try {
+    const response = await sendRequest(serverUrl, xml);
+    const b2b: GSTR1Data['b2b'] = [];
+    const b2c: GSTR1Data['b2c'] = [];
+    const hsnSummary: GSTR1Data['hsnSummary'] = [];
+
+    const voucherElements = getXmlElements(response, 'VOUCHER');
+    for (const el of voucherElements) {
+      const partyName = getXmlValue(el, 'PARTYLEDGERNAME');
+      const gstin = getXmlValue(el, 'PARTYGSTIN');
+      const voucherNum = getXmlValue(el, 'VOUCHERNUMBER');
+      const rawDate = getXmlValue(el, 'DATE');
+      const date = rawDate ? `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}` : '';
+      const amount = Math.abs(parseFloat(getXmlValue(el, 'AMOUNT') || '0'));
+
+      if (gstin) {
+        let party = b2b.find(p => p.gstin === gstin);
+        if (!party) { party = { partyName, gstin, invoices: [] }; b2b.push(party); }
+        party.invoices.push({ number: voucherNum, date, value: amount, taxableValue: amount, igst: 0, cgst: 0, sgst: 0 });
+      } else {
+        b2c.push({ invoiceNumber: voucherNum, date, value: amount, taxableValue: amount });
+      }
+    }
+
+    return { b2b, b2c, hsnSummary };
+  } catch {
+    return { b2b: [], b2c: [], hsnSummary: [] };
+  }
+}
+
+export async function getGSTR3BSummary(serverUrl: string, companyName: string, fromDate: string, toDate: string): Promise<GSTR3BData> {
+  const xml = buildExportRequest('GSTR-3B', companyName, {
+    SVFROMDATE: formatTallyDate(fromDate),
+    SVTODATE: formatTallyDate(toDate),
+  });
+
+  try {
+    const response = await sendRequest(serverUrl, xml);
+    const data: GSTR3BData = {
+      outwardSupplies: { taxable: 0, igst: 0, cgst: 0, sgst: 0 },
+      inwardSupplies: { taxable: 0, igst: 0, cgst: 0, sgst: 0 },
+      itcAvailed: { igst: 0, cgst: 0, sgst: 0 },
+      taxPayable: { igst: 0, cgst: 0, sgst: 0 },
+    };
+
+    // Parse GST summary data from response
+    data.outwardSupplies.taxable = Math.abs(parseFloat(getXmlValue(response, 'TAXABLEAMOUNT') || '0'));
+    data.outwardSupplies.igst = Math.abs(parseFloat(getXmlValue(response, 'IGSTAMOUNT') || '0'));
+    data.outwardSupplies.cgst = Math.abs(parseFloat(getXmlValue(response, 'CGSTAMOUNT') || '0'));
+    data.outwardSupplies.sgst = Math.abs(parseFloat(getXmlValue(response, 'SGSTAMOUNT') || '0'));
+
+    return data;
+  } catch {
+    return {
+      outwardSupplies: { taxable: 0, igst: 0, cgst: 0, sgst: 0 },
+      inwardSupplies: { taxable: 0, igst: 0, cgst: 0, sgst: 0 },
+      itcAvailed: { igst: 0, cgst: 0, sgst: 0 },
+      taxPayable: { igst: 0, cgst: 0, sgst: 0 },
+    };
+  }
+}
+
+export async function getGSTLedger(serverUrl: string, companyName: string, fromDate: string, toDate: string): Promise<GSTLedgerEntry[]> {
+  // Fetch vouchers and filter for GST-related entries
+  const xml = buildExportRequest('Day Book', companyName, {
+    SVFROMDATE: formatTallyDate(fromDate),
+    SVTODATE: formatTallyDate(toDate),
+  });
+
+  try {
+    const response = await sendRequest(serverUrl, xml);
+    const entries: GSTLedgerEntry[] = [];
+    const voucherElements = getXmlElements(response, 'VOUCHER');
+
+    for (const el of voucherElements) {
+      const ledgerEntries = getXmlElements(el, 'ALLLEDGERENTRIES.LIST');
+      let hasGst = false;
+      let igst = 0, cgst = 0, sgst = 0, taxableValue = 0;
+
+      for (const le of ledgerEntries) {
+        const name = (getXmlValue(le, 'LEDGERNAME') || '').toLowerCase();
+        const amt = Math.abs(parseFloat(getXmlValue(le, 'AMOUNT') || '0'));
+        if (name.includes('igst')) { igst += amt; hasGst = true; }
+        else if (name.includes('cgst')) { cgst += amt; hasGst = true; }
+        else if (name.includes('sgst')) { sgst += amt; hasGst = true; }
+        else { taxableValue += amt; }
+      }
+
+      if (hasGst) {
+        const rawDate = getXmlValue(el, 'DATE');
+        entries.push({
+          date: rawDate ? `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}` : '',
+          voucherNumber: getXmlValue(el, 'VOUCHERNUMBER'),
+          voucherType: getXmlValue(el, 'VOUCHERTYPENAME'),
+          partyName: getXmlValue(el, 'PARTYLEDGERNAME'),
+          taxableValue, igst, cgst, sgst,
+        });
+      }
+    }
+
+    return entries;
+  } catch {
+    return [];
+  }
+}

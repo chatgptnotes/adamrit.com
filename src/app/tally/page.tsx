@@ -6,7 +6,8 @@ import React, { useState, useEffect } from 'react'
 import { supabase } from '@/integrations/supabase/client'
 import {
   LayoutDashboard, BookOpen, FileText, Package,
-  BarChart3, ArrowUpFromLine, Link2
+  BarChart3, ArrowUpFromLine, Link2, Banknote, Landmark,
+  Scale, FileBarChart
 } from 'lucide-react'
 import TallyDashboard from '@/components/tally/TallyDashboard'
 import TallyLedgers from '@/components/tally/TallyLedgers'
@@ -15,13 +16,21 @@ import TallyStockItems from '@/components/tally/TallyStockItems'
 import TallyReports from '@/components/tally/TallyReports'
 import TallyBillSync from '@/components/tally/TallyBillSync'
 import TallyMapping from '@/components/tally/TallyMapping'
+import TallyCashBook from '@/components/tally/TallyCashBook'
+import TallyBankBook from '@/components/tally/TallyBankBook'
+import TallyBankReconciliation from '@/components/tally/TallyBankReconciliation'
+import TallyGST from '@/components/tally/TallyGST'
 
 const tabs = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'ledgers', label: 'Ledgers', icon: BookOpen },
   { id: 'vouchers', label: 'Vouchers', icon: FileText },
+  { id: 'cashbook', label: 'Cash Book', icon: Banknote },
+  { id: 'bankbook', label: 'Bank Book', icon: Landmark },
+  { id: 'reconciliation', label: 'Reconciliation', icon: Scale },
   { id: 'stock', label: 'Stock Items', icon: Package },
   { id: 'reports', label: 'Reports', icon: BarChart3 },
+  { id: 'gst', label: 'GST', icon: FileBarChart },
   { id: 'billsync', label: 'Bill Sync', icon: ArrowUpFromLine },
   { id: 'mapping', label: 'Mapping', icon: Link2 },
 ]
@@ -94,8 +103,12 @@ export default function TallyPage() {
         {activeTab === 'dashboard' && <TallyDashboard />}
         {activeTab === 'ledgers' && <TallyLedgers serverUrl={serverUrl} companyName={companyName} />}
         {activeTab === 'vouchers' && <TallyVouchers serverUrl={serverUrl} companyName={companyName} />}
+        {activeTab === 'cashbook' && <TallyCashBook serverUrl={serverUrl} companyName={companyName} />}
+        {activeTab === 'bankbook' && <TallyBankBook serverUrl={serverUrl} companyName={companyName} />}
+        {activeTab === 'reconciliation' && <TallyBankReconciliation serverUrl={serverUrl} companyName={companyName} />}
         {activeTab === 'stock' && <TallyStockItems serverUrl={serverUrl} companyName={companyName} />}
         {activeTab === 'reports' && <TallyReports serverUrl={serverUrl} companyName={companyName} />}
+        {activeTab === 'gst' && <TallyGST serverUrl={serverUrl} companyName={companyName} />}
         {activeTab === 'billsync' && <TallyBillSync serverUrl={serverUrl} companyName={companyName} />}
         {activeTab === 'mapping' && <TallyMapping serverUrl={serverUrl} companyName={companyName} />}
       </div>

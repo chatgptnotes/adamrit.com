@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import {
   FileText, ArrowDownToLine, ArrowUpFromLine, CheckCircle, XCircle,
   Clock, AlertTriangle, ChevronLeft, ChevronRight, X, Search, Filter,
-  Loader2
+  Loader2, Edit3, Trash2, AlertCircle
 } from 'lucide-react'
 
 const PAGE_SIZE = 25
@@ -73,7 +73,211 @@ function DirectionBadge({ direction }: { direction: string }) {
   )
 }
 
-function DetailModal({ voucher, onClose }: { voucher: any; onClose: () => void }) {
+function EditVoucherModal({ voucher, serverUrl, companyName, onClose, onSaved }: any) {
+  const entries = Array.isArray(voucher.ledger_entries) ? voucher.ledger_entries : []
+  const [form, setForm] = useState({
+    date: voucher.date || '',
+    partyLedger: voucher.party_ledger || '',
+    narration: voucher.narration || '',
+    ledgerEntries: entries.map(e => ({
+      ledger: e.ledger || '',
+      amount: Math.abs(e.amount || 0),
+      isDeemedPositive: e.is_debit || false,
+    })),
+  })
+  const [saving, setSaving] = useState(false)
+
+  function updateEntry(idx, field, value) {
+    const updated = [...form.ledgerEntries]
+    updated[idx] = { ...updated[idx], [field]: value }
+    setForm({ ...form, ledgerEntries: updated })
+  }
+
+  function addEntry() {
+    setForm({ ...form, ledgerEntries: [...form.ledgerEntries, { ledger: '', amount: 0, isDeemedPositive: false }] })
+  }
+
+  function removeEntry(idx) {
+    setForm({ ...form, ledgerEntries: form.ledgerEntries.filter((_, i) => i !== idx) })
+  }
+
+  async function handleSave() {
+    if (!serverUrl || !companyName) { toast.error('Tally connection required'); return }
+    setSaving(true)
+    try {
+      const res = await fetch('/api/tally/push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'alter-voucher',
+          serverUrl, companyName,
+          data: {
+            originalVoucherNumber: voucher.voucher_number,
+            voucherType: voucher.voucher_type,
+            date: form.date,
+            partyLedger: form.partyLedger,
+            narration: form.narration,
+            ledgerEntries: form.ledgerEntries,
+          },
+        }),
+      })
+      const result = await res.json()
+      if (result.success) {
+        // Update local record
+        await supabase.from('tally_vouchers').update({
+          date: form.date,
+          party_ledger: form.partyLedger,
+          narration: form.narration,
+          ledger_entries: form.ledgerEntries.map(e => ({
+            ledger: e.ledger, amount: e.amount, is_debit: e.isDeemedPositive,
+          })),
+          amount: form.ledgerEntries.filter(e => e.isDeemedPositive).reduce((s, e) => s + e.amount, 0),
+        }).eq('id', voucher.id)
+        toast.success('Voucher updated in Tally')
+        onSaved()
+      } else {
+        toast.error(result.message || 'Failed to update voucher')
+      }
+    } catch {
+      toast.error('Failed to update voucher')
+    }
+    setSaving(false)
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto mx-4" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-5 border-b">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <Edit3 className="h-5 w-5 text-blue-600" />
+            Edit Voucher — {voucher.voucher_number}
+          </h3>
+          <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100"><X className="h-5 w-5 text-gray-500" /></button>
+        </div>
+        <div className="p-5 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Date</label>
+              <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })}
+                className="w-full px-3 py-2 border rounded-lg text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Party Ledger</label>
+              <input type="text" value={form.partyLedger} onChange={e => setForm({ ...form, partyLedger: e.target.value })}
+                className="w-full px-3 py-2 border rounded-lg text-sm" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Narration</label>
+            <textarea value={form.narration} onChange={e => setForm({ ...form, narration: e.target.value })}
+              className="w-full px-3 py-2 border rounded-lg text-sm" rows={2} />
+          </div>
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-medium text-gray-600">Ledger Entries</label>
+              <button onClick={addEntry} className="text-xs text-blue-600 hover:text-blue-800">+ Add Entry</button>
+            </div>
+            <div className="space-y-2">
+              {form.ledgerEntries.map((entry, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <input type="text" value={entry.ledger} onChange={e => updateEntry(idx, 'ledger', e.target.value)}
+                    placeholder="Ledger name" className="flex-1 px-2 py-1.5 border rounded text-sm" />
+                  <input type="number" value={entry.amount} onChange={e => updateEntry(idx, 'amount', parseFloat(e.target.value) || 0)}
+                    placeholder="Amount" className="w-28 px-2 py-1.5 border rounded text-sm text-right" />
+                  <select value={entry.isDeemedPositive ? 'Dr' : 'Cr'} onChange={e => updateEntry(idx, 'isDeemedPositive', e.target.value === 'Dr')}
+                    className="px-2 py-1.5 border rounded text-sm">
+                    <option value="Dr">Dr</option>
+                    <option value="Cr">Cr</option>
+                  </select>
+                  {form.ledgerEntries.length > 2 && (
+                    <button onClick={() => removeEntry(idx)} className="p-1 text-red-400 hover:text-red-600">
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-end gap-3 p-5 border-t">
+          <button onClick={onClose} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Cancel</button>
+          <button onClick={handleSave} disabled={saving}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Edit3 className="h-4 w-4" />}
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DeleteConfirmModal({ voucher, serverUrl, companyName, onClose, onDeleted }: any) {
+  const [deleting, setDeleting] = useState(false)
+
+  async function handleDelete() {
+    if (!serverUrl || !companyName) { toast.error('Tally connection required'); return }
+    setDeleting(true)
+    try {
+      const res = await fetch('/api/tally/push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'cancel-voucher',
+          serverUrl, companyName,
+          data: {
+            voucherNumber: voucher.voucher_number,
+            voucherType: voucher.voucher_type,
+          },
+        }),
+      })
+      const result = await res.json()
+      if (result.success) {
+        await supabase.from('tally_vouchers').update({ is_cancelled: true }).eq('id', voucher.id)
+        toast.success('Voucher cancelled in Tally')
+        onDeleted()
+      } else {
+        toast.error(result.message || 'Failed to cancel voucher')
+      }
+    } catch {
+      toast.error('Failed to cancel voucher')
+    }
+    setDeleting(false)
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 bg-red-100 rounded-full">
+            <AlertCircle className="h-6 w-6 text-red-600" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Cancel Voucher</h3>
+            <p className="text-sm text-gray-500">This will delete the voucher in Tally</p>
+          </div>
+        </div>
+        <div className="bg-gray-50 rounded-lg p-3 mb-4 text-sm">
+          <p><span className="text-gray-500">Voucher:</span> <span className="font-medium">{voucher.voucher_number}</span></p>
+          <p><span className="text-gray-500">Type:</span> {voucher.voucher_type}</p>
+          <p><span className="text-gray-500">Amount:</span> {formatCurrency(voucher.amount)}</p>
+          <p><span className="text-gray-500">Party:</span> {voucher.party_ledger || '-'}</p>
+        </div>
+        <p className="text-sm text-red-600 mb-4">This action cannot be undone. The voucher will be deleted from TallyPrime.</p>
+        <div className="flex justify-end gap-3">
+          <button onClick={onClose} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Cancel</button>
+          <button onClick={handleDelete} disabled={deleting}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50">
+            {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+            Delete Voucher
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DetailModal({ voucher, onClose, onEdit, onDelete }: { voucher: any; onClose: () => void; onEdit: () => void; onDelete: () => void }) {
   const entries = Array.isArray(voucher.ledger_entries) ? voucher.ledger_entries : []
   const totalDebit = entries.filter(e => e.is_debit).reduce((s, e) => s + Math.abs(e.amount || 0), 0)
   const totalCredit = entries.filter(e => !e.is_debit).reduce((s, e) => s + Math.abs(e.amount || 0), 0)
@@ -89,9 +293,21 @@ function DetailModal({ voucher, onClose }: { voucher: any; onClose: () => void }
             <FileText className="h-5 w-5 text-blue-600" />
             Voucher Details
           </h3>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100">
-            <X className="h-5 w-5 text-gray-500" />
-          </button>
+          <div className="flex items-center gap-2">
+            {!voucher.is_cancelled && (
+              <>
+                <button onClick={onEdit} className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600" title="Edit Voucher">
+                  <Edit3 className="h-4 w-4" />
+                </button>
+                <button onClick={onDelete} className="p-1.5 rounded-lg hover:bg-red-50 text-red-600" title="Delete Voucher">
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </>
+            )}
+            <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100">
+              <X className="h-5 w-5 text-gray-500" />
+            </button>
+          </div>
         </div>
 
         <div className="p-5 space-y-4">
@@ -218,8 +434,10 @@ export default function TallyVouchers({ serverUrl, companyName }: { serverUrl?: 
   const [typeFilter, setTypeFilter] = useState('All')
   const [statusFilter, setStatusFilter] = useState('All')
 
-  // Modal
+  // Modals
   const [selectedVoucher, setSelectedVoucher] = useState<any>(null)
+  const [editVoucher, setEditVoucher] = useState<any>(null)
+  const [deleteVoucher, setDeleteVoucher] = useState<any>(null)
 
   const fetchVouchers = useCallback(async () => {
     setLoading(true)
@@ -417,7 +635,34 @@ export default function TallyVouchers({ serverUrl, companyName }: { serverUrl?: 
 
       {/* Detail Modal */}
       {selectedVoucher && (
-        <DetailModal voucher={selectedVoucher} onClose={() => setSelectedVoucher(null)} />
+        <DetailModal
+          voucher={selectedVoucher}
+          onClose={() => setSelectedVoucher(null)}
+          onEdit={() => { setEditVoucher(selectedVoucher); setSelectedVoucher(null) }}
+          onDelete={() => { setDeleteVoucher(selectedVoucher); setSelectedVoucher(null) }}
+        />
+      )}
+
+      {/* Edit Modal */}
+      {editVoucher && (
+        <EditVoucherModal
+          voucher={editVoucher}
+          serverUrl={serverUrl}
+          companyName={companyName}
+          onClose={() => setEditVoucher(null)}
+          onSaved={() => { setEditVoucher(null); fetchVouchers() }}
+        />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteVoucher && (
+        <DeleteConfirmModal
+          voucher={deleteVoucher}
+          serverUrl={serverUrl}
+          companyName={companyName}
+          onClose={() => setDeleteVoucher(null)}
+          onDeleted={() => { setDeleteVoucher(null); fetchVouchers() }}
+        />
       )}
     </div>
   )
