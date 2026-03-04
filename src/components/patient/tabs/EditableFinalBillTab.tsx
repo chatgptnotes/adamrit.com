@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Plus, Trash2, Save, Edit3 } from 'lucide-react';
+import { CheckCircle, Edit3, Plus, Save, Trash2 } from 'lucide-react';
 import { useFinalBillData } from '@/hooks/useFinalBillData';
 
 interface EditableFinalBillTabProps {
@@ -233,7 +233,7 @@ export const EditableFinalBillTab: React.FC<EditableFinalBillTabProps> = ({ pati
 
       await saveBill(billDataToSave);
       
-      toast.success(`✅ Bill saved successfully! Total: ₹${totalAmount.toLocaleString('en-IN')}`);
+      toast.success(` Bill saved successfully! Total: ₹${totalAmount.toLocaleString('en-IN')}`);
       setIsEditing(false);
       
     } catch (error) {

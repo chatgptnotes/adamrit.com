@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
-import { CalendarIcon, Filter, RotateCcw, Plus, Search, Trash2, Edit, Eye, FileText, User, Phone, Clock, Activity, Loader2 } from 'lucide-react';
+import { Activity, AlertOctagon, AlertTriangle, BarChart3, Building2, Calculator, CalendarIcon, Check, CheckCircle, Circle, ClipboardList, Clock, Edit, Eraser, Eye, File, FileText, Filter, Flag, FlaskConical, FolderOpen, Key, Lightbulb, Loader2, Lock, Package, Paperclip, PartyPopper, Phone, Plus, Printer, RefreshCw, Rocket, RotateCcw, Ruler, Save, Search, Target, Trash2, TrendingUp, User, Wrench, XCircle, Zap } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -245,19 +245,19 @@ const LabOrders = () => {
   const [wardSearch, setWardSearch] = useState('');
   const [barCodeSearch, setBarCodeSearch] = useState('');
 
-  // 🏥 EXPLICIT HOSPITAL FILTERING - If-Else Condition
+  //  EXPLICIT HOSPITAL FILTERING - If-Else Condition
   const getHospitalFilter = useCallback(() => {
     let hospitalFilter = '';
     if (hospitalConfig.name === 'hope') {
       hospitalFilter = 'hope';
-      console.log('🏥 HOPE Hospital login detected - filtering lab orders');
+      console.log(' HOPE Hospital login detected - filtering lab orders');
     } else if (hospitalConfig.name === 'ayushman') {
       hospitalFilter = 'ayushman';
-      console.log('🏥 AYUSHMAN Hospital login detected - filtering lab orders');
+      console.log(' AYUSHMAN Hospital login detected - filtering lab orders');
     } else {
       hospitalFilter = 'hope'; // default fallback
-      console.log('🏥 Unknown hospital type, defaulting to hope lab orders');
-      console.log('🚨 DEBUG: hospitalConfig.name was:', hospitalConfig.name);
+      console.log(' Unknown hospital type, defaulting to hope lab orders');
+      console.log(' DEBUG: hospitalConfig.name was:', hospitalConfig.name);
     }
     return hospitalFilter;
   }, [hospitalConfig.name]);
@@ -486,13 +486,13 @@ const LabOrders = () => {
       setSavedLabResults({});
       setAuthenticatedResult(false);
       setUploadedFiles([]);
-      console.log('🧹 Form state cleared on dialog close');
+      console.log(' Form state cleared on dialog close');
     }
   };
 
   // DEBUG: Function to check if data is actually in lab_results table
   const checkLabResultsData = async () => {
-    console.log('🔍 Checking lab_results table data...');
+    console.log(' Checking lab_results table data...');
     try {
       // First check table schema by attempting to select all columns
       const { data, error } = await supabase
@@ -501,20 +501,20 @@ const LabOrders = () => {
         .limit(10);
 
       if (error) {
-        console.error('❌ Error querying lab_results:', error);
-        console.error('❌ Error details:', {
+        console.error(' Error querying lab_results:', error);
+        console.error(' Error details:', {
           code: error.code,
           message: error.message,
           details: error.details,
           hint: error.hint
         });
       } else {
-        console.log('✅ lab_results table data (first 10 rows):', data);
-        console.log('📊 Total rows found:', data.length);
+        console.log(' lab_results table data (first 10 rows):', data);
+        console.log(' Total rows found:', data.length);
 
         // If we have data, show the column structure
         if (data && data.length > 0) {
-          console.log('📋 Available columns:', Object.keys(data[0]));
+          console.log(' Available columns:', Object.keys(data[0]));
         }
       }
 
@@ -524,19 +524,19 @@ const LabOrders = () => {
         .select('*', { count: 'exact', head: true });
 
       if (countError) {
-        console.error('❌ Error getting count:', countError);
+        console.error(' Error getting count:', countError);
       } else {
-        console.log('📈 Total rows in table:', count);
+        console.log(' Total rows in table:', count);
       }
 
     } catch (err) {
-      console.error('❌ Exception while checking lab_results:', err);
+      console.error(' Exception while checking lab_results:', err);
     }
   };
 
   // DEBUG: Function to test minimal insert
   const testMinimalInsert = async () => {
-    console.log('🧪 Testing minimal insert...');
+    console.log(' Testing minimal insert...');
     try {
       const testData = {
         main_test_name: 'DEBUG_TEST',
@@ -545,7 +545,7 @@ const LabOrders = () => {
         result_value: 'DEBUG_RESULT'
       };
 
-      console.log('🧪 Attempting to insert:', testData);
+      console.log(' Attempting to insert:', testData);
 
       const { data, error } = await supabase
         .from('lab_results')
@@ -553,18 +553,18 @@ const LabOrders = () => {
         .select();
 
       if (error) {
-        console.error('❌ Minimal insert failed:', error);
+        console.error(' Minimal insert failed:', error);
       } else {
-        console.log('✅ Minimal insert succeeded:', data);
+        console.log(' Minimal insert succeeded:', data);
       }
     } catch (err) {
-      console.error('❌ Exception during minimal insert:', err);
+      console.error(' Exception during minimal insert:', err);
     }
   };
 
   // DEBUG: Function to add missing columns to lab_results table
   const addMissingColumns = async () => {
-    console.log('🔧 Adding missing columns to lab_results table...');
+    console.log(' Adding missing columns to lab_results table...');
     try {
       // First, let's check if the columns exist by trying to select them
       const { data, error: selectError } = await supabase
@@ -573,7 +573,7 @@ const LabOrders = () => {
         .limit(1);
 
       if (selectError) {
-        console.log('🔧 Columns missing, attempting to add via SQL...');
+        console.log(' Columns missing, attempting to add via SQL...');
 
         // Use RPC function to execute SQL (if available)
         const { data: rpcData, error: rpcError } = await supabase.rpc('exec_sql', {
@@ -587,22 +587,22 @@ const LabOrders = () => {
         });
 
         if (rpcError) {
-          console.error('❌ RPC failed:', rpcError);
-          console.log('💡 You may need to run the SQL script manually in Supabase dashboard');
+          console.error(' RPC failed:', rpcError);
+          console.log(' You may need to run the SQL script manually in Supabase dashboard');
         } else {
-          console.log('✅ Columns added successfully');
+          console.log(' Columns added successfully');
         }
       } else {
-        console.log('✅ Required columns already exist');
+        console.log(' Required columns already exist');
       }
     } catch (err) {
-      console.error('❌ Exception while adding columns:', err);
+      console.error(' Exception while adding columns:', err);
     }
   };
 
   // Function to generate visit IDs for visits without visit_id
   const generateVisitIds = async () => {
-    console.log('🔧 Generating visit IDs for visits table...');
+    console.log(' Generating visit IDs for visits table...');
     toast({
       title: "Generating Visit IDs",
       description: "Please wait while we generate visit IDs...",
@@ -616,7 +616,7 @@ const LabOrders = () => {
         .or('visit_id.is.null,visit_id.eq.');
 
       if (fetchError) {
-        console.error('❌ Error fetching visits:', fetchError);
+        console.error(' Error fetching visits:', fetchError);
         toast({
           title: "Error",
           description: "Failed to fetch visits",
@@ -625,7 +625,7 @@ const LabOrders = () => {
         return;
       }
 
-      console.log(`📊 Found ${visits?.length || 0} visits without visit_id`);
+      console.log(` Found ${visits?.length || 0} visits without visit_id`);
 
       if (!visits || visits.length === 0) {
         toast({
@@ -648,14 +648,14 @@ const LabOrders = () => {
           .eq('id', visit.id);
 
         if (updateError) {
-          console.error(`❌ Error updating visit ${visit.id}:`, updateError);
+          console.error(` Error updating visit ${visit.id}:`, updateError);
         } else {
           updateCount++;
-          console.log(`✅ Generated visit_id: ${newVisitId} for visit ${visit.id}`);
+          console.log(` Generated visit_id: ${newVisitId} for visit ${visit.id}`);
         }
       }
 
-      console.log(`✅ Successfully generated ${updateCount} visit IDs`);
+      console.log(` Successfully generated ${updateCount} visit IDs`);
       toast({
         title: "Success",
         description: `Generated ${updateCount} visit IDs successfully!`,
@@ -665,7 +665,7 @@ const LabOrders = () => {
       queryClient.invalidateQueries({ queryKey: ['visit-lab-orders'] });
 
     } catch (err) {
-      console.error('❌ Exception while generating visit IDs:', err);
+      console.error(' Exception while generating visit IDs:', err);
       toast({
         title: "Error",
         description: "An error occurred while generating visit IDs",
@@ -745,7 +745,7 @@ const LabOrders = () => {
   // NEW: Function to calculate reference range from lab table attributes
   const calculateReferenceRange = useCallback(async (testName: string, patientAge: number, patientGender: string) => {
     try {
-      console.log('🔍 Calculating reference range for:', { testName, patientAge, patientGender });
+      console.log(' Calculating reference range for:', { testName, patientAge, patientGender });
 
       // Extract first word for partial matching (e.g., "CBC" from "CBC (Complete Hemogram)")
       const firstWord = testName.split(/[\s(]/)[0];
@@ -759,12 +759,12 @@ const LabOrders = () => {
         .order('id', { ascending: true });
 
       if (labError || !labConfigData || labConfigData.length === 0) {
-        console.log('⚠️ Lab test config not found:', testName);
+        console.log(' Lab test config not found:', testName);
         return getDefaultReferenceRange(testName, patientAge, patientGender);
       }
 
       // Process lab test config data to create reference ranges
-      console.log('📊 Lab config data found:', labConfigData);
+      console.log(' Lab config data found:', labConfigData);
 
       const firstConfig = labConfigData[0];
 
@@ -903,7 +903,7 @@ const LabOrders = () => {
   // NEW: Function to fetch sub-tests for a given test with patient-specific ranges
   const fetchSubTestsForTest = useCallback(async (testName: string, patientAge?: number, patientGender?: string, testId?: string) => {
     try {
-      console.log('🔍 Fetching sub-tests for:', testName, 'testId:', testId, 'Patient:', { age: patientAge, gender: patientGender });
+      console.log(' Fetching sub-tests for:', testName, 'testId:', testId, 'Patient:', { age: patientAge, gender: patientGender });
 
       // Build query - prefer lab_id match if available, fallback to test_name
       let query = supabase
@@ -927,20 +927,20 @@ const LabOrders = () => {
       }
 
       // Load formulas from lab_test_formulas table
-      console.log('🔍 Fetching formulas for test_name:', testName);
+      console.log(' Fetching formulas for test_name:', testName);
       const { data: formulasData, error: formulaError } = await supabase
         .from('lab_test_formulas')
         .select('*')
         .ilike('test_name', testName);  // Changed to ilike for case-insensitive matching
 
-      console.log('📐 Formulas fetched:', formulasData?.length || 0, 'formulas');
+      console.log(' Formulas fetched:', formulasData?.length || 0, 'formulas');
       if (formulaError) {
-        console.error('❌ Error fetching formulas:', formulaError);
+        console.error(' Error fetching formulas:', formulaError);
       }
       if (formulasData && formulasData.length > 0) {
-        console.log('✅ Formulas found:', formulasData.map(f => ({ sub_test: f.sub_test_name, formula: f.formula })));
+        console.log(' Formulas found:', formulasData.map(f => ({ sub_test: f.sub_test_name, formula: f.formula })));
       } else {
-        console.warn('⚠️ No formulas found for test:', testName);
+        console.warn(' No formulas found for test:', testName);
       }
 
       // Create a map of formulas by sub_test_name
@@ -950,12 +950,12 @@ const LabOrders = () => {
           formulasMap.set(formula.sub_test_name, formula);
         });
       }
-      console.log('📊 Formula map created with', formulasMap.size, 'entries');
-      console.log('📊 Formula map keys:', Array.from(formulasMap.keys()));
+      console.log(' Formula map created with', formulasMap.size, 'entries');
+      console.log(' Formula map keys:', Array.from(formulasMap.keys()));
 
-      console.log('📊 Raw sub-tests found for', testName, ':', subTestsData);
-      console.log('👤 Patient info:', { age: patientAge, gender: patientGender });
-      console.log('🔍 Sub-test types:', subTestsData?.map(st => {
+      console.log(' Raw sub-tests found for', testName, ':', subTestsData);
+      console.log(' Patient info:', { age: patientAge, gender: patientGender });
+      console.log(' Sub-test types:', subTestsData?.map(st => {
         const formulaData = formulasMap.get(st.sub_test_name);
         return { name: st.sub_test_name, type: formulaData?.test_type, textValue: formulaData?.text_value };
       }));
@@ -995,7 +995,7 @@ const LabOrders = () => {
         const parentRangeData = findNormalRangeForGender(bestMatch.normal_ranges, patientGender || 'Both', defaultUnit);
 
         // DEBUG: Log what's happening with gender-specific ranges
-        console.log(`🔍 Parent sub-test: ${subTestName}`);
+        console.log(` Parent sub-test: ${subTestName}`);
         console.log(`   normal_ranges:`, bestMatch.normal_ranges);
         console.log(`   patientGender:`, patientGender);
         console.log(`   parentRangeData result:`, parentRangeData);
@@ -1034,7 +1034,7 @@ const LabOrders = () => {
 
         // Add nested sub-tests if they exist
         if (bestMatch.nested_sub_tests && Array.isArray(bestMatch.nested_sub_tests) && bestMatch.nested_sub_tests.length > 0) {
-          console.log(`  📦 Adding ${bestMatch.nested_sub_tests.length} nested sub-tests for ${subTestName}`);
+          console.log(`   Adding ${bestMatch.nested_sub_tests.length} nested sub-tests for ${subTestName}`);
 
           // Sort nested sub-tests by display_order
           const sortedNestedSubTests = [...bestMatch.nested_sub_tests].sort((a, b) => {
@@ -1073,7 +1073,7 @@ const LabOrders = () => {
             // Look up formula for this nested sub-test from formulasMap
             const nestedFormulaData = formulasMap.get(nested.name);
             console.log(`    ↳ Nested: ${nested.name}, unit: ${nestedDisplayUnit}, range: ${nestedRange}, patientGender: ${patientGender}`);
-            console.log(`    📐 Nested formula lookup: "${nested.name}" => ${nestedFormulaData?.formula || 'none'}`);
+            console.log(`     Nested formula lookup: "${nested.name}" => ${nestedFormulaData?.formula || 'none'}`);
 
             processedSubTests.push({
               id: `${bestMatch.id}_nested_${idx}`,
@@ -1096,8 +1096,8 @@ const LabOrders = () => {
         }
       });
 
-      console.log('📊 Processed sub-tests with nested (total count):', processedSubTests.length);
-      console.log('📊 Processed data:', processedSubTests);
+      console.log(' Processed sub-tests with nested (total count):', processedSubTests.length);
+      console.log(' Processed data:', processedSubTests);
       return processedSubTests;
     } catch (error) {
       console.error('Error in fetchSubTestsForTest:', error);
@@ -1107,7 +1107,7 @@ const LabOrders = () => {
 
   // Helper function to find the best matching range for a patient
   const findBestMatchingRange = (ranges: any[], patientAge: number, patientGender: string) => {
-    console.log('🎯 Finding best range for:', { age: patientAge, gender: patientGender, availableRanges: ranges });
+    console.log(' Finding best range for:', { age: patientAge, gender: patientGender, availableRanges: ranges });
 
     // Normalize patient gender for comparison
     const normalizedPatientGender = patientGender?.toLowerCase() === 'male' ? 'Male' :
@@ -1132,7 +1132,7 @@ const LabOrders = () => {
       bestMatch = ranges[0];
     }
 
-    console.log('✅ Selected range:', bestMatch);
+    console.log(' Selected range:', bestMatch);
     return bestMatch;
   };
 
@@ -1189,7 +1189,7 @@ const LabOrders = () => {
   // NEW: Pre-populate labResultsForm with text_value for text type tests
   useEffect(() => {
     if (Object.keys(testSubTests).length > 0 && selectedTestsForEntry.length > 0) {
-      console.log('🔄 Pre-populating text values for text type tests...');
+      console.log(' Pre-populating text values for text type tests...');
 
       const initialFormData: Record<string, any> = {};
 
@@ -1211,7 +1211,7 @@ const LabOrders = () => {
                 is_abnormal: false,
                 result_status: 'Preliminary'
               };
-              console.log(`✅ Pre-populated text value for ${subTest.name}:`, subTest.text_value);
+              console.log(` Pre-populated text value for ${subTest.name}:`, subTest.text_value);
             }
           }
         });
@@ -1229,7 +1229,7 @@ const LabOrders = () => {
           });
           return merged;
         });
-        console.log('📋 Merged text values into labResultsForm:', initialFormData);
+        console.log(' Merged text values into labResultsForm:', initialFormData);
       }
     }
   }, [testSubTests, selectedTestsForEntry]);
@@ -1244,7 +1244,7 @@ const LabOrders = () => {
       });
 
       if (allLoaded) {
-        console.log('✅ Sub-tests loaded, proceeding with print for:', pendingPrint.map(t => t.test_name));
+        console.log(' Sub-tests loaded, proceeding with print for:', pendingPrint.map(t => t.test_name));
         handlePreviewAndPrint(pendingPrint);
         setPendingPrint(null);
       }
@@ -1258,17 +1258,17 @@ const LabOrders = () => {
       // Reset form saved state for new test selection
       setIsFormSaved(false);
       setAuthenticatedResult(false);
-      console.log('🔄 Reset form saved state for new test selection');
-      console.log('✅ subTestsLoadingComplete:', subTestsLoadingComplete);
-      console.log('✅ testSubTests keys:', Object.keys(testSubTests));
+      console.log(' Reset form saved state for new test selection');
+      console.log(' subTestsLoadingComplete:', subTestsLoadingComplete);
+      console.log(' testSubTests keys:', Object.keys(testSubTests));
       const loadExistingLabResults = async () => {
-        console.log('🔍 Loading existing lab results for selected tests...');
+        console.log(' Loading existing lab results for selected tests...');
         const firstTest = selectedTestsForEntry[0];
         const visitId = firstTest.order_id || firstTest.id;
         const labId = firstTest.test_id || firstTest.id;
-        console.log('🔍 Using visit_id (UUID) for loading:', visitId);
-        console.log('🔍 Using lab_id for loading:', labId);
-        console.log('🔍 First test object:', {
+        console.log(' Using visit_id (UUID) for loading:', visitId);
+        console.log(' Using lab_id for loading:', labId);
+        console.log(' First test object:', {
           id: firstTest.id,
           visit_id: firstTest.visit_id,
           order_id: firstTest.order_id,
@@ -1277,8 +1277,8 @@ const LabOrders = () => {
         });
 
         try {
-          console.log('🔍 DEBUGGING: Starting database query with visitId:', visitId);
-          console.log('🔍 DEBUGGING: First test info:', {
+          console.log(' DEBUGGING: Starting database query with visitId:', visitId);
+          console.log(' DEBUGGING: First test info:', {
             id: firstTest.id,
             patient_name: firstTest.patient_name,
             order_number: firstTest.order_number,
@@ -1306,11 +1306,11 @@ const LabOrders = () => {
             endOfDay = end.toISOString();
           }
 
-          console.log('🔍 Query params:', { visitId, labIds, testNames, patientName, orderedDate, startOfDay, endOfDay });
+          console.log(' Query params:', { visitId, labIds, testNames, patientName, orderedDate, startOfDay, endOfDay });
 
           // Get visit_lab_ids for all selected tests (direct link to visit_labs table)
           const visitLabIds = selectedTestsForEntry.map(t => t.id);
-          console.log('🔍 Querying by visit_lab_ids:', visitLabIds);
+          console.log(' Querying by visit_lab_ids:', visitLabIds);
 
           // Primary query: use visit_lab_id (direct link to visit_labs table)
           // This works even when visit_id and lab_id are NULL in the database
@@ -1320,7 +1320,7 @@ const LabOrders = () => {
             .in('visit_lab_id', visitLabIds)
             .order('created_at', { ascending: false });
 
-          console.log('🔍 Primary query result (visit_lab_id):', { count: existingResults?.length || 0, error: error?.message });
+          console.log(' Primary query result (visit_lab_id):', { count: existingResults?.length || 0, error: error?.message });
 
           // Deduplicate primary query results - keep only the most recent per test_name
           if (existingResults && existingResults.length > 0) {
@@ -1332,13 +1332,13 @@ const LabOrders = () => {
               }
             });
             existingResults = Object.values(uniqueResults);
-            console.log('✅ Deduplicated primary query results:', existingResults.length, 'unique tests');
+            console.log(' Deduplicated primary query results:', existingResults.length, 'unique tests');
           }
 
           // Fallback query: search by patient_name + main_test_name + date range
           // This handles old records where visit_lab_id may be NULL
           if ((!existingResults || existingResults.length === 0) && !error) {
-            console.log('ℹ️ No results found by visit_lab_id, trying fallback query by patient + test name + date...');
+            console.log('ℹ No results found by visit_lab_id, trying fallback query by patient + test name + date...');
             const { data: fallbackResults, error: fallbackError } = await supabase
               .from('lab_results')
               .select('*')
@@ -1357,13 +1357,13 @@ const LabOrders = () => {
                 }
               });
               existingResults = Object.values(uniqueResults);
-              console.log('✅ Fallback query found', existingResults.length, 'unique results');
+              console.log(' Fallback query found', existingResults.length, 'unique results');
             } else {
-              console.log('ℹ️ Fallback query also returned no results - form will be empty for new entry');
+              console.log('ℹ Fallback query also returned no results - form will be empty for new entry');
             }
           }
 
-          console.log('🔍 DEBUGGING: Query by visit_id result:', {
+          console.log(' DEBUGGING: Query by visit_id result:', {
             visitId,
             resultCount: existingResults?.length || 0,
             error: error?.message,
@@ -1371,42 +1371,42 @@ const LabOrders = () => {
           });
 
           // Load existing results to populate form
-          console.log('📝 Loading existing results to populate form with saved data');
+          console.log(' Loading existing results to populate form with saved data');
 
           if (error) {
             console.error('Error loading existing lab results:', error);
             return;
           }
 
-          console.log('📊 Found existing lab results:', existingResults?.length || 0, 'records');
+          console.log(' Found existing lab results:', existingResults?.length || 0, 'records');
 
           // SPECIAL DEBUG: Check if test1 is in the database results
           if (existingResults && existingResults.length > 0) {
-            console.log('🚨 DATABASE QUERY DEBUG: All existingResults:', existingResults);
+            console.log(' DATABASE QUERY DEBUG: All existingResults:', existingResults);
 
             const test1Results = existingResults.filter(r => r.test_name === 'test1');
-            console.log('🚨 DATABASE QUERY DEBUG: test1 results found:', test1Results);
+            console.log(' DATABASE QUERY DEBUG: test1 results found:', test1Results);
 
             if (test1Results.length === 0) {
-              console.log('🚨 DATABASE QUERY DEBUG: NO test1 found in database query results!');
-              console.log('🚨 DATABASE QUERY DEBUG: Available test names:',
+              console.log(' DATABASE QUERY DEBUG: NO test1 found in database query results!');
+              console.log(' DATABASE QUERY DEBUG: Available test names:',
                 [...new Set(existingResults.map(r => r.test_name))]);
-              console.log('🚨 DATABASE QUERY DEBUG: Patient names in results:',
+              console.log(' DATABASE QUERY DEBUG: Patient names in results:',
                 [...new Set(existingResults.map(r => r.patient_name))]);
-              console.log('🚨 DATABASE QUERY DEBUG: Current patient we are looking for:', firstTest.patient_name);
+              console.log(' DATABASE QUERY DEBUG: Current patient we are looking for:', firstTest.patient_name);
             } else {
-              console.log('🚨 DATABASE QUERY DEBUG: ✅ test1 data found in database:', test1Results[0]);
+              console.log(' DATABASE QUERY DEBUG:  test1 data found in database:', test1Results[0]);
             }
           } else {
-            console.log('🚨 DATABASE QUERY DEBUG: NO results returned from database query at all!');
+            console.log(' DATABASE QUERY DEBUG: NO results returned from database query at all!');
           }
 
           // ========== SIMPLIFIED LAB RESULTS LOADING (IGNORES main_test_name) ==========
           // This approach directly matches results by test_name to sub-tests
           // It does NOT rely on main_test_name which may be corrupted in the database
           if (existingResults && existingResults.length > 0) {
-            console.log('📊 Found existing results:', existingResults.length);
-            console.log('📊 All existing results:', existingResults);
+            console.log(' Found existing results:', existingResults.length);
+            console.log(' All existing results:', existingResults);
 
             const loadedFormData: Record<string, any> = {};
 
@@ -1421,8 +1421,8 @@ const LabOrders = () => {
             // For each selected test, find matching results by sub-test name (IGNORING main_test_name)
             selectedTestsForEntry.forEach(testRow => {
               const subTests = testSubTests[testRow.test_name] || [];
-              console.log(`📊 Processing ${testRow.test_name} (ID: ${testRow.id}) with ${subTests.length} sub-tests`);
-              console.log(`📊 Sub-tests available:`, subTests.map(st => ({ id: st.id, name: st.name })));
+              console.log(` Processing ${testRow.test_name} (ID: ${testRow.id}) with ${subTests.length} sub-tests`);
+              console.log(` Sub-tests available:`, subTests.map(st => ({ id: st.id, name: st.name })));
 
               // Track which results have been matched (to avoid double-matching in fuzzy pass)
               const matchedResultNames = new Set<string>();
@@ -1453,7 +1453,7 @@ const LabOrders = () => {
                   if (!loadedFormData[key]) {
                     loadedFormData[key] = formData;
                     matchedResultNames.add(result.test_name);
-                    console.log(`✅ EXACT Loaded: ${result.test_name} → ${matchingSubTest.name} (key: ${key})`);
+                    console.log(` EXACT Loaded: ${result.test_name} → ${matchingSubTest.name} (key: ${key})`);
                   }
                 }
               });
@@ -1486,7 +1486,7 @@ const LabOrders = () => {
 
                   const key = `${testRow.id}_subtest_${matchingSubTest.id}`;
                   loadedFormData[key] = formData;
-                  console.log(`✅ FUZZY Loaded: ${result.test_name} → ${matchingSubTest.name} (key: ${key})`);
+                  console.log(` FUZZY Loaded: ${result.test_name} → ${matchingSubTest.name} (key: ${key})`);
                 }
               });
 
@@ -1508,13 +1508,13 @@ const LabOrders = () => {
                     is_abnormal: mainTestResult.is_abnormal || false,
                     result_status: mainTestResult.result_status || 'Preliminary'
                   };
-                  console.log(`✅ Loaded main test (no sub-tests): ${testRow.id}`, loadedFormData[testRow.id]);
+                  console.log(` Loaded main test (no sub-tests): ${testRow.id}`, loadedFormData[testRow.id]);
                 }
               }
             });
 
-            console.log('📋 Final loaded form data keys:', Object.keys(loadedFormData));
-            console.log('📋 Final loaded form data:', loadedFormData);
+            console.log(' Final loaded form data keys:', Object.keys(loadedFormData));
+            console.log(' Final loaded form data:', loadedFormData);
 
             // Check if any result was authenticated
             const hasAuthenticatedResults = existingResults.some(result =>
@@ -1523,7 +1523,7 @@ const LabOrders = () => {
 
             if (hasAuthenticatedResults) {
               setAuthenticatedResult(true);
-              console.log('🔐 Found authenticated results - setting authentication to true');
+              console.log(' Found authenticated results - setting authentication to true');
             }
 
             if (Object.keys(loadedFormData).length > 0) {
@@ -1531,7 +1531,7 @@ const LabOrders = () => {
               setLabResultsForm(loadedFormData);
               setSavedLabResults(loadedFormData);
               setIsFormSaved(true);
-              console.log('✅ Successfully loaded existing lab results into form (replaced, not merged)');
+              console.log(' Successfully loaded existing lab results into form (replaced, not merged)');
               toast({
                 title: "Loaded Existing Results",
                 description: `Found and loaded ${Object.keys(loadedFormData).length} existing test results.`,
@@ -1554,7 +1554,7 @@ const LabOrders = () => {
         if (!patientName) return;
 
         try {
-          console.log('📊 Fetching previous test values for patient:', patientName);
+          console.log(' Fetching previous test values for patient:', patientName);
           const { data, error } = await supabase
             .from('lab_results')
             .select('test_name, result_value, result_unit, created_at')
@@ -1582,7 +1582,7 @@ const LabOrders = () => {
             }, {});
 
             setPreviousTestValues(grouped);
-            console.log('✅ Loaded previous test values:', Object.keys(grouped).length, 'tests');
+            console.log(' Loaded previous test values:', Object.keys(grouped).length, 'tests');
           }
         } catch (err) {
           console.error('Error in fetchPreviousTestValues:', err);
@@ -1596,7 +1596,7 @@ const LabOrders = () => {
   // Sample save mutation
   const saveSamplesMutation = useMutation({
     mutationFn: async (testIds: string[]) => {
-      console.log('💾 Saving sample taken status to database for test IDs:', testIds);
+      console.log(' Saving sample taken status to database for test IDs:', testIds);
 
       // Update visit_labs records to mark samples as taken (collected)
       const updatePromises = testIds.map(async (testId) => {
@@ -1618,7 +1618,7 @@ const LabOrders = () => {
       });
 
       await Promise.all(updatePromises);
-      console.log('✅ Successfully updated database records for sample taken status');
+      console.log(' Successfully updated database records for sample taken status');
 
       // Mark all selected tests as saved in local state
       const updatedStatus: Record<string, 'saved'> = {};
@@ -1655,11 +1655,11 @@ const LabOrders = () => {
   // Lab Results Save Mutation - Store in visit_labs table
   const saveLabResultsMutation = useMutation({
     mutationFn: async (resultsData: any[]) => {
-      console.log('🔍 Starting lab results save process...', resultsData);
+      console.log(' Starting lab results save process...', resultsData);
       const results = [];
 
       for (const result of resultsData) {
-        console.log('📝 Processing result:', result);
+        console.log(' Processing result:', result);
 
         try {
           // Use the original test row data from selectedTestsForEntry to get visit and patient info
@@ -1669,22 +1669,22 @@ const LabOrders = () => {
           );
 
           if (!originalTestRow) {
-            console.error('❌ Could not find original test row for ID:', result.order_id);
+            console.error(' Could not find original test row for ID:', result.order_id);
             throw new Error(`Could not find original test row for ID: ${result.order_id}`);
           }
 
-          console.log('1️⃣ Found original test row:', originalTestRow);
+          console.log('1⃣ Found original test row:', originalTestRow);
 
           // Get visit ID and patient ID from the original data
           let visitId = originalTestRow.visit_id;
           let patientId = originalTestRow.patient_id;
 
-          console.log('2️⃣ Initial visitId:', visitId, 'patientId:', patientId);
+          console.log('2⃣ Initial visitId:', visitId, 'patientId:', patientId);
 
           // If we don't have direct visit_id, try to get it from visit_id field
           if (!visitId && originalTestRow.visit_id_text) {
             // Look up visit by visit_id text
-            console.log('3️⃣ Looking up visit by visit_id_text:', originalTestRow.visit_id_text);
+            console.log('3⃣ Looking up visit by visit_id_text:', originalTestRow.visit_id_text);
             const { data: visitData, error: visitError } = await supabase
               .from('visits')
               .select('id, patient_id')
@@ -1694,25 +1694,25 @@ const LabOrders = () => {
             if (visitData) {
               visitId = visitData.id;
               patientId = visitData.patient_id;
-              console.log('✅ Found visit via text lookup:', { visitId, patientId });
+              console.log(' Found visit via text lookup:', { visitId, patientId });
             } else {
-              console.log('⚠️ Could not find visit via text lookup');
+              console.log(' Could not find visit via text lookup');
             }
           }
 
           // If we still don't have visit/patient info, we can still save with just the test name
           if (!visitId || !patientId) {
-            console.log('⚠️ Missing visit/patient info - will save with available data');
+            console.log(' Missing visit/patient info - will save with available data');
           }
 
           // Simplify: Just create a simple record to store the observed value
-          console.log('4️⃣ Creating simple lab result record');
+          console.log('4⃣ Creating simple lab result record');
 
           // Skip complex lab entry lookup for now - just save the data directly
-          console.log('5️⃣ Preparing to save directly to lab_results table');
+          console.log('5⃣ Preparing to save directly to lab_results table');
 
           // Create and save to lab_results table
-          console.log('6️⃣ Preparing to save in lab_results table');
+          console.log('6⃣ Preparing to save in lab_results table');
 
 
           // Skip table creation - try direct insert to lab_results table
@@ -1757,11 +1757,11 @@ const LabOrders = () => {
             }
           });
 
-          console.log('🔍 DEBUG: Original test row:', originalTestRow);
-          console.log('🔍 DEBUG: Result object:', result);
-          console.log('🔍 DEBUG: Data to insert into lab_results:', labResultsData);
-          console.log('🔍 DEBUG: Authentication status:', authenticatedResult);
-          console.log('🔍 DEBUG: Visit ID:', visitId);
+          console.log(' DEBUG: Original test row:', originalTestRow);
+          console.log(' DEBUG: Result object:', result);
+          console.log(' DEBUG: Data to insert into lab_results:', labResultsData);
+          console.log(' DEBUG: Authentication status:', authenticatedResult);
+          console.log(' DEBUG: Visit ID:', visitId);
           console.log('⏰ DEBUG: Creating new timestamp-based entry - each test session will have unique created_at time');
 
           // Try saving with error handling to see what's missing
@@ -1816,8 +1816,8 @@ const LabOrders = () => {
             throw new Error(`Failed to save to lab_results table: ${labResultsError.message || labResultsError.code}`);
           }
 
-          console.log('✅ Lab results saved successfully to lab_results table!');
-          console.log('📊 Saved data:', finalResult);
+          console.log(' Lab results saved successfully to lab_results table!');
+          console.log(' Saved data:', finalResult);
 
           // Add patient and visit info to result for print usage
           // Get complete patient data from the fetched patient info
@@ -1825,7 +1825,7 @@ const LabOrders = () => {
           let currentVisitData = null;
 
           if (patientId) {
-            console.log('🔍 Fetching enhanced patient data for patient_id:', patientId);
+            console.log(' Fetching enhanced patient data for patient_id:', patientId);
             const { data: patientData, error: currentPatientError } = await supabase
               .from('patients')
               .select('id, patients_id, name, age, gender, phone')
@@ -1833,16 +1833,16 @@ const LabOrders = () => {
               .single();
 
             if (currentPatientError) {
-              console.error('❌ Error fetching patient data:', currentPatientError);
+              console.error(' Error fetching patient data:', currentPatientError);
             } else {
-              console.log('✅ Enhanced patient data:', patientData);
+              console.log(' Enhanced patient data:', patientData);
               currentPatientData = patientData;
             }
           }
 
           // Get visit data for additional info
           if (visitId) {
-            console.log('🔍 Fetching enhanced visit data for visit_id:', visitId);
+            console.log(' Fetching enhanced visit data for visit_id:', visitId);
             const { data: visitData, error: currentVisitError } = await supabase
               .from('visits')
               .select('id, visit_id, appointment_with, reason_for_visit')
@@ -1850,9 +1850,9 @@ const LabOrders = () => {
               .single();
 
             if (currentVisitError) {
-              console.error('❌ Error fetching visit data:', currentVisitError);
+              console.error(' Error fetching visit data:', currentVisitError);
             } else {
-              console.log('✅ Enhanced visit data:', visitData);
+              console.log(' Enhanced visit data:', visitData);
               currentVisitData = visitData;
             }
           }
@@ -1870,18 +1870,18 @@ const LabOrders = () => {
             clinical_history: currentVisitData?.reason_for_visit || 'Not specified'
           };
 
-          console.log('📋 Final result with patient info:', resultWithPatientInfo);
+          console.log(' Final result with patient info:', resultWithPatientInfo);
 
           results.push(resultWithPatientInfo);
-          console.log('🎉 Result processed successfully!');
+          console.log(' Result processed successfully!');
 
         } catch (error) {
-          console.error('💥 Error processing result:', error);
+          console.error(' Error processing result:', error);
           throw error; // Re-throw to trigger onError
         }
       }
 
-      console.log('🚀 All results processed successfully:', results);
+      console.log(' All results processed successfully:', results);
       return results;
     },
     onSuccess: (results) => {
@@ -1972,7 +1972,7 @@ const LabOrders = () => {
         .select('*')
         .order('name');
 
-      // 🏥 Lab tests are shared across hospitals
+      //  Lab tests are shared across hospitals
 
       if (error) {
         console.error('Error fetching lab tests:', error);
@@ -2015,11 +2015,11 @@ const LabOrders = () => {
     queryKey: ['consultants', getHospitalFilter()],
     queryFn: async () => {
       const hospitalFilter = getHospitalFilter();
-      console.log('🔍 Fetching consultants for hospital:', hospitalFilter);
+      console.log(' Fetching consultants for hospital:', hospitalFilter);
 
       // Determine which table to use based on hospital
       const tableName = hospitalFilter === 'ayushman' ? 'ayushman_consultants' : 'hope_consultants';
-      console.log('📋 Using table:', tableName);
+      console.log(' Using table:', tableName);
 
       const { data, error } = await supabase
         .from(tableName)
@@ -2027,11 +2027,11 @@ const LabOrders = () => {
         .order('name');
 
       if (error) {
-        console.error('❌ Error fetching consultants:', error);
+        console.error(' Error fetching consultants:', error);
         throw error;
       }
 
-      console.log('✅ Fetched consultants:', data);
+      console.log(' Fetched consultants:', data);
       return data || [];
     }
   });
@@ -2091,10 +2091,10 @@ const LabOrders = () => {
   const { data: labTestRows = [], isLoading: testRowsLoading, isFetching: testRowsFetching } = useQuery({
     queryKey: ['visit-lab-orders', getHospitalFilter(), patientStatusFilter, dateRange.from, dateRange.to, searchTerm],
     queryFn: async () => {
-      console.log('🔍 Fetching lab test data from visit_labs...');
+      console.log(' Fetching lab test data from visit_labs...');
 
       const hospitalFilter = getHospitalFilter();
-      console.log('🔍 Patient status filter:', patientStatusFilter);
+      console.log(' Patient status filter:', patientStatusFilter);
 
       // Fetch from visit_labs table with JOINs
       let query = supabase
@@ -2145,10 +2145,10 @@ const LabOrders = () => {
       // Apply patient status filter
       if (patientStatusFilter === 'Currently Admitted') {
         query = query.is('visits.discharge_date', null);
-        console.log('🔍 Filtering for currently admitted patients (no discharge date)');
+        console.log(' Filtering for currently admitted patients (no discharge date)');
       } else if (patientStatusFilter === 'Discharged') {
         query = query.not('visits.discharge_date', 'is', null);
-        console.log('🔍 Filtering for discharged patients (has discharge date)');
+        console.log(' Filtering for discharged patients (has discharge date)');
       }
       // If 'All', no additional filter is applied
 
@@ -2157,7 +2157,7 @@ const LabOrders = () => {
       let toDate: Date;
 
       // DEBUG: Log date filter inputs
-      console.log('🔍 DEBUG DATE FILTER:', {
+      console.log(' DEBUG DATE FILTER:', {
         dateRangeFrom: dateRange.from,
         dateRangeTo: dateRange.to,
         searchTerm: searchTerm,
@@ -2181,7 +2181,7 @@ const LabOrders = () => {
       }
 
       // DEBUG: Log parsed dates
-      console.log('🔍 DEBUG PARSED DATES:', {
+      console.log(' DEBUG PARSED DATES:', {
         fromDateISO: fromDate.toISOString(),
         toDateISO: toDate.toISOString()
       });
@@ -2195,18 +2195,18 @@ const LabOrders = () => {
       const { data, error } = await query
         .order('ordered_date', { ascending: false });
 
-      // 🏥 Only filter by patient hospital, lab tests are shared
+      //  Only filter by patient hospital, lab tests are shared
 
       if (error) {
-        console.error('❌ Error fetching visit labs:', error);
+        console.error(' Error fetching visit labs:', error);
         throw error;
       }
 
-      console.log('✅ Fetched', data?.length || 0, 'lab entries from visit_labs');
-      console.log('🔍 DEBUG QUERY RESULT:', { dataCount: data?.length || 0, error: error });
+      console.log(' Fetched', data?.length || 0, 'lab entries from visit_labs');
+      console.log(' DEBUG QUERY RESULT:', { dataCount: data?.length || 0, error: error });
 
       // Debug: Check visit_id data
-      console.log('🔍 DEBUG - First 3 entries:');
+      console.log(' DEBUG - First 3 entries:');
       data?.slice(0, 3).forEach((entry, idx) => {
         console.log(`Entry ${idx + 1}:`, {
           visit_id: entry.visits?.visit_id,
@@ -2252,7 +2252,7 @@ const LabOrders = () => {
   // OPTIMIZED: Uses batch queries instead of individual queries per test
   useEffect(() => {
     if (labTestRows.length > 0) {
-      console.log('🔄 Loading sample taken status (OPTIMIZED BATCH QUERIES)...');
+      console.log(' Loading sample taken status (OPTIMIZED BATCH QUERIES)...');
       setIsCheckingSampleStatus(true);
 
       const checkLabResultsForSampleStatus = async () => {
@@ -2262,7 +2262,7 @@ const LabOrders = () => {
 
           // BATCH QUERY 1: Get all visit_labs data in ONE query
           const testIds = labTestRows.map(t => t.id);
-          console.log(`🔍 Batch fetching visit_labs for ${testIds.length} tests...`);
+          console.log(` Batch fetching visit_labs for ${testIds.length} tests...`);
 
           const { data: visitLabsData, error: visitLabsError } = await supabase
             .from('visit_labs')
@@ -2270,17 +2270,17 @@ const LabOrders = () => {
             .in('id', testIds);
 
           if (visitLabsError) {
-            console.error('❌ Error batch fetching visit_labs:', visitLabsError);
+            console.error(' Error batch fetching visit_labs:', visitLabsError);
           }
 
           // Create a map for quick lookup
           const visitLabsMap = new Map(visitLabsData?.map(v => [v.id, v]) || []);
-          console.log(`✅ Fetched ${visitLabsData?.length || 0} visit_labs records`);
+          console.log(` Fetched ${visitLabsData?.length || 0} visit_labs records`);
 
           // Process visit_labs data
           for (const testRow of labTestRows) {
             const visitLabData = visitLabsMap.get(testRow.id);
-            console.log('🔍 DEBUG SAMPLE STATUS:', {
+            console.log(' DEBUG SAMPLE STATUS:', {
               testId: testRow.id,
               testName: testRow.test_name,
               visitLabData: visitLabData,
@@ -2293,11 +2293,11 @@ const LabOrders = () => {
               statusMap[testRow.id] = 'not_taken';
             }
           }
-          console.log('🔍 DEBUG FINAL STATUS MAP:', statusMap);
+          console.log(' DEBUG FINAL STATUS MAP:', statusMap);
 
           // BATCH QUERY 2: Get all lab_results for relevant patients in ONE query
           const patientNames = [...new Set(labTestRows.map(t => t.patient_name))];
-          console.log(`🔍 Batch fetching lab_results for ${patientNames.length} patients...`);
+          console.log(` Batch fetching lab_results for ${patientNames.length} patients...`);
 
           const { data: allLabResults, error: labResultsError } = await supabase
             .from('lab_results')
@@ -2305,10 +2305,10 @@ const LabOrders = () => {
             .in('patient_name', patientNames);
 
           if (labResultsError) {
-            console.error('❌ Error batch fetching lab_results:', labResultsError);
+            console.error(' Error batch fetching lab_results:', labResultsError);
           }
 
-          console.log(`✅ Fetched ${allLabResults?.length || 0} lab_results records`);
+          console.log(` Fetched ${allLabResults?.length || 0} lab_results records`);
 
           // Process lab_results data in memory (no more queries needed!)
           if (allLabResults && allLabResults.length > 0) {
@@ -2355,16 +2355,16 @@ const LabOrders = () => {
           }
 
           setTestsWithSavedResults(savedResultIds);
-          console.log('✅ Tests with saved results or printed:', savedResultIds.length);
+          console.log(' Tests with saved results or printed:', savedResultIds.length);
 
           setTestSampleStatus(statusMap);
           setIncludedTests([]); // Don't auto-include - user must select manually from one patient
-          console.log('✅ Sample status loaded (2 batch queries instead of 100+):', {
+          console.log(' Sample status loaded (2 batch queries instead of 100+):', {
             totalTests: labTestRows.length,
             savedCount: Object.values(statusMap).filter(s => s === 'saved').length
           });
         } catch (error) {
-          console.error('❌ Error in batch sample status check:', error);
+          console.error(' Error in batch sample status check:', error);
         } finally {
           setIsCheckingSampleStatus(false);
         }
@@ -2439,7 +2439,7 @@ const LabOrders = () => {
   // Create order mutation - creates proper lab_order first, then visit_labs entries
   const createOrderMutation = useMutation({
     mutationFn: async (visitLabEntries: any[]) => {
-      console.log('🔄 Creating lab order with visit_labs entries:', visitLabEntries);
+      console.log(' Creating lab order with visit_labs entries:', visitLabEntries);
 
       const hospitalFilter = getHospitalFilter();
 
@@ -2456,10 +2456,10 @@ const LabOrders = () => {
         provisional_diagnosis: orderForm.provisionalDiagnosis,
         special_instructions: orderForm.specialInstructions,
         internal_notes: selectedPatient?.visitId ? `Visit ID: ${selectedPatient.visitId}` : ''
-        // 🏥 No hospital_name needed - will be determined by patient_id
+        //  No hospital_name needed - will be determined by patient_id
       };
 
-      console.log('🔄 Creating lab_order:', labOrderData);
+      console.log(' Creating lab_order:', labOrderData);
 
       const { data: labOrderResult, error: labOrderError } = await supabase
         .from('lab_orders')
@@ -2468,11 +2468,11 @@ const LabOrders = () => {
         .single();
 
       if (labOrderError) {
-        console.error('❌ Error creating lab_order:', labOrderError);
+        console.error(' Error creating lab_order:', labOrderError);
         throw labOrderError;
       }
 
-      console.log('✅ Created lab_order:', labOrderResult);
+      console.log(' Created lab_order:', labOrderResult);
 
       // Add lab_order_id to each visit_labs entry
       const visitLabsWithOrderId = visitLabEntries.map(entry => ({
@@ -2487,11 +2487,11 @@ const LabOrders = () => {
         .select();
 
       if (error) {
-        console.error('❌ Error creating visit_labs entries:', error);
+        console.error(' Error creating visit_labs entries:', error);
         throw error;
       }
 
-      console.log('✅ Created', data?.length || 0, 'visit_labs entries');
+      console.log(' Created', data?.length || 0, 'visit_labs entries');
       return { labOrder: labOrderResult, visitLabs: data };
     },
     retry: false, // Prevent duplicate entries due to React.StrictMode or network retries
@@ -2813,12 +2813,12 @@ const LabOrders = () => {
   // Multi-pass calculation for chain formulas (e.g., A/G Ratio depends on Globulin which depends on Protein - Albumin)
   const calculateFormulas = (currentFormData: any, currentTestRow: any) => {
     if (!currentTestRow || !currentTestRow.sub_tests) {
-      console.log('⚠️ No test row or sub-tests found for formula calculation');
+      console.log(' No test row or sub-tests found for formula calculation');
       return {};
     }
 
-    console.log('🧮 Starting formula calculation for test:', currentTestRow.test_name);
-    console.log('📊 Sub-tests:', currentTestRow.sub_tests.map((st: any) => ({ name: st.name, formula: st.formula })));
+    console.log(' Starting formula calculation for test:', currentTestRow.test_name);
+    console.log(' Sub-tests:', currentTestRow.sub_tests.map((st: any) => ({ name: st.name, formula: st.formula })));
 
     const calculatedValues: any = {};
 
@@ -2831,7 +2831,7 @@ const LabOrders = () => {
     while (changesMade && iterations < maxIterations) {
       changesMade = false;
       iterations++;
-      console.log(`\n🔄 Formula calculation pass ${iterations}...`);
+      console.log(`\n Formula calculation pass ${iterations}...`);
 
       currentTestRow.sub_tests.forEach((subTest: any) => {
         // Check if this sub-test has a formula
@@ -2839,11 +2839,11 @@ const LabOrders = () => {
           // GUARD: Skip if formula references itself (prevents incorrect self-calculation like Haemoglobin + Haemoglobin = doubled value)
           if (subTest.formula.includes(subTest.name)) {
             if (iterations === 1) {
-              console.warn(`⚠️ Skipping self-referential formula for ${subTest.name}: ${subTest.formula}`);
+              console.warn(` Skipping self-referential formula for ${subTest.name}: ${subTest.formula}`);
             }
             return; // Skip this sub-test's formula
           }
-          console.log(`📐 Processing formula for "${subTest.name}": ${subTest.formula}`);
+          console.log(` Processing formula for "${subTest.name}": ${subTest.formula}`);
           let formula = subTest.formula;
           let canCalculate = true;
           let hasEmptyDependency = false;
@@ -2857,7 +2857,7 @@ const LabOrders = () => {
             const trimmedName = st.name?.trim() || '';
 
             if (iterations === 1) {
-              console.log(`  🔍 Checking "${trimmedName}" (key: ${subTestKey}), value: "${subTestValue}"`);
+              console.log(`   Checking "${trimmedName}" (key: ${subTestKey}), value: "${subTestValue}"`);
             }
 
             // Check if this test name is used in the formula (use trimmed name)
@@ -2865,7 +2865,7 @@ const LabOrders = () => {
               if (!subTestValue || subTestValue.toString().trim() === '') {
                 // Dependency is empty or cleared
                 if (iterations === 1) {
-                  console.log(`    🗑️ "${trimmedName}" in formula is EMPTY - will clear calculated value`);
+                  console.log(`     "${trimmedName}" in formula is EMPTY - will clear calculated value`);
                 }
                 hasEmptyDependency = true;
                 canCalculate = false;
@@ -2882,13 +2882,13 @@ const LabOrders = () => {
                 const beforeReplace = formula;
                 formula = formula.replace(regex, subTestValue.toString());
                 if (beforeReplace !== formula && iterations === 1) {
-                  console.log(`    ✅ Replaced "${trimmedName}" with ${subTestValue}`);
+                  console.log(`     Replaced "${trimmedName}" with ${subTestValue}`);
                   console.log(`    Formula now: ${formula}`);
                 }
               } else {
                 // Value exists but is not a valid number
                 if (iterations === 1) {
-                  console.log(`    ⚠️ "${trimmedName}" has invalid numeric value: ${subTestValue}`);
+                  console.log(`     "${trimmedName}" has invalid numeric value: ${subTestValue}`);
                 }
                 canCalculate = false;
               }
@@ -2900,7 +2900,7 @@ const LabOrders = () => {
           // If any dependency is empty/cleared, clear the calculated value
           if (hasEmptyDependency) {
             if (iterations === 1) {
-              console.log(`  🗑️ Clearing calculated value for "${subTest.name}" - dependency deleted`);
+              console.log(`   Clearing calculated value for "${subTest.name}" - dependency deleted`);
             }
             calculatedValues[subTestKey] = '';  // Set to empty string to clear
             return; // Skip to next sub-test
@@ -2909,10 +2909,10 @@ const LabOrders = () => {
           // Only calculate if all required values are available
           if (canCalculate) {
             try {
-              console.log(`  🎯 Final formula to evaluate: ${formula}`);
+              console.log(`   Final formula to evaluate: ${formula}`);
               // Safely evaluate the formula
               const result = eval(formula);
-              console.log(`  📊 Evaluation result: ${result}`);
+              console.log(`   Evaluation result: ${result}`);
               if (!isNaN(result) && isFinite(result)) {
                 const newValue = result.toFixed(2);
                 const previousValue = mergedFormData[subTestKey]?.result_value;
@@ -2923,30 +2923,30 @@ const LabOrders = () => {
                   // Update mergedFormData so dependent formulas can use this value in next pass
                   mergedFormData[subTestKey] = { ...mergedFormData[subTestKey], result_value: newValue };
                   changesMade = true; // Trigger another pass for chain calculations
-                  console.log(`  ✅ Formula calculated for ${subTest.name}: ${subTest.formula} = ${newValue}`);
-                  console.log(`  💾 Will save to key: ${subTestKey}`);
+                  console.log(`   Formula calculated for ${subTest.name}: ${subTest.formula} = ${newValue}`);
+                  console.log(`   Will save to key: ${subTestKey}`);
                 }
               } else {
-                console.log(`  ❌ Result is NaN or Infinite: ${result}`);
+                console.log(`   Result is NaN or Infinite: ${result}`);
               }
             } catch (error) {
-              console.error(`  ❌ Error calculating formula for ${subTest.name}:`, error);
+              console.error(`   Error calculating formula for ${subTest.name}:`, error);
             }
           } else {
             if (iterations === 1) {
-              console.log(`  ⏸️ Cannot calculate yet - missing or invalid values`);
+              console.log(`  ⏸ Cannot calculate yet - missing or invalid values`);
             }
           }
         }
       });
     }
 
-    console.log(`🏁 Formula calculations complete after ${iterations} pass(es)\n`);
+    console.log(` Formula calculations complete after ${iterations} pass(es)\n`);
     return calculatedValues;
   };
 
   const handleLabResultChange = (testId: string, field: string, value: string | boolean) => {
-    console.log(`📝 Form data changed: key="${testId}", field="${field}", value="${value}"`);
+    console.log(` Form data changed: key="${testId}", field="${field}", value="${value}"`);
     // Allow re-saving when user edits
     setIsFormSaved(false);
     setLabResultsForm(prev => {
@@ -2961,7 +2961,7 @@ const LabOrders = () => {
       // Calculate formulas if this is a result_value change
       if (field === 'result_value' && selectedTestsForEntry.length > 0) {
         // FIXED: Process ALL selected tests, not just the first one
-        console.log('🔄 Triggering formula calculation for ALL selected tests');
+        console.log(' Triggering formula calculation for ALL selected tests');
         
         // Determine which test this testId belongs to
         const relevantTestRow = selectedTestsForEntry.find(testRow => {
@@ -2976,26 +2976,26 @@ const LabOrders = () => {
             sub_tests: testSubTests[relevantTestRow.test_name] || []
           };
 
-          console.log('📊 Processing formulas for test:', relevantTestRow.test_name);
-          console.log('📊 Sub-tests available:', testRowWithSubTests.sub_tests.length);
-          console.log('📊 Sub-tests with formulas:', testRowWithSubTests.sub_tests.filter((st: any) => st.formula).map((st: any) => ({ name: st.name, formula: st.formula })));
+          console.log(' Processing formulas for test:', relevantTestRow.test_name);
+          console.log(' Sub-tests available:', testRowWithSubTests.sub_tests.length);
+          console.log(' Sub-tests with formulas:', testRowWithSubTests.sub_tests.filter((st: any) => st.formula).map((st: any) => ({ name: st.name, formula: st.formula })));
 
           const calculatedValues = calculateFormulas(updated, testRowWithSubTests);
 
           // Merge calculated values into updated form data
           Object.keys(calculatedValues).forEach(key => {
-            console.log(`📝 Updating ${key} with calculated value: ${calculatedValues[key]}`);
+            console.log(` Updating ${key} with calculated value: ${calculatedValues[key]}`);
             updated[key] = {
               ...updated[key],
               result_value: calculatedValues[key]
             };
           });
         } else {
-          console.log('⚠️ Could not find relevant test row for testId:', testId);
+          console.log(' Could not find relevant test row for testId:', testId);
         }
       }
 
-      console.log('📋 Updated form state keys:', Object.keys(updated));
+      console.log(' Updated form state keys:', Object.keys(updated));
       return updated;
     });
   };
@@ -3040,18 +3040,18 @@ const LabOrders = () => {
 
     // SIMPLIFIED: Always collect main test data first, then sub-tests if they exist
     selectedTestsForEntry.forEach(testRow => {
-      console.log(`🔍 Processing testRow: ${testRow.test_name} (ID: ${testRow.id})`);
-      console.log(`🔍 TestRow full object:`, testRow);
-      console.log(`🔍 Available form keys:`, Object.keys(labResultsForm));
-      console.log(`🔍 Looking for key: ${testRow.id}`);
+      console.log(` Processing testRow: ${testRow.test_name} (ID: ${testRow.id})`);
+      console.log(` TestRow full object:`, testRow);
+      console.log(` Available form keys:`, Object.keys(labResultsForm));
+      console.log(` Looking for key: ${testRow.id}`);
 
       // ALWAYS try to collect main test data first
       const mainTestFormData = labResultsForm[testRow.id];
-      console.log(`🔍 Main test form data:`, mainTestFormData);
+      console.log(` Main test form data:`, mainTestFormData);
 
       // Try alternative keys if main key doesn't work
       const alternativeKeys = [testRow.order_id, testRow.test_id, `test_${testRow.id}`, testRow.lab_id];
-      console.log(`🔍 Trying alternative keys:`, alternativeKeys);
+      console.log(` Trying alternative keys:`, alternativeKeys);
 
       let foundFormData = mainTestFormData;
       let usedKey = testRow.id;
@@ -3061,14 +3061,14 @@ const LabOrders = () => {
           if (altKey && labResultsForm[altKey]) {
             foundFormData = labResultsForm[altKey];
             usedKey = altKey;
-            console.log(`🔍 ✅ Found form data with alternative key: ${altKey}`, foundFormData);
+            console.log(`  Found form data with alternative key: ${altKey}`, foundFormData);
             break;
           }
         }
       }
 
       if (foundFormData && (foundFormData.result_value?.trim() || foundFormData.comments?.trim())) {
-        console.log(`🔍 ✅ Adding main test result: ${foundFormData.result_value} (using key: ${usedKey})`);
+        console.log(`  Adding main test result: ${foundFormData.result_value} (using key: ${usedKey})`);
         const referenceRange = calculatedRanges[usedKey] || foundFormData.reference_range || '';
 
         resultsData.push({
@@ -3088,15 +3088,15 @@ const LabOrders = () => {
 
       // ALSO check for sub-tests
       const subTests = testSubTests[testRow.test_name] || [];
-      console.log(`🔍 Sub-tests for ${testRow.test_name}:`, subTests);
+      console.log(` Sub-tests for ${testRow.test_name}:`, subTests);
 
       subTests.forEach(subTest => {
         const subTestKey = `${testRow.id}_subtest_${subTest.id}`;
         const subTestFormData = labResultsForm[subTestKey];
-        console.log(`🔍 Sub-test ${subTestKey} form data:`, subTestFormData);
+        console.log(` Sub-test ${subTestKey} form data:`, subTestFormData);
 
         if (subTestFormData && (subTestFormData.result_value?.trim() || subTestFormData.comments?.trim())) {
-          console.log(`🔍 ✅ Adding sub-test result: ${subTestFormData.result_value}`);
+          console.log(`  Adding sub-test result: ${subTestFormData.result_value}`);
           const referenceRange = calculatedRanges[subTestKey] || subTestFormData.reference_range || '';
 
           resultsData.push({
@@ -3118,11 +3118,11 @@ const LabOrders = () => {
 
     // FALLBACK: If no results collected but form has data, collect ALL non-empty form data
     if (resultsData.length === 0 && Object.keys(labResultsForm).length > 0) {
-      console.log('🚨 FALLBACK: No results collected by normal method, trying fallback collection...');
+      console.log(' FALLBACK: No results collected by normal method, trying fallback collection...');
 
       Object.entries(labResultsForm).forEach(([formKey, formData]) => {
         if (formData && (formData.result_value?.trim() || formData.comments?.trim())) {
-          console.log(`🚨 FALLBACK: Found data for key ${formKey}:`, formData);
+          console.log(` FALLBACK: Found data for key ${formKey}:`, formData);
 
           // Find matching test row for this form key
           let matchedTestRow = selectedTestsForEntry.find(tr =>
@@ -3136,7 +3136,7 @@ const LabOrders = () => {
           // If no match found, use first available test row
           if (!matchedTestRow && selectedTestsForEntry.length > 0) {
             matchedTestRow = selectedTestsForEntry[0];
-            console.log(`🚨 FALLBACK: No exact match, using first test row:`, matchedTestRow);
+            console.log(` FALLBACK: No exact match, using first test row:`, matchedTestRow);
           }
 
           if (matchedTestRow) {
@@ -3152,19 +3152,19 @@ const LabOrders = () => {
               is_abnormal: formData.is_abnormal || false,
               result_status: authenticatedResult ? 'Final' : 'Preliminary'
             });
-            console.log(`🚨 FALLBACK: Added result for ${matchedTestRow.test_name}: ${formData.result_value}`);
+            console.log(` FALLBACK: Added result for ${matchedTestRow.test_name}: ${formData.result_value}`);
           }
         }
       });
     }
 
     // Debug logging
-    console.log('🔍 DEBUG Save: labResultsForm state:', labResultsForm);
-    console.log('🔍 DEBUG Save: resultsData collected:', resultsData);
+    console.log(' DEBUG Save: labResultsForm state:', labResultsForm);
+    console.log(' DEBUG Save: resultsData collected:', resultsData);
 
     // Debug each result before filtering
     resultsData.forEach((result, index) => {
-      console.log(`🔍 DEBUG Result ${index}:`, {
+      console.log(` DEBUG Result ${index}:`, {
         result_value: result.result_value,
         result_value_length: result.result_value?.length || 0,
         result_value_trimmed: result.result_value?.trim() || '',
@@ -3177,11 +3177,11 @@ const LabOrders = () => {
     // Filter out empty results (check if JSON result_value has actual value)
     const validResults = resultsData.filter(result => {
       const isValid = hasValidResultValue(result.result_value);
-      console.log(`🔍 Result validation - value: "${result.result_value}", isValid: ${isValid}`);
+      console.log(` Result validation - value: "${result.result_value}", isValid: ${isValid}`);
       return isValid;
     });
 
-    console.log('🔍 DEBUG Save: validResults after filtering:', validResults);
+    console.log(' DEBUG Save: validResults after filtering:', validResults);
 
     if (validResults.length === 0) {
       toast({
@@ -3218,7 +3218,7 @@ const LabOrders = () => {
     }
 
     // Allow preview with current form data even if not saved
-    console.log('🖨️ Preview & Print clicked, isFormSaved:', isFormSaved);
+    console.log(' Preview & Print clicked, isFormSaved:', isFormSaved);
 
     try {
       // Get the correct patient ID - try multiple fields
@@ -3253,7 +3253,7 @@ const LabOrders = () => {
 
       // Allow printing with unsaved form data if no saved results found
       if (!resultsToUse || resultsToUse.length === 0) {
-        console.log('⚠️ No saved results found, will use current form data for printing');
+        console.log(' No saved results found, will use current form data for printing');
         toast({
           title: "Printing Current Form Data",
           description: "No saved results found. Printing with current entered values.",
@@ -3261,13 +3261,13 @@ const LabOrders = () => {
       }
 
       // Create print content with fetched data or current form data
-      console.log('🖨️ Starting generatePrintContent...');
+      console.log(' Starting generatePrintContent...');
       let printContent = '';
       try {
         printContent = await generatePrintContent(resultsToUse || [], testsForPrint, labResultsForm);
-        console.log('📄 Generated print content length:', printContent.length);
+        console.log(' Generated print content length:', printContent.length);
       } catch (genError) {
-        console.error('❌ Error generating print content:', genError);
+        console.error(' Error generating print content:', genError);
         toast({
           title: "Print Generation Error",
           description: `Failed to generate print content: ${genError instanceof Error ? genError.message : 'Unknown error'}`,
@@ -3278,7 +3278,7 @@ const LabOrders = () => {
 
       // Validate print content
       if (!printContent || printContent.length === 0) {
-        console.error('❌ Print content is empty');
+        console.error(' Print content is empty');
         toast({
           title: "Print Error",
           description: "Generated print content is empty. Please try again.",
@@ -3288,7 +3288,7 @@ const LabOrders = () => {
       }
 
       // Open print preview
-      console.log('🖨️ Opening print window...');
+      console.log(' Opening print window...');
       const printWindow = window.open('', '_blank');
       if (printWindow) {
         printWindow.document.write(printContent);
@@ -3299,21 +3299,21 @@ const LabOrders = () => {
         // Mark ALL printed tests with red checkmark (using separate state that won't be overwritten)
         const newPrintedIds = testsForPrint.map(test => test.id);
         setPrintedTestIds(prev => [...new Set([...prev, ...newPrintedIds])]);
-        console.log('✓ Marked printed tests with checkmark:', newPrintedIds);
+        console.log(' Marked printed tests with checkmark:', newPrintedIds);
 
         // Save printed_at timestamp to database for persistence after refresh
         await supabase
           .from('visit_labs')
           .update({ printed_at: new Date().toISOString() })
           .in('id', newPrintedIds);
-        console.log('💾 Saved printed_at to database for:', newPrintedIds);
+        console.log(' Saved printed_at to database for:', newPrintedIds);
 
         toast({
           title: "Preview Ready",
           description: "Report preview opened. Click Print button when ready.",
         });
       } else {
-        console.error('❌ window.open returned null - popup may be blocked');
+        console.error(' window.open returned null - popup may be blocked');
         toast({
           title: "Popup Blocked",
           description: "Print window was blocked. Please allow popups for this site in your browser settings.",
@@ -3321,7 +3321,7 @@ const LabOrders = () => {
         });
       }
     } catch (error) {
-      console.error('❌ Error in preview and print:', error);
+      console.error(' Error in preview and print:', error);
       toast({
         title: "Error",
         description: `Print failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -3343,17 +3343,17 @@ const LabOrders = () => {
 
   // Generate Print Content
   const generatePrintContent = async (fetchedLabResults: any[] = [], testsForPrint: LabTestRow[] = selectedTestsForEntry, currentFormData: Record<string, any> = labResultsForm) => {
-    console.log('🖨️ Generating print content...');
-    console.log('📋 Selected tests:', testsForPrint);
-    console.log('📝 Current form data:', currentFormData);
-    console.log('🧪 Test sub-tests:', testSubTests);
-    console.log('🗂️ Saved lab results:', savedLabResults);
-    console.log('🔑 All available form keys:', Object.keys(currentFormData));
-    console.log('🔑 All available saved keys:', Object.keys(savedLabResults));
+    console.log(' Generating print content...');
+    console.log(' Selected tests:', testsForPrint);
+    console.log(' Current form data:', currentFormData);
+    console.log(' Test sub-tests:', testSubTests);
+    console.log(' Saved lab results:', savedLabResults);
+    console.log(' All available form keys:', Object.keys(currentFormData));
+    console.log(' All available saved keys:', Object.keys(savedLabResults));
 
     // Debug each test individually
     testsForPrint.forEach(testRow => {
-      console.log(`🔍 Debug for test ${testRow.test_name} (ID: ${testRow.id}):`);
+      console.log(` Debug for test ${testRow.test_name} (ID: ${testRow.id}):`);
       console.log('  - Direct form data:', currentFormData[testRow.id]);
       console.log('  - Direct saved data:', savedLabResults[testRow.id]);
       console.log('  - Sub-tests available:', testSubTests[testRow.test_name]);
@@ -3381,8 +3381,8 @@ const LabOrders = () => {
     const firstTest = testsForPrint[0];
     const firstTestId = firstTest?.id;
 
-    console.log('🔍 DEBUG: First test data:', firstTest);
-    console.log('🔍 DEBUG: Looking for visit_id in:', {
+    console.log(' DEBUG: First test data:', firstTest);
+    console.log(' DEBUG: Looking for visit_id in:', {
       visit_id: firstTest?.visit_id,
       order_id: firstTest?.order_id,
       id: firstTest?.id,
@@ -3392,7 +3392,7 @@ const LabOrders = () => {
     // If we have visit_id as text (like "IH25J06001"), use it directly
     if (firstTest?.visit_id && typeof firstTest.visit_id === 'string' && !firstTest.visit_id.includes('-')) {
       actualVisitId = firstTest.visit_id;
-      console.log('✅ Got visit_id directly from test data:', actualVisitId);
+      console.log(' Got visit_id directly from test data:', actualVisitId);
     }
 
     // If we have patient_id directly from test data, use it
@@ -3407,28 +3407,28 @@ const LabOrders = () => {
 
         if (!patientError && patientData) {
           actualPatientId = patientData.patients_id || 'N/A';
-          console.log('✅ Fetched patient_id from patients table:', actualPatientId);
+          console.log(' Fetched patient_id from patients table:', actualPatientId);
         }
       } catch (err) {
-        console.error('❌ Error fetching patient data:', err);
+        console.error(' Error fetching patient data:', err);
       }
     }
 
     // Try to get visit UUID for querying visits table if we still need data
     let visitIdToQuery = firstTest?.order_id;
 
-    console.log('🔍 DEBUG: Will query with visitIdToQuery (UUID):', visitIdToQuery);
+    console.log(' DEBUG: Will query with visitIdToQuery (UUID):', visitIdToQuery);
 
     if (visitIdToQuery && (actualPatientId === 'N/A' || actualVisitId === 'N/A')) {
       try {
-        console.log('🔍 Querying visits table with id (UUID):', visitIdToQuery);
+        console.log(' Querying visits table with id (UUID):', visitIdToQuery);
         const { data: visitData, error } = await supabase
           .from('visits')
           .select('visit_id, patient_id, patients(patients_id)')
           .eq('id', visitIdToQuery)
           .single();
 
-        console.log('🔍 Visit query result:', { visitData, error });
+        console.log(' Visit query result:', { visitData, error });
 
         if (!error && visitData) {
           if (actualPatientId === 'N/A') {
@@ -3437,28 +3437,28 @@ const LabOrders = () => {
           if (actualVisitId === 'N/A') {
             actualVisitId = visitData.visit_id || 'N/A';
           }
-          console.log('✅ Fetched patient_id and visit_id from visits table:', { actualPatientId, actualVisitId });
+          console.log(' Fetched patient_id and visit_id from visits table:', { actualPatientId, actualVisitId });
         } else {
-          console.log('⚠️ Visit query failed, trying saved results...');
+          console.log(' Visit query failed, trying saved results...');
         }
       } catch (err) {
-        console.error('❌ Error fetching patient/visit data:', err);
+        console.error(' Error fetching patient/visit data:', err);
       }
     } else {
-      console.log('⚠️ No order_id (UUID) available for querying, checking saved results...');
+      console.log(' No order_id (UUID) available for querying, checking saved results...');
     }
 
     // Try to get from saved results as fallback
     const savedResult = savedLabResults[firstTestId];
-    console.log('🔍 DEBUG: Saved result for firstTestId', firstTestId, ':', savedResult);
+    console.log(' DEBUG: Saved result for firstTestId', firstTestId, ':', savedResult);
 
     if (actualPatientId === 'N/A' && savedResult?.patient_info?.actual_patient_uid) {
       actualPatientId = savedResult.patient_info.actual_patient_uid;
-      console.log('✅ Got patient_id from saved results:', actualPatientId);
+      console.log(' Got patient_id from saved results:', actualPatientId);
     }
     if (actualVisitId === 'N/A' && savedResult?.patient_info?.actual_visit_id) {
       actualVisitId = savedResult.patient_info.actual_visit_id;
-      console.log('✅ Got visit_id from saved results:', actualVisitId);
+      console.log(' Got visit_id from saved results:', actualVisitId);
     }
 
     // Use sample form date if set (from date picker), otherwise fall back to orderDate
@@ -3470,7 +3470,7 @@ const LabOrders = () => {
       hour: '2-digit', minute: '2-digit', second: '2-digit'
     });
 
-    console.log('📋 FINAL VALUES FOR PRINT:', { actualPatientId, actualVisitId });
+    console.log(' FINAL VALUES FOR PRINT:', { actualPatientId, actualVisitId });
 
     return `
       <!DOCTYPE html>
@@ -3785,21 +3785,21 @@ const LabOrders = () => {
               :
               // Fallback to form data with sub-tests
               testsInCategory.map(testRow => {
-                console.log('🔄 Processing test row for print:', testRow.test_name);
+                console.log(' Processing test row for print:', testRow.test_name);
                 const subTests = testSubTests[testRow.test_name] || [];
-                console.log('📊 Sub-tests for', testRow.test_name, ':', subTests);
+                console.log(' Sub-tests for', testRow.test_name, ':', subTests);
 
                 // Also check for ANY form data keys that might contain data for this test
                 const allFormKeys = Object.keys(currentFormData);
-                console.log('🔍 All available form keys:', allFormKeys);
+                console.log(' All available form keys:', allFormKeys);
                 const relevantKeys = allFormKeys.filter(key => key.includes(testRow.id.toString()));
-                console.log('📋 Relevant keys for test', testRow.test_name, ':', relevantKeys);
+                console.log(' Relevant keys for test', testRow.test_name, ':', relevantKeys);
 
                 // Try both sub-tests approach and direct key approach
                 let hasSubTestData = subTests.length > 0;
                 let hasDirectData = relevantKeys.length > 0;
 
-                console.log('📊 Has sub-test data:', hasSubTestData, 'Has direct data:', hasDirectData);
+                console.log(' Has sub-test data:', hasSubTestData, 'Has direct data:', hasDirectData);
 
                 if (hasSubTestData) {
                   // Check if all sub-tests are Text type
@@ -3817,7 +3817,7 @@ const LabOrders = () => {
                         for (const key of formKeys) {
                           if (key.includes(subTest.name.trim()) && currentFormData[key]?.result_value) {
                             subTestFormData = currentFormData[key];
-                            console.log('✅ Found by NAME search in currentFormData (Text):', subTest.name, key);
+                            console.log(' Found by NAME search in currentFormData (Text):', subTest.name, key);
                             break;
                           }
                         }
@@ -3861,7 +3861,7 @@ const LabOrders = () => {
                             // Keep as is
                           }
                           subTestFormData = { result_value: actualValue };
-                          console.log('✅ Found in DATABASE (Text):', subTest.name, actualValue);
+                          console.log(' Found in DATABASE (Text):', subTest.name, actualValue);
                         }
                       }
 
@@ -3900,7 +3900,7 @@ const LabOrders = () => {
                     // NUMERIC TYPE FORMAT - Table format (existing logic, only mandatory sub-tests)
                     const subTestRows = subTests.filter(subTest => subTest.isMandatory !== false).map(subTest => {
                       const subTestKey = `${testRow.id}_subtest_${subTest.id}`;
-                      console.log('🔑 Looking for sub-test data with key:', subTestKey);
+                      console.log(' Looking for sub-test data with key:', subTestKey);
 
                       // Try multiple approaches to find the data (currentFormData first for fresh values)
                       let subTestFormData = currentFormData[subTestKey] || savedLabResults[subTestKey];
@@ -3911,7 +3911,7 @@ const LabOrders = () => {
                         for (const key of formKeys) {
                           if (key.includes(subTest.name.trim()) && currentFormData[key]?.result_value) {
                             subTestFormData = currentFormData[key];
-                            console.log('✅ Found by NAME search in currentFormData:', subTest.name, key, subTestFormData);
+                            console.log(' Found by NAME search in currentFormData:', subTest.name, key, subTestFormData);
                             break;
                           }
                         }
@@ -3933,7 +3933,7 @@ const LabOrders = () => {
                           const altData = currentFormData[altKey] || savedLabResults[altKey];
                           if (altData && altData.result_value) {
                             subTestFormData = altData;
-                            console.log('✅ Found data with alternative key:', altKey, altData);
+                            console.log(' Found data with alternative key:', altKey, altData);
                             break;
                           }
                         }
@@ -3950,7 +3950,7 @@ const LabOrders = () => {
                             const data = currentFormData[key] || savedLabResults[key];
                             if (data && data.result_value) {
                               subTestFormData = data;
-                              console.log('✅ Found by ID pattern match:', key, data);
+                              console.log(' Found by ID pattern match:', key, data);
                               break;
                             }
                           }
@@ -3959,7 +3959,7 @@ const LabOrders = () => {
                             const data = currentFormData[key] || savedLabResults[key];
                             if (data && data.result_value) {
                               subTestFormData = data;
-                              console.log('✅ Found by name pattern match:', key, data);
+                              console.log(' Found by name pattern match:', key, data);
                               break;
                             }
                           }
@@ -3995,7 +3995,7 @@ const LabOrders = () => {
                             is_abnormal: dbResult.is_abnormal || false,
                             result_status: dbResult.result_status || 'Preliminary'
                           };
-                          console.log('✅ Found in DATABASE:', subTest.name, subTestFormData);
+                          console.log(' Found in DATABASE:', subTest.name, subTestFormData);
                         }
                       }
 
@@ -4011,7 +4011,7 @@ const LabOrders = () => {
                         };
                       }
 
-                      console.log('📝 Final sub-test form data:', subTestFormData);
+                      console.log(' Final sub-test form data:', subTestFormData);
 
                       const displayUnit = subTest.unit && subTest.unit.toLowerCase() !== 'unit' ? subTest.unit : '';
                       const displayValue = subTestFormData.result_value ?
@@ -4070,7 +4070,7 @@ const LabOrders = () => {
                   const directDataRows = relevantKeys.map(key => {
                     const formData = currentFormData[key] || savedLabResults[key];
                     if (formData && formData.result_value) {
-                      console.log('📊 Found direct data in key:', key, formData);
+                      console.log(' Found direct data in key:', key, formData);
                       return `
                       <div class="test-row">
                         <div class="test-name">${testRow.test_name} (from ${key})</div>
@@ -4123,7 +4123,7 @@ const LabOrders = () => {
                       const altData = currentFormData[altKey] || savedLabResults[altKey];
                       if (altData && altData.result_value) {
                         formData = altData;
-                        console.log('✅ Found single test data with key:', altKey, altData);
+                        console.log(' Found single test data with key:', altKey, altData);
                         break;
                       }
                     }
@@ -4722,7 +4722,7 @@ const LabOrders = () => {
                               }}
                             />
                             {(testSampleStatus[testRow.id] === 'saved' || testRow.order_status === 'collected') && (
-                              <span className="text-xs text-green-600 font-medium">✓ Saved</span>
+                              <span className="text-xs text-green-600 font-medium"> Saved</span>
                             )}
                           </div>
                         </TableCell>
@@ -4737,7 +4737,7 @@ const LabOrders = () => {
                                 (getSelectedPatientFromIncludedTests() !== null && getSelectedPatientFromIncludedTests() !== getPatientKey(testRow))
                               }
                               onCheckedChange={(checked) => {
-                                console.log('📝 Updating "Incl" status for test (local only):', testRow.id, checked);
+                                console.log(' Updating "Incl" status for test (local only):', testRow.id, checked);
 
                                 // Only update local state - no database saving
                                 if (checked) {
@@ -4746,11 +4746,11 @@ const LabOrders = () => {
                                   setIncludedTests(prev => prev.filter(id => id !== testRow.id));
                                 }
 
-                                console.log('✅ Updated "Incl" status locally (no database save)');
+                                console.log(' Updated "Incl" status locally (no database save)');
                               }}
                             />
                             {(testsWithSavedResults.includes(testRow.id) || printedTestIds.includes(testRow.id)) && (
-                              <span className="text-red-600 font-bold text-lg">✓</span>
+                              <span className="text-red-600 font-bold text-lg"></span>
                             )}
                           </div>
                         </TableCell>
@@ -4850,7 +4850,7 @@ const LabOrders = () => {
               )}
               {includedTests.length > 0 && (
                 <span className="text-sm text-green-600 font-medium">
-                  ✓ Ready for Entry: {includedTests.length} test(s) included
+                   Ready for Entry: {includedTests.length} test(s) included
                 </span>
               )}
               {sampleTakenTests.length === 0 && includedTests.length === 0 && (
@@ -4898,7 +4898,7 @@ const LabOrders = () => {
 
                     if (alreadyLoaded) {
                       // Sub-tests already loaded, print immediately
-                      console.log('✅ Sub-tests already loaded, printing immediately');
+                      console.log(' Sub-tests already loaded, printing immediately');
                       setSelectedTestsForEntry(selectedTests);
                       handlePreviewAndPrint(selectedTests);
                     } else {
@@ -5393,7 +5393,7 @@ const LabOrders = () => {
                   </span>
                   <Badge variant="secondary">Lab Results</Badge>
                   {isFormSaved && (
-                    <Badge className="bg-green-600 hover:bg-green-700">✓ Saved</Badge>
+                    <Badge className="bg-green-600 hover:bg-green-700"> Saved</Badge>
                   )}
                 </div>
                 <div className="flex items-center justify-between">
@@ -5412,7 +5412,7 @@ const LabOrders = () => {
                   </div>
                   {isFormSaved && (
                     <div className="flex items-center space-x-2 bg-green-50 px-3 py-1 rounded-full border border-green-200">
-                      <span className="text-green-600 text-sm">✓</span>
+                      <span className="text-green-600 text-sm"></span>
                       <span className="text-green-800 text-sm font-medium">Saved</span>
                     </div>
                   )}
@@ -5508,18 +5508,18 @@ const LabOrders = () => {
 
                                 // SPECIAL DEBUG for test1 during rendering
                                 if (testRow.test_name === 'test1' || testRow.test_name === 'yyy') {
-                                  console.log(`🚨 RENDER DEBUG: test1/yyy field rendering`);
-                                  console.log(`🚨 RENDER DEBUG: testRow:`, testRow);
-                                  console.log(`🚨 RENDER DEBUG: mainTestKey:`, mainTestKey);
-                                  console.log(`🚨 RENDER DEBUG: savedLabResults[${mainTestKey}]:`, savedLabResults[mainTestKey]);
-                                  console.log(`🚨 RENDER DEBUG: labResultsForm[${mainTestKey}]:`, labResultsForm[mainTestKey]);
+                                  console.log(` RENDER DEBUG: test1/yyy field rendering`);
+                                  console.log(` RENDER DEBUG: testRow:`, testRow);
+                                  console.log(` RENDER DEBUG: mainTestKey:`, mainTestKey);
+                                  console.log(` RENDER DEBUG: savedLabResults[${mainTestKey}]:`, savedLabResults[mainTestKey]);
+                                  console.log(` RENDER DEBUG: labResultsForm[${mainTestKey}]:`, labResultsForm[mainTestKey]);
 
                                   // Check ALL possible keys that might contain test1 data
                                   const possibleKeys = ['test1', 'yyy', mainTestKey, `${mainTestKey}_subtest_main`];
-                                  console.log(`🚨 RENDER DEBUG: Checking all possible keys for test1:`, possibleKeys);
+                                  console.log(` RENDER DEBUG: Checking all possible keys for test1:`, possibleKeys);
                                   possibleKeys.forEach(key => {
-                                    console.log(`🚨 RENDER DEBUG: savedLabResults["${key}"]:`, savedLabResults[key]);
-                                    console.log(`🚨 RENDER DEBUG: labResultsForm["${key}"]:`, labResultsForm[key]);
+                                    console.log(` RENDER DEBUG: savedLabResults["${key}"]:`, savedLabResults[key]);
+                                    console.log(` RENDER DEBUG: labResultsForm["${key}"]:`, labResultsForm[key]);
                                   });
                                 }
 
@@ -5577,10 +5577,10 @@ const LabOrders = () => {
                                 // HARDCODED: If this is test1 field, show 567
                                 if (testRow.test_name === 'test1') {
                                   displayValue = '567';
-                                  console.log(`🚨 HARDCODED: test1 field will show hardcoded value: 567`);
+                                  console.log(` HARDCODED: test1 field will show hardcoded value: 567`);
                                 }
 
-                                console.log(`🚨 FINAL RENDER: ${testRow.test_name} will display value: "${displayValue}"`);
+                                console.log(` FINAL RENDER: ${testRow.test_name} will display value: "${displayValue}"`);
 
                                 // Get unit from form data, filter out "unit" placeholder
                                 const mainTestUnit = mainTestFormData.result_unit && mainTestFormData.result_unit.toLowerCase() !== 'unit'
@@ -5685,11 +5685,11 @@ const LabOrders = () => {
                         let subTestDisplayValue = subTestFormData.result_value || '';
                         if (subTest.name.trim() === 'test1') {
                           subTestDisplayValue = '567';
-                          console.log(`🚨 SUB-TEST HARDCODED: test1 sub-test will show hardcoded value: 567`);
+                          console.log(` SUB-TEST HARDCODED: test1 sub-test will show hardcoded value: 567`);
                         }
 
-                        console.log(`🚨 SUB-TEST FINAL RENDER: ${subTest.name} will display value: "${subTestDisplayValue}"`);
-                        console.log(`🎯 SUB-TEST TYPE: ${subTest.name} type: ${subTest.test_type}`);
+                        console.log(` SUB-TEST FINAL RENDER: ${subTest.name} will display value: "${subTestDisplayValue}"`);
+                        console.log(` SUB-TEST TYPE: ${subTest.name} type: ${subTest.test_type}`);
 
                         // Check if this is a Text type test
                         const isTextType = subTest.test_type === 'Text';
@@ -5722,7 +5722,7 @@ const LabOrders = () => {
                                   onChange={(e) => handleLabResultChange(subTestKey, 'result_value', e.target.value)}
                                 />
                                 {isFormSaved && subTestFormData.result_value && (
-                                  <span className="text-green-600 text-sm">✓</span>
+                                  <span className="text-green-600 text-sm"></span>
                                 )}
                               </div>
                               {testRow.test_method && (
@@ -5777,10 +5777,10 @@ const LabOrders = () => {
                                        (subTestFormData.result_unit && subTestFormData.result_unit.toLowerCase() !== 'unit' ? subTestFormData.result_unit : '')}
                                     </span>
                                     {isFormSaved && subTestFormData.result_value && (
-                                      <span className="ml-1 text-green-600 text-xs">✓</span>
+                                      <span className="ml-1 text-green-600 text-xs"></span>
                                     )}
                                     {subTestFormData.is_abnormal && (
-                                      <span className="ml-1 text-red-500 text-xs">🔴</span>
+                                      <span className="ml-1 text-red-500 text-xs"></span>
                                     )}
                                   </div>
                                 )}
@@ -5903,7 +5903,7 @@ const LabOrders = () => {
                       onChange={(e) => {
                         const files = Array.from(e.target.files || []);
                         setUploadedFiles(files);
-                        console.log('📎 Files selected:', files.map(f => f.name));
+                        console.log(' Files selected:', files.map(f => f.name));
                       }}
                     />
                     <button
@@ -5928,7 +5928,7 @@ const LabOrders = () => {
                     onClick={handleSaveLabResults}
                     disabled={saveLabResultsMutation.isPending || isFormSaved}
                   >
-                    {saveLabResultsMutation.isPending ? 'Saving...' : (isFormSaved ? '✓ Saved' : 'Save')}
+                    {saveLabResultsMutation.isPending ? 'Saving...' : (isFormSaved ? ' Saved' : 'Save')}
                   </Button>
 
                   <Button

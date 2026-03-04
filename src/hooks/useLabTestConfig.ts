@@ -62,7 +62,7 @@ export const useLabTestConfig = () => {
   };
 
   const fetchSubTestsForTest = async (testName: string) => {
-    console.log('🔍 Fetching sub-tests for:', testName);
+    console.log(' Fetching sub-tests for:', testName);
     setLoadingSubTests(true);
     try {
       const { data, error } = await supabase
@@ -72,9 +72,9 @@ export const useLabTestConfig = () => {
         .order('display_order', { ascending: true })
         .order('sub_test_name');
 
-      console.log('✅ Fetched sub-tests data:', data);
+      console.log(' Fetched sub-tests data:', data);
       if (error) {
-        console.error('❌ Sub-tests fetch error:', error);
+        console.error(' Sub-tests fetch error:', error);
         throw error;
       }
 
@@ -84,12 +84,12 @@ export const useLabTestConfig = () => {
         .select('*')
         .eq('test_name', testName);
 
-      console.log('✅ Fetched formulas data:', formulasData);
+      console.log(' Fetched formulas data:', formulasData);
       if (formulaError) {
-        console.error('❌ Formula fetch error:', formulaError);
+        console.error(' Formula fetch error:', formulaError);
       }
       if (!formulasData || formulasData.length === 0) {
-        console.warn('⚠️ No formulas found for test:', testName);
+        console.warn(' No formulas found for test:', testName);
       }
 
       // Create a map of formulas by sub_test_name
@@ -114,17 +114,17 @@ export const useLabTestConfig = () => {
       // Log nested sub-tests for debugging
       subTestsWithFormulas.forEach(subTest => {
         if (subTest.nested_sub_tests && subTest.nested_sub_tests.length > 0) {
-          console.log(`  📦 ${subTest.sub_test_name} has ${subTest.nested_sub_tests.length} nested sub-tests:`, subTest.nested_sub_tests);
+          console.log(`   ${subTest.sub_test_name} has ${subTest.nested_sub_tests.length} nested sub-tests:`, subTest.nested_sub_tests);
         }
         if (subTest.formula) {
-          console.log(`  📐 ${subTest.sub_test_name} has formula: ${subTest.formula}`);
+          console.log(`   ${subTest.sub_test_name} has formula: ${subTest.formula}`);
         }
       });
 
       setSubTests(subTestsWithFormulas);
-      console.log('✅ Sub-tests set to state with formulas');
+      console.log(' Sub-tests set to state with formulas');
     } catch (error) {
-      console.error('❌ Error fetching sub tests:', error);
+      console.error(' Error fetching sub tests:', error);
     } finally {
       setLoadingSubTests(false);
     }

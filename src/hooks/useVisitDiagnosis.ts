@@ -27,11 +27,11 @@ export const useVisitDiagnosis = (visitId: string) => {
     queryFn: async (): Promise<VisitDiagnosisData | null> => {
       if (!visitId) return null;
 
-      console.log('🔍 Fetching visit diagnosis data for:', visitId);
+      console.log(' Fetching visit diagnosis data for:', visitId);
 
       try {
         // First, let's try a simpler approach and debug step by step
-        console.log('🔍 Step 1: Fetching basic visit data for:', visitId);
+        console.log(' Step 1: Fetching basic visit data for:', visitId);
 
         // Get basic visit data first
         const { data: visitData, error: visitError } = await supabase
@@ -41,17 +41,17 @@ export const useVisitDiagnosis = (visitId: string) => {
           .single();
 
         if (visitError) {
-          console.error('❌ Visit query error:', visitError);
+          console.error(' Visit query error:', visitError);
           return null;
         }
 
         if (!visitData) {
-          console.log('❌ No visit data found for:', visitId);
+          console.log(' No visit data found for:', visitId);
           return null;
         }
 
         // Get patient data separately to avoid join issues
-        console.log('🔍 Step 1.5: Fetching patient data for patient_id:', visitData.patient_id);
+        console.log(' Step 1.5: Fetching patient data for patient_id:', visitData.patient_id);
 
         const { data: patientData, error: patientError } = await supabase
           .from('patients')
@@ -60,17 +60,17 @@ export const useVisitDiagnosis = (visitId: string) => {
           .single();
 
         if (patientError) {
-          console.error('❌ Patient query error:', patientError);
+          console.error(' Patient query error:', patientError);
         }
 
-        console.log('✅ Basic visit data fetched:', visitData);
-        console.log('✅ Patient data fetched:', patientData);
-        console.log('🔍 Visit diagnosis_id:', visitData.diagnosis_id);
+        console.log(' Basic visit data fetched:', visitData);
+        console.log(' Patient data fetched:', patientData);
+        console.log(' Visit diagnosis_id:', visitData.diagnosis_id);
 
         // Step 2: Get single diagnosis if diagnosis_id exists
         let singleDiagnosis = null;
         if (visitData.diagnosis_id) {
-          console.log('🔍 Step 2: Fetching single diagnosis for diagnosis_id:', visitData.diagnosis_id);
+          console.log(' Step 2: Fetching single diagnosis for diagnosis_id:', visitData.diagnosis_id);
 
           const { data: diagnosisData, error: diagnosisError } = await supabase
             .from('diagnoses')
@@ -80,14 +80,14 @@ export const useVisitDiagnosis = (visitId: string) => {
 
           if (!diagnosisError && diagnosisData) {
             singleDiagnosis = diagnosisData;
-            console.log('✅ Single diagnosis found:', singleDiagnosis);
+            console.log(' Single diagnosis found:', singleDiagnosis);
           } else {
-            console.log('❌ Single diagnosis query error:', diagnosisError);
+            console.log(' Single diagnosis query error:', diagnosisError);
           }
         }
 
         // Step 3: Get multiple diagnoses from junction table
-        console.log('🔍 Step 3: Fetching multiple diagnoses for visit.id:', visitData.id);
+        console.log(' Step 3: Fetching multiple diagnoses for visit.id:', visitData.id);
 
         const { data: multipleDiagnoses, error: multipleError } = await supabase
           .from('visit_diagnoses')
@@ -102,15 +102,15 @@ export const useVisitDiagnosis = (visitId: string) => {
           .eq('visit_id', visitData.id);
 
         if (multipleError) {
-          console.log('❌ Multiple diagnoses query error:', multipleError);
+          console.log(' Multiple diagnoses query error:', multipleError);
         } else {
-          console.log('✅ Multiple diagnoses fetched:', multipleDiagnoses);
+          console.log(' Multiple diagnoses fetched:', multipleDiagnoses);
         }
 
         const visitDiagnoses = multipleDiagnoses || [];
 
-        console.log('🔍 Single diagnosis from visits.diagnosis_id:', singleDiagnosis);
-        console.log('🔍 Multiple diagnoses from visit_diagnoses:', visitDiagnoses);
+        console.log(' Single diagnosis from visits.diagnosis_id:', singleDiagnosis);
+        console.log(' Multiple diagnoses from visit_diagnoses:', visitDiagnoses);
 
         // Process multiple diagnoses from junction table
         const primaryFromMultiple = visitDiagnoses.find((vd: any) => vd.is_primary)?.diagnoses?.name || '';
@@ -135,8 +135,8 @@ export const useVisitDiagnosis = (visitId: string) => {
         // Combine secondary diagnoses
         const finalSecondaryDiagnoses = [...secondaryFromMultiple];
 
-        console.log('✅ Final primary diagnosis:', finalPrimaryDiagnosis);
-        console.log('✅ Final secondary diagnoses:', finalSecondaryDiagnoses);
+        console.log(' Final primary diagnosis:', finalPrimaryDiagnosis);
+        console.log(' Final secondary diagnoses:', finalSecondaryDiagnoses);
 
         const result: VisitDiagnosisData = {
           visitId: visitData.visit_id,
@@ -157,7 +157,7 @@ export const useVisitDiagnosis = (visitId: string) => {
           condition: [] // Will be populated from discharge data
         };
 
-        console.log('✅ Processed visit diagnosis data:', result);
+        console.log(' Processed visit diagnosis data:', result);
         return result;
 
       } catch (error) {

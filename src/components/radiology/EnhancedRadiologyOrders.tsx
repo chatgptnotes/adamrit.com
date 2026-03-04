@@ -22,16 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { 
-  FileText, 
-  Search, 
-  Download,
-  Edit,
-  Eye,
-  User,
-  RefreshCw,
-  CalendarIcon
-} from 'lucide-react';
+import { CalendarDays, CalendarIcon, Download, Edit, Eye, FileText, RefreshCw, Search, User } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Calendar } from '@/components/ui/calendar';
@@ -167,7 +158,7 @@ const EnhancedRadiologyOrders: React.FC<EnhancedRadiologyOrdersProps> = ({ onBac
             primaryCareProvider: '', // Can be added later from visit data
             status: item.status || 'ordered',
             orderDate: item.ordered_date ? new Date(item.ordered_date).toLocaleString() : 'Unknown Date',
-            icon: isFirstOrderForVisit ? (patient?.gender === 'Male' ? '👨‍⚕️' : '👩‍⚕️') : '',
+            icon: isFirstOrderForVisit ? (patient?.gender === 'Male' ? '' : '') : '',
             visitId: item.visit_id,
             findings: item.findings,
             impression: item.impression,
@@ -284,7 +275,7 @@ const EnhancedRadiologyOrders: React.FC<EnhancedRadiologyOrdersProps> = ({ onBac
                 onClick={resetToCurrentMonth}
                 className="text-xs"
               >
-                📅 This Month
+                 This Month
               </Button>
               <Button 
                 variant="outline" 
@@ -296,7 +287,7 @@ const EnhancedRadiologyOrders: React.FC<EnhancedRadiologyOrdersProps> = ({ onBac
                 }}
                 className="text-xs"
               >
-                📆 Today
+                 Today
               </Button>
             </div>
           </div>

@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, FileText, Search, Download, Printer } from 'lucide-react';
+import { ArrowLeft, Building2, CheckCircle, Download, FileText, Printer, Search, XCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { format } from 'date-fns';
 import {
@@ -56,7 +56,7 @@ const AdvanceStatementReportInternal = () => {
   // Debounce search term
   useEffect(() => {
     const timer = setTimeout(() => {
-      console.log('🔍 Setting debounced search term:', searchTerm);
+      console.log(' Setting debounced search term:', searchTerm);
       setDebouncedSearchTerm(searchTerm);
     }, 300);
 
@@ -67,8 +67,8 @@ const AdvanceStatementReportInternal = () => {
   const { data: allData = [], isLoading } = useQuery({
     queryKey: ['advance-statement-report-currently-admitted', hospitalConfig?.name, debouncedSearchTerm, dateFrom, dateTo],
     queryFn: async () => {
-      console.log('🏥 Fetching advance statement data for hospital:', hospitalConfig?.name);
-      console.log('🔍 Search params:', { debouncedSearchTerm, dateFrom, dateTo });
+      console.log(' Fetching advance statement data for hospital:', hospitalConfig?.name);
+      console.log(' Search params:', { debouncedSearchTerm, dateFrom, dateTo });
 
       let query = supabase
         .from('visits')
@@ -119,12 +119,12 @@ const AdvanceStatementReportInternal = () => {
       // Apply hospital filter if hospitalConfig exists
       if (hospitalConfig?.name) {
         query = query.eq('patients.hospital_name', hospitalConfig.name);
-        console.log('🏥 Applied hospital filter for:', hospitalConfig.name);
+        console.log(' Applied hospital filter for:', hospitalConfig.name);
       }
 
       // Remove search filter from query - we'll filter on frontend
       // if (debouncedSearchTerm) {
-      //   console.log('🔍 Applying search filter:', debouncedSearchTerm);
+      //   console.log(' Applying search filter:', debouncedSearchTerm);
       //   query = query.or(`visit_id.ilike.%${debouncedSearchTerm}%,patients.name.ilike.%${debouncedSearchTerm}%,patients.patients_id.ilike.%${debouncedSearchTerm}%`);
       // }
 
@@ -140,21 +140,21 @@ const AdvanceStatementReportInternal = () => {
         .order('admission_date', { ascending: false });
       // Removed limit to show all currently admitted patients
 
-      console.log('🔍 Final query before execution:', query);
+      console.log(' Final query before execution:', query);
       const { data, error } = await query;
 
       if (error) {
-        console.error('❌ Error fetching advance statement data:', error);
+        console.error(' Error fetching advance statement data:', error);
         console.error('Error details:', error.message, error.details, error.hint);
         console.error('Search term that caused error:', debouncedSearchTerm);
         throw error;
       }
 
-      console.log(`✅ Fetched ${data?.length || 0} advance statement records for hospital: ${hospitalConfig?.name}`);
+      console.log(` Fetched ${data?.length || 0} advance statement records for hospital: ${hospitalConfig?.name}`);
       console.log('Sample data:', data?.[0]);
-      console.log('🔍 Query filters applied: admission_date not null, discharge_date is null, patient_type = IPD, hospital_name =', hospitalConfig?.name);
-      console.log('🔍 Date filters: from:', dateFrom, 'to:', dateTo);
-      console.log('🔍 Raw data length:', data?.length || 0);
+      console.log(' Query filters applied: admission_date not null, discharge_date is null, patient_type = IPD, hospital_name =', hospitalConfig?.name);
+      console.log(' Date filters: from:', dateFrom, 'to:', dateTo);
+      console.log(' Raw data length:', data?.length || 0);
 
       // Fetch room_management data for ward types
       const wardIds = data
@@ -588,7 +588,7 @@ const AdvanceStatementReportInternal = () => {
                 placeholder="Search by patient name, ID, or visit ID..."
                 value={searchTerm}
                 onChange={(e) => {
-                  console.log('🔍 Search input changed:', e.target.value);
+                  console.log(' Search input changed:', e.target.value);
                   setSearchTerm(e.target.value);
                 }}
                 className="pl-10"

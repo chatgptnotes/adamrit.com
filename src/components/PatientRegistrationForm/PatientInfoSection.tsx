@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SearchableSelect, SearchableSelectOption } from '@/components/ui/searchable-select';
 import { EnhancedDatePicker } from '@/components/ui/enhanced-date-picker';
-import { Upload, X, Loader2 } from 'lucide-react';
+import { Building, Loader2, Upload, X, XCircle } from 'lucide-react';
 import { PatientFormData } from './types';
 import { useCorporateData } from '@/hooks/useCorporateData';
 
@@ -32,9 +32,9 @@ export const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({
 
   // Log for debugging
   React.useEffect(() => {
-    console.log('🏢 Corporate options loaded:', corporateOptions.length, 'options');
+    console.log(' Corporate options loaded:', corporateOptions.length, 'options');
     if (corporateError) {
-      console.error('❌ Error loading corporate options:', corporateError);
+      console.error(' Error loading corporate options:', corporateError);
     }
   }, [corporateOptions, corporateError]);
 

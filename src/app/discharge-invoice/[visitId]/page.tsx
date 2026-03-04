@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { CheckCircle, ClipboardList, DollarSign, Search, XCircle } from 'lucide-react'
 
 const DischargeInvoice = () => {
   const { visitId } = useParams<{ visitId: string }>();
@@ -62,7 +63,7 @@ const DischargeInvoice = () => {
     queryFn: async () => {
       if (!visitId) return null;
 
-      console.log('🔍 Fetching financial data for visit:', visitId);
+      console.log(' Fetching financial data for visit:', visitId);
 
       // First get visit UUID
       const { data: visitUUID, error: visitError } = await supabase
@@ -72,11 +73,11 @@ const DischargeInvoice = () => {
         .single();
 
       if (visitError || !visitUUID) {
-        console.error('❌ Error fetching visit UUID:', visitError);
+        console.error(' Error fetching visit UUID:', visitError);
         return { totalAmount: 0, amountPaid: 0, discount: 0 };
       }
 
-      console.log('✅ Found visit UUID:', visitUUID.id);
+      console.log(' Found visit UUID:', visitUUID.id);
 
       // Fetch all service data in parallel
       const [
@@ -111,7 +112,7 @@ const DischargeInvoice = () => {
       const amountPaid = advancePaymentData.data?.reduce((sum, item) => sum + (parseFloat(item.amount || '0') || 0), 0) || 0;
       const discount = parseFloat(discountData.data?.discount_total || '0') || 0;
 
-      console.log('💰 Calculated totals:', {
+      console.log(' Calculated totals:', {
         labTotal, radiologyTotal, medicationTotal, clinicalTotal, mandatoryTotal, accommodationTotal,
         totalAmount, amountPaid, discount
       });
@@ -227,7 +228,7 @@ const DischargeInvoice = () => {
         });
       }
 
-      console.log('📋 Category subtotals for invoice:', categoryTotals);
+      console.log(' Category subtotals for invoice:', categoryTotals);
       return categoryTotals;
     },
     enabled: !!visitId

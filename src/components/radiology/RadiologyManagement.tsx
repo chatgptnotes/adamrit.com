@@ -9,33 +9,7 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { supabase } from '@/lib/supabase';
 import * as XLSX from 'xlsx';
 import { toast } from 'sonner';
-import { 
-  FileText, 
-  TestTube, 
-  Clock, 
-  CheckCircle, 
-  AlertTriangle,
-  BarChart3,
-  Calendar,
-  Users,
-  Activity,
-  TrendingUp,
-  RefreshCw,
-  Camera,
-  Zap,
-  Monitor,
-  Scan,
-  Eye,
-  Download,
-  Upload,
-  Settings,
-  Bell,
-  Search,
-  Filter,
-  Plus,
-  Edit,
-  Trash2
-} from 'lucide-react';
+import { Activity, AlertOctagon, AlertTriangle, BarChart3, Bell, Building2, Calendar, Camera, CheckCircle, Clock, Download, Edit, Eye, FileText, Filter, Monitor, Plus, RefreshCw, Scan, Search, Settings, TestTube, Trash2, TrendingUp, Upload, Users, Zap } from 'lucide-react';
 import RadiologyDashboard from './RadiologyDashboard';
 import RadiologySubSpecialityForm from './RadiologySubSpecialityForm';
 import XRayTracking from './XRayTracking';
@@ -178,19 +152,19 @@ const RadiologyManagement: React.FC = () => {
   const [editingTest, setEditingTest] = useState<RadiologyTest | null>(null);
   const [viewingTest, setViewingTest] = useState<RadiologyTest | null>(null);
 
-  // 🏥 EXPLICIT HOSPITAL FILTERING - If-Else Condition
+  //  EXPLICIT HOSPITAL FILTERING - If-Else Condition
   const getHospitalFilter = () => {
     let hospitalFilter = '';
     if (hospitalConfig.name === 'hope') {
       hospitalFilter = 'hope';
-      console.log('🏥 HOPE Hospital login detected - filtering radiology data');
+      console.log(' HOPE Hospital login detected - filtering radiology data');
     } else if (hospitalConfig.name === 'ayushman') {
       hospitalFilter = 'ayushman';
-      console.log('🏥 AYUSHMAN Hospital login detected - filtering radiology data');
+      console.log(' AYUSHMAN Hospital login detected - filtering radiology data');
     } else {
       hospitalFilter = 'hope'; // default fallback
-      console.log('🏥 Unknown hospital type, defaulting to hope radiology data');
-      console.log('🚨 DEBUG: hospitalConfig.name was:', hospitalConfig.name);
+      console.log(' Unknown hospital type, defaulting to hope radiology data');
+      console.log(' DEBUG: hospitalConfig.name was:', hospitalConfig.name);
     }
     return hospitalFilter;
   };
@@ -419,7 +393,7 @@ const RadiologyManagement: React.FC = () => {
         .delete()
         .eq('id', testId);
 
-      // 🏥 Radiology tests are shared - no hospital filtering needed for delete
+      //  Radiology tests are shared - no hospital filtering needed for delete
 
       if (error) {
         console.error('Error deleting radiology test:', error);
@@ -447,7 +421,7 @@ const RadiologyManagement: React.FC = () => {
         .select('id, name, category, description, private, NABH_NABL_Rate, Non_NABH_NABL_Rate, bhopal_nabh, bhopal_non_nabh, created_at, updated_at')
         .order('name');
 
-      // 🏥 Radiology tests are shared across hospitals
+      //  Radiology tests are shared across hospitals
 
       if (error) {
         console.error('Error loading radiology tests:', error);
@@ -504,7 +478,7 @@ const RadiologyManagement: React.FC = () => {
           private: parseFloat(formData.private) || 0,
           bhopal_nabh: parseFloat(formData.bhopalNabh) || 0,
           bhopal_non_nabh: parseFloat(formData.bhopalNonNabh) || 0
-          // 🏥 Radiology tests are shared across hospitals
+          //  Radiology tests are shared across hospitals
         })
         .eq('id', editingTest.id)
         .select()
@@ -583,7 +557,7 @@ const RadiologyManagement: React.FC = () => {
           private: parseFloat(formData.private) || 0,
           bhopal_nabh: parseFloat(formData.bhopalNabh) || 0,
           bhopal_non_nabh: parseFloat(formData.bhopalNonNabh) || 0
-          // 🏥 Radiology tests are shared across hospitals
+          //  Radiology tests are shared across hospitals
         }])
         .select()
         .single();

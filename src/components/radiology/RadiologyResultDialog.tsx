@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Search, Upload, Calendar, Clock } from 'lucide-react';
+import { BarChart3, Calendar, Check, CheckCircle, ClipboardList, Clock, FileText, RefreshCw, Save, Search, Upload, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
@@ -107,9 +107,9 @@ export const RadiologyResultDialog: React.FC<RadiologyResultDialogProps> = ({
 
   const handleSave = async () => {
     try {
-      console.log('🔄 Starting save process...');
-      console.log('📊 Order data:', orderData);
-      console.log('📝 Form data:', formData);
+      console.log(' Starting save process...');
+      console.log(' Order data:', orderData);
+      console.log(' Form data:', formData);
       
       // Use existing columns only - no new columns needed for now
       const updateData = {
@@ -120,7 +120,7 @@ export const RadiologyResultDialog: React.FC<RadiologyResultDialogProps> = ({
         completed_date: new Date().toISOString()
       };
 
-      console.log('💾 Attempting update with data:', updateData);
+      console.log(' Attempting update with data:', updateData);
 
       // Update visit_radiology record  
       const { data, error } = await supabase
@@ -129,10 +129,10 @@ export const RadiologyResultDialog: React.FC<RadiologyResultDialogProps> = ({
         .eq('id', orderData.id)
         .select();
 
-      console.log('📤 Update response:', { data, error });
+      console.log(' Update response:', { data, error });
 
       if (error) {
-        console.error('❌ Database error details:', {
+        console.error(' Database error details:', {
           message: error.message,
           details: error.details,
           hint: error.hint,
@@ -147,7 +147,7 @@ export const RadiologyResultDialog: React.FC<RadiologyResultDialogProps> = ({
       }
 
       if (!data || data.length === 0) {
-        console.error('❌ No record found with ID:', orderData.id);
+        console.error(' No record found with ID:', orderData.id);
         toast({
           variant: "destructive",
           title: "Error",
@@ -156,8 +156,8 @@ export const RadiologyResultDialog: React.FC<RadiologyResultDialogProps> = ({
         return;
       }
 
-      console.log('✅ Save successful! Updated record:', data[0]);
-              console.log('✅ SUCCESS! Radiology result saved!');
+      console.log(' Save successful! Updated record:', data[0]);
+              console.log(' SUCCESS! Radiology result saved!');
         alert('Radiology result saved successfully!');
       onClose();
       
@@ -167,8 +167,8 @@ export const RadiologyResultDialog: React.FC<RadiologyResultDialogProps> = ({
       }, 1000);
       
     } catch (error) {
-      console.error('❌ Unexpected error in handleSave:', error);
-      console.error('❌ CATCH ERROR:', error.message);
+      console.error(' Unexpected error in handleSave:', error);
+      console.error(' CATCH ERROR:', error.message);
       alert(`An error occurred: ${error.message}`);
     }
   };
@@ -203,7 +203,7 @@ export const RadiologyResultDialog: React.FC<RadiologyResultDialogProps> = ({
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm flex items-center gap-2">
-                  📋 Templates
+                   Templates
                 </CardTitle>
                 <div className="relative">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -334,7 +334,7 @@ export const RadiologyResultDialog: React.FC<RadiologyResultDialogProps> = ({
                   </p>
                   {formData.uploadedFile && (
                     <p className="text-xs text-green-600 mt-1">
-                      ✓ {formData.uploadedFile.name} uploaded
+                       {formData.uploadedFile.name} uploaded
                     </p>
                   )}
                 </div>

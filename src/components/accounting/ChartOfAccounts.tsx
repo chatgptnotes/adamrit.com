@@ -1,5 +1,5 @@
 import React from 'react';
-import { X } from 'lucide-react';
+import { Briefcase, Building, CreditCard, DollarSign, File, Folder, Landmark, Monitor, ShoppingCart, TrendingUp, X } from 'lucide-react';
 import TallyFooter from './TallyFooter';
 
 interface ChartOfAccountsProps {
@@ -125,45 +125,45 @@ const ChartOfAccounts: React.FC<ChartOfAccountsProps> = ({ onClose }) => {
             <div className="bg-white p-4 rounded border">
               <h3 className="font-medium mb-2">Account Hierarchy</h3>
               <div className="text-sm text-gray-600 space-y-2">
-                <div className="pl-0">📁 Assets</div>
-                <div className="pl-4">📁 Current Assets</div>
-                <div className="pl-8">💰 Cash</div>
-                <div className="pl-8">🏦 Bank Accounts</div>
-                <div className="pl-4">📁 Fixed Assets</div>
-                <div className="pl-8">🏢 Buildings</div>
-                <div className="pl-8">💻 Equipment</div>
+                <div className="pl-0"> Assets</div>
+                <div className="pl-4"> Current Assets</div>
+                <div className="pl-8"> Cash</div>
+                <div className="pl-8"> Bank Accounts</div>
+                <div className="pl-4"> Fixed Assets</div>
+                <div className="pl-8"> Buildings</div>
+                <div className="pl-8"> Equipment</div>
               </div>
             </div>
             
             <div className="bg-white p-4 rounded border">
               <h3 className="font-medium mb-2">Liabilities</h3>
               <div className="text-sm text-gray-600 space-y-2">
-                <div className="pl-0">📁 Liabilities</div>
-                <div className="pl-4">📁 Current Liabilities</div>
-                <div className="pl-8">💳 Accounts Payable</div>
-                <div className="pl-8">📄 Short-term Loans</div>
-                <div className="pl-4">📁 Long-term Liabilities</div>
-                <div className="pl-8">🏦 Long-term Loans</div>
+                <div className="pl-0"> Liabilities</div>
+                <div className="pl-4"> Current Liabilities</div>
+                <div className="pl-8"> Accounts Payable</div>
+                <div className="pl-8"> Short-term Loans</div>
+                <div className="pl-4"> Long-term Liabilities</div>
+                <div className="pl-8"> Long-term Loans</div>
               </div>
             </div>
             
             <div className="bg-white p-4 rounded border">
               <h3 className="font-medium mb-2">Income</h3>
               <div className="text-sm text-gray-600 space-y-2">
-                <div className="pl-0">📁 Income</div>
-                <div className="pl-4">💰 Sales Revenue</div>
-                <div className="pl-4">💸 Service Income</div>
-                <div className="pl-4">📈 Other Income</div>
+                <div className="pl-0"> Income</div>
+                <div className="pl-4"> Sales Revenue</div>
+                <div className="pl-4"> Service Income</div>
+                <div className="pl-4"> Other Income</div>
               </div>
             </div>
             
             <div className="bg-white p-4 rounded border">
               <h3 className="font-medium mb-2">Expenses</h3>
               <div className="text-sm text-gray-600 space-y-2">
-                <div className="pl-0">📁 Expenses</div>
-                <div className="pl-4">🛒 Cost of Goods Sold</div>
-                <div className="pl-4">🏢 Operating Expenses</div>
-                <div className="pl-4">💼 Administrative Expenses</div>
+                <div className="pl-0"> Expenses</div>
+                <div className="pl-4"> Cost of Goods Sold</div>
+                <div className="pl-4"> Operating Expenses</div>
+                <div className="pl-4"> Administrative Expenses</div>
               </div>
             </div>
             

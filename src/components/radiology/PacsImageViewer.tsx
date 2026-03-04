@@ -7,27 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Camera, 
-  Search, 
-  Download, 
-  ZoomIn,
-  ZoomOut,
-  RotateCw,
-  Move,
-  Maximize,
-  Play,
-  Pause,
-  SkipBack,
-  SkipForward,
-  Archive,
-  Share,
-  Settings,
-  Monitor,
-  Image,
-  Film,
-  Database
-} from 'lucide-react';
+import { Archive, BarChart3, Camera, Circle, Database, Download, FileText, Film, Image, ImageIcon, Magnet, Maximize, Monitor, Move, Pause, Play, Radiation, RotateCw, Ruler, Search, Settings, Share, SkipBack, SkipForward, Trash2, Volume2, ZoomIn, ZoomOut } from 'lucide-react';
 
 const PacsImageViewer: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -143,12 +123,12 @@ const PacsImageViewer: React.FC = () => {
 
   const getModalityIcon = (modality: string) => {
     switch (modality) {
-      case 'CT': return '🔍';
-      case 'MRI': return '🧲';
-      case 'XR': return '☢️';
-      case 'US': return '🔊';
-      case 'MG': return '📐';
-      default: return '📷';
+      case 'CT': return '';
+      case 'MRI': return '';
+      case 'XR': return '';
+      case 'US': return '';
+      case 'MG': return '';
+      default: return '';
     }
   };
 
@@ -413,7 +393,7 @@ const PacsImageViewer: React.FC = () => {
                         filter: `brightness(${viewerSettings.brightness}%) contrast(${viewerSettings.contrast}%)`
                       }}
                     >
-                      <div className="text-4xl mb-4">🖼️</div>
+                      <div className="text-4xl mb-4"></div>
                       <div className="text-lg font-semibold mb-2">Medical Image Viewer</div>
                       <div className="text-sm text-gray-300">
                         Study: {studies.find(s => s.studyInstanceUID === selectedStudy)?.studyDescription}
@@ -510,12 +490,12 @@ const PacsImageViewer: React.FC = () => {
 
                     <TabsContent value="measurements" className="space-y-4">
                       <div className="grid grid-cols-2 gap-2">
-                        <Button size="sm" variant="outline">📏 Length</Button>
-                        <Button size="sm" variant="outline">📐 Angle</Button>
-                        <Button size="sm" variant="outline">⭕ Circle</Button>
-                        <Button size="sm" variant="outline">📊 Rectangle</Button>
-                        <Button size="sm" variant="outline">📝 Annotation</Button>
-                        <Button size="sm" variant="outline">🗑️ Clear</Button>
+                        <Button size="sm" variant="outline"> Length</Button>
+                        <Button size="sm" variant="outline"> Angle</Button>
+                        <Button size="sm" variant="outline"> Circle</Button>
+                        <Button size="sm" variant="outline"> Rectangle</Button>
+                        <Button size="sm" variant="outline"> Annotation</Button>
+                        <Button size="sm" variant="outline"> Clear</Button>
                       </div>
                     </TabsContent>
                   </Tabs>

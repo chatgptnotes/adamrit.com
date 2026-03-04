@@ -141,9 +141,9 @@ const saveEmergencyBackup = (billId: string, discountData: FinancialSummaryData[
       version: 'emergency_v1'
     };
     localStorage.setItem(getEmergencyBackupKey(billId), JSON.stringify(backup));
-    console.log('🚨 [EMERGENCY BACKUP] Discount data saved to localStorage:', { billId, timestamp: backup.timestamp });
+    console.log(' [EMERGENCY BACKUP] Discount data saved to localStorage:', { billId, timestamp: backup.timestamp });
   } catch (error) {
-    console.error('❌ [EMERGENCY BACKUP] Failed to save:', error);
+    console.error(' [EMERGENCY BACKUP] Failed to save:', error);
   }
 };
 
@@ -154,21 +154,21 @@ const loadEmergencyBackup = (billId: string): FinancialSummaryData['discount'] |
     if (!backup) return null;
 
     const parsed = JSON.parse(backup);
-    console.log('🚨 [EMERGENCY BACKUP] Loaded from localStorage:', { billId, timestamp: parsed.timestamp });
+    console.log(' [EMERGENCY BACKUP] Loaded from localStorage:', { billId, timestamp: parsed.timestamp });
     return parsed.discountData;
   } catch (error) {
-    console.error('❌ [EMERGENCY BACKUP] Failed to load:', error);
+    console.error(' [EMERGENCY BACKUP] Failed to load:', error);
     return null;
   }
 };
 
 export const useFinancialSummary = (billId?: string, visitId?: string, savedMedicationData?: any[]) => {
-  // 🔥 CRITICAL: Track hook initialization and potential re-initialization
+  //  CRITICAL: Track hook initialization and potential re-initialization
   const initId = useRef(Math.random().toString(36).substr(2, 9));
   const initCount = useRef(0);
   initCount.current += 1;
 
-  console.log('🚀 [HOOK INIT] useFinancialSummary:', {
+  console.log(' [HOOK INIT] useFinancialSummary:', {
     billId: billId,
     initCount: initCount.current,
     isReInitialization: initCount.current > 1,
@@ -176,7 +176,7 @@ export const useFinancialSummary = (billId?: string, visitId?: string, savedMedi
   });
 
 
-  // 🔥 CRITICAL: Track initial state creation
+  //  CRITICAL: Track initial state creation
   const initialState = {
     totalAmount: {
       advancePayment: '0',
@@ -288,7 +288,7 @@ export const useFinancialSummary = (billId?: string, visitId?: string, savedMedi
     }
   };
 
-  console.log('🏁 [STATE INIT] Creating initial financial summary state:', {
+  console.log(' [STATE INIT] Creating initial financial summary state:', {
     initId: initId.current,
     hasEmptyDiscounts: true,
     initialDiscountState: initialState.discount,
@@ -297,12 +297,12 @@ export const useFinancialSummary = (billId?: string, visitId?: string, savedMedi
 
   const [financialSummaryData, setFinancialSummaryData] = useState<FinancialSummaryData>(initialState);
 
-  // 🔥 CRITICAL: Create wrapper to track ALL state changes
+  //  CRITICAL: Create wrapper to track ALL state changes
   const originalSetFinancialSummaryData = setFinancialSummaryData;
   const trackedSetFinancialSummaryData = useCallback((newState: any) => {
     const isFunction = typeof newState === 'function';
 
-    console.log('🎯 [STATE CHANGE] setFinancialSummaryData called:', {
+    console.log(' [STATE CHANGE] setFinancialSummaryData called:', {
       initId: initId.current,
       callType: isFunction ? 'function' : 'direct',
       timestamp: new Date().toISOString(),
@@ -313,7 +313,7 @@ export const useFinancialSummary = (billId?: string, visitId?: string, savedMedi
     if (isFunction) {
       const result = originalSetFinancialSummaryData((prev: FinancialSummaryData) => {
         const newValue = newState(prev);
-        console.log('🔄 [STATE FUNCTION] State update function executed:', {
+        console.log(' [STATE FUNCTION] State update function executed:', {
           initId: initId.current,
           prevDiscountValues: prev.discount,
           newDiscountValues: newValue.discount,
@@ -325,7 +325,7 @@ export const useFinancialSummary = (billId?: string, visitId?: string, savedMedi
       });
       return result;
     } else {
-      console.log('📝 [STATE DIRECT] Direct state update:', {
+      console.log(' [STATE DIRECT] Direct state update:', {
         initId: initId.current,
         newDiscountValues: newState.discount,
         discountResetToEmpty: Object.values(newState.discount).every(val => val === ''),
@@ -365,11 +365,11 @@ export const useFinancialSummary = (billId?: string, visitId?: string, savedMedi
   // Auto-calculation functions for fetching real data
   const fetchLabTestsTotal = async (): Promise<number> => {
     if (!visitId) {
-      console.log('🚫 No visitId provided for lab tests total');
+      console.log(' No visitId provided for lab tests total');
       return 0;
     }
 
-    console.log('🔍 Fetching lab tests total for visit:', visitId);
+    console.log(' Fetching lab tests total for visit:', visitId);
 
     try {
       // Get visit UUID first
@@ -379,14 +379,14 @@ export const useFinancialSummary = (billId?: string, visitId?: string, savedMedi
         .eq('visit_id', visitId)
         .single();
 
-      console.log('📋 Visit lookup result:', { visitData, visitError });
+      console.log(' Visit lookup result:', { visitData, visitError });
 
       if (visitError || !visitData) {
-        console.error('❌ Failed to find visit for lab tests:', visitError);
+        console.error(' Failed to find visit for lab tests:', visitError);
         return 0;
       }
 
-      console.log('✅ Found visit UUID:', visitData.id, 'for visit_id:', visitId);
+      console.log(' Found visit UUID:', visitData.id, 'for visit_id:', visitId);
 
       // Get visit_labs data using the UUID
       const { data: visitLabsData, error: visitLabsError } = await supabase
@@ -394,44 +394,44 @@ export const useFinancialSummary = (billId?: string, visitId?: string, savedMedi
         .select('*')
         .eq('visit_id', visitData.id);
 
-      console.log('📊 Visit labs query result:', { 
+      console.log(' Visit labs query result:', { 
         visitLabsData, 
         visitLabsError, 
         count: visitLabsData?.length || 0 
       });
 
       if (visitLabsError) {
-        console.error('❌ Visit labs query error:', visitLabsError);
+        console.error(' Visit labs query error:', visitLabsError);
         return 0;
       }
 
       if (!visitLabsData || visitLabsData.length === 0) {
-        console.log('📝 No visit labs data found');
+        console.log(' No visit labs data found');
         return 0;
       }
 
       // Get lab details for cost information
       const labIds = visitLabsData.map((item: any) => item.lab_id);
-      console.log('🔍 Fetching lab details for IDs:', labIds);
+      console.log(' Fetching lab details for IDs:', labIds);
 
       const { data: labsData, error: labsError } = await supabase
         .from('lab')
         .select('id, name, private')
         .in('id', labIds);
 
-      console.log('📊 Labs details query result:', { 
+      console.log(' Labs details query result:', { 
         labsData, 
         labsError, 
         count: labsData?.length || 0 
       });
 
       if (labsError) {
-        console.error('❌ Labs details query error:', labsError);
+        console.error(' Labs details query error:', labsError);
         return 0;
       }
 
       if (!labsData || labsData.length === 0) {
-        console.log('📝 No lab details found for cost calculation');
+        console.log(' No lab details found for cost calculation');
         return 0;
       }
 
@@ -454,7 +454,7 @@ export const useFinancialSummary = (billId?: string, visitId?: string, savedMedi
 
         total += itemTotal;
 
-        console.log(`💰 Lab ${index + 1}:`, {
+        console.log(` Lab ${index + 1}:`, {
           labName: labDetail?.name || 'Unknown',
           labId: visitLab.lab_id,
           quantity: visitLab.quantity || 1,
@@ -465,10 +465,10 @@ export const useFinancialSummary = (billId?: string, visitId?: string, savedMedi
         });
       });
 
-      console.log('✅ Lab tests total calculated:', total, 'from', visitLabsData.length, 'tests');
+      console.log(' Lab tests total calculated:', total, 'from', visitLabsData.length, 'tests');
       return total;
     } catch (error) {
-      console.error('❌ Error fetching lab tests total:', error);
+      console.error(' Error fetching lab tests total:', error);
       return 0;
     }
   };
@@ -496,7 +496,7 @@ export const useFinancialSummary = (billId?: string, visitId?: string, savedMedi
 
       // Calculate total
       const total = clinicalData.reduce((sum, service) => sum + (parseFloat(service.amount) || 0), 0);
-      console.log('💰 Clinical services total calculated:', total);
+      console.log(' Clinical services total calculated:', total);
       return total;
     } catch (error) {
       console.error('Error fetching clinical services total:', error);
@@ -527,7 +527,7 @@ export const useFinancialSummary = (billId?: string, visitId?: string, savedMedi
 
       // Calculate total
       const total = mandatoryData.reduce((sum, service) => sum + (parseFloat(service.amount) || 0), 0);
-      console.log('💰 Mandatory services total calculated:', total);
+      console.log(' Mandatory services total calculated:', total);
       return total;
     } catch (error) {
       console.error('Error fetching mandatory services total:', error);
@@ -574,7 +574,7 @@ export const useFinancialSummary = (billId?: string, visitId?: string, savedMedi
         return sum + rate;
       }, 0);
 
-      console.log('💰 Surgery total calculated:', total);
+      console.log(' Surgery total calculated:', total);
       return total;
     } catch (error) {
       console.error('Error fetching surgery total:', error);
@@ -608,7 +608,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         return sum + (parseFloat(item.rate) || 0);
       }, 0);
 
-      console.log('💉 Anesthetist total calculated:', total);
+      console.log(' Anesthetist total calculated:', total);
       return total;
     } catch (error) {
       console.error('Error fetching anesthetist total:', error);
@@ -621,7 +621,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
     if (!visitId) return 0;
 
     try {
-      console.log('🔧 Fetching implant total for visit:', visitId);
+      console.log(' Fetching implant total for visit:', visitId);
 
       // Get visit UUID first
       const { data: visitData, error: visitError } = await supabase
@@ -631,7 +631,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         .single();
 
       if (visitError || !visitData) {
-        console.log('⚠️ Could not find visit for implant total');
+        console.log(' Could not find visit for implant total');
         return 0;
       }
 
@@ -643,12 +643,12 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         .eq('status', 'Active');
 
       if (implantError) {
-        console.error('❌ Error fetching implants:', implantError);
+        console.error(' Error fetching implants:', implantError);
         return 0;
       }
 
       if (!implantData || implantData.length === 0) {
-        console.log('📝 No implants found for this visit');
+        console.log(' No implants found for this visit');
         return 0;
       }
 
@@ -657,7 +657,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         return sum + (parseFloat(item.amount) || 0);
       }, 0);
 
-      console.log('💰 Implant total calculated:', total, 'from', implantData.length, 'implants');
+      console.log(' Implant total calculated:', total, 'from', implantData.length, 'implants');
       return total;
     } catch (error) {
       console.error('Error fetching implant total:', error);
@@ -685,7 +685,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         .eq('visit_id', visitData.id);
 
       if (visitRadiologyError || !visitRadiologyData || visitRadiologyData.length === 0) {
-        console.log('📝 No radiology data found for visit');
+        console.log(' No radiology data found for visit');
         return 0;
       }
 
@@ -707,7 +707,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         // If both cost and unit_rate are missing/0, the test contributes 0 to the total
       });
       
-      console.log('💰 Radiology total calculated:', total);
+      console.log(' Radiology total calculated:', total);
       return total;
     } catch (error) {
       console.error('Error fetching radiology total:', error);
@@ -716,32 +716,32 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
   };
 
   const fetchPharmacyTotal = async (): Promise<number> => {
-    console.log('🚀 fetchPharmacyTotal called - using existing savedMedicationData');
+    console.log(' fetchPharmacyTotal called - using existing savedMedicationData');
     
     // Use existing savedMedicationData instead of database query
     if (!savedMedicationData || savedMedicationData.length === 0) {
-      console.log('📝 No savedMedicationData available');
+      console.log(' No savedMedicationData available');
       return 0;
     }
 
     // Use same calculation logic as display
     const total = savedMedicationData.reduce((sum, medication) => {
       const cost = parseFloat(medication.cost || '0') || 0;
-      console.log(`💊 Medication: ${medication.medication_name}, Cost: ${cost}`);
+      console.log(` Medication: ${medication.medication_name}, Cost: ${cost}`);
       return sum + cost;
     }, 0);
     
-    console.log('💰 Pharmacy total calculated from savedMedicationData:', total, 'from', savedMedicationData.length, 'medications');
+    console.log(' Pharmacy total calculated from savedMedicationData:', total, 'from', savedMedicationData.length, 'medications');
     return total;
   };
 
   const fetchAdvancePaymentTotal = async (): Promise<number> => {
     if (!visitId) {
-      console.log('🚫 No visitId provided for advance payment total');
+      console.log(' No visitId provided for advance payment total');
       return 0;
     }
 
-    console.log('🔍 Fetching advance payment total for visit:', visitId);
+    console.log(' Fetching advance payment total for visit:', visitId);
 
     try {
       // Query advance_payment table directly using visit_id (no need for UUID conversion)
@@ -752,19 +752,19 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         .eq('status', 'ACTIVE') // Only include active payments
         .eq('is_refund', false); // Only advance payments, NOT refunds
 
-      console.log('📊 Advance payment query result:', { 
+      console.log(' Advance payment query result:', { 
         advancePaymentData, 
         advancePaymentError, 
         count: advancePaymentData?.length || 0 
       });
 
       if (advancePaymentError) {
-        console.error('❌ Advance payment query error:', advancePaymentError);
+        console.error(' Advance payment query error:', advancePaymentError);
         return 0;
       }
 
       if (!advancePaymentData || advancePaymentData.length === 0) {
-        console.log('📝 No advance payment data found for visit');
+        console.log(' No advance payment data found for visit');
         return 0;
       }
 
@@ -774,21 +774,21 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         return sum + amount;
       }, 0);
 
-      console.log('✅ Advance payment total calculated:', total, 'from', advancePaymentData.length, 'payments');
+      console.log(' Advance payment total calculated:', total, 'from', advancePaymentData.length, 'payments');
       return total;
     } catch (error) {
-      console.error('❌ Error fetching advance payment total:', error);
+      console.error(' Error fetching advance payment total:', error);
       return 0;
     }
   };
 
   const fetchRefundedAmount = async (): Promise<number> => {
     if (!visitId) {
-      console.log('🚫 No visitId provided for refunded amount');
+      console.log(' No visitId provided for refunded amount');
       return 0;
     }
 
-    console.log('🔍 Fetching refunded amount for visit:', visitId);
+    console.log(' Fetching refunded amount for visit:', visitId);
 
     try {
       const { data: refundData, error: refundError } = await supabase
@@ -798,19 +798,19 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         .eq('status', 'ACTIVE')
         .eq('is_refund', true); // Only refunds, NOT advance payments
 
-      console.log('📊 Refund query result:', {
+      console.log(' Refund query result:', {
         refundData,
         refundError,
         count: refundData?.length || 0
       });
 
       if (refundError) {
-        console.error('❌ Refund query error:', refundError);
+        console.error(' Refund query error:', refundError);
         return 0;
       }
 
       if (!refundData || refundData.length === 0) {
-        console.log('📝 No refund data found for visit');
+        console.log(' No refund data found for visit');
         return 0;
       }
 
@@ -820,10 +820,10 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         return sum + amount;
       }, 0);
 
-      console.log('✅ Refunded amount calculated:', total, 'from', refundData.length, 'refunds');
+      console.log(' Refunded amount calculated:', total, 'from', refundData.length, 'refunds');
       return total;
     } catch (error) {
-      console.error('❌ Error fetching refunded amount:', error);
+      console.error(' Error fetching refunded amount:', error);
       return 0;
     }
   };
@@ -851,7 +851,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
 
       // Calculate total
       const total = accommodationData.reduce((sum, accommodation) => sum + (parseFloat(accommodation.amount) || 0), 0);
-      console.log('💰 Accommodation charges total calculated:', total);
+      console.log(' Accommodation charges total calculated:', total);
       return total;
     } catch (error) {
       console.error('Error fetching accommodation total:', error);
@@ -864,12 +864,12 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
     const loadSessionId = Math.random().toString(36).substr(2, 9);
 
     if (!billId) {
-      console.log('❌ [FINANCIAL SUMMARY] Cannot load: no billId provided');
+      console.log(' [FINANCIAL SUMMARY] Cannot load: no billId provided');
       setIsInitializing(false);
       return;
     }
 
-    console.log('🔄 [FINANCIAL SUMMARY] Loading financial summary with:', {
+    console.log(' [FINANCIAL SUMMARY] Loading financial summary with:', {
       billId: billId,
       billIdType: typeof billId,
       billIdLength: billId?.length,
@@ -881,17 +881,17 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
 
     // Lock state during critical load operation
     setIsStateLocked(true);
-    console.log('🔒 [STATE LOCK] State locked during database load');
+    console.log(' [STATE LOCK] State locked during database load');
 
     // STEP 1: Check if any financial_summary records exist at all
-    console.log('🔍 [DATABASE DEBUG] Checking all financial_summary records...');
+    console.log(' [DATABASE DEBUG] Checking all financial_summary records...');
     const { data: allRecords, error: allRecordsError } = await supabase
       .from('financial_summary')
       .select('id, bill_id, created_at, discount_laboratory_services, discount_radiology, discount_pharmacy')
       .order('created_at', { ascending: false })
       .limit(5);
 
-    console.log('📊 [DATABASE DEBUG] All financial_summary records:', {
+    console.log(' [DATABASE DEBUG] All financial_summary records:', {
       count: allRecords?.length || 0,
       records: allRecords,
       error: allRecordsError
@@ -899,14 +899,14 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
 
     setIsLoading(true);
     try {
-      console.log('🔍 [DATABASE DEBUG] Querying financial_summary for billId:', billId);
+      console.log(' [DATABASE DEBUG] Querying financial_summary for billId:', billId);
       const { data, error } = await supabase
         .from('financial_summary')
         .select('*')
         .eq('bill_id', billId)
         .single();
 
-      console.log('📋 [DATABASE DEBUG] Raw query result:', {
+      console.log(' [DATABASE DEBUG] Raw query result:', {
         data: data,
         error: error,
         errorCode: error?.code,
@@ -915,13 +915,13 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
       });
 
       if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
-        console.error('❌ [FINANCIAL SUMMARY] Error loading financial summary:', error);
+        console.error(' [FINANCIAL SUMMARY] Error loading financial summary:', error);
         toast.error('Failed to load financial summary data');
         return;
       }
 
       if (data) {
-        console.log('✅ [FINANCIAL SUMMARY] Found saved data, loading discount values...', {
+        console.log(' [FINANCIAL SUMMARY] Found saved data, loading discount values...', {
           recordId: data.id,
           lastUpdated: data.updated_at,
           rawDiscountData: {
@@ -1040,17 +1040,17 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
           }
         };
 
-        // 🔥 LOAD DISCOUNT FROM NEW TABLE: Load discount from visit_discounts table
+        //  LOAD DISCOUNT FROM NEW TABLE: Load discount from visit_discounts table
         try {
-          console.log('🔍 [DISCOUNT INTEGRATION] Loading discount from visit_discounts table...');
-          console.log('🔍 [DISCOUNT INTEGRATION] Available IDs - visitId:', visitId, 'billId:', billId);
+          console.log(' [DISCOUNT INTEGRATION] Loading discount from visit_discounts table...');
+          console.log(' [DISCOUNT INTEGRATION] Available IDs - visitId:', visitId, 'billId:', billId);
 
           // Use visitId for discount lookup (preferred), fallback to billId if visitId not available
           const lookupId = visitId || billId;
           if (!lookupId) {
-            console.log('⚠️ [DISCOUNT INTEGRATION] No visitId or billId available for discount lookup');
+            console.log(' [DISCOUNT INTEGRATION] No visitId or billId available for discount lookup');
           } else {
-            console.log('🔍 [DISCOUNT INTEGRATION] Using ID for discount lookup:', lookupId);
+            console.log(' [DISCOUNT INTEGRATION] Using ID for discount lookup:', lookupId);
 
             // Get visit UUID from visitId or billId
             const { data: visitData, error: visitError } = await supabase
@@ -1059,34 +1059,34 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
               .eq('visit_id', lookupId)
               .single();
 
-            console.log('🔍 [DISCOUNT INTEGRATION] Visit query result:', { visitData, visitError });
+            console.log(' [DISCOUNT INTEGRATION] Visit query result:', { visitData, visitError });
 
             if (visitError) {
-              console.error('❌ [DISCOUNT INTEGRATION] Visit query error:', visitError);
-              console.log('❌ [DISCOUNT INTEGRATION] Query details:', {
+              console.error(' [DISCOUNT INTEGRATION] Visit query error:', visitError);
+              console.log(' [DISCOUNT INTEGRATION] Query details:', {
                 table: 'visits',
                 select: 'id, visit_id',
                 where: `visit_id = ${lookupId}`
               });
             } else if (!visitData) {
-              console.log('⚠️ [DISCOUNT INTEGRATION] No visit found for ID:', lookupId);
+              console.log(' [DISCOUNT INTEGRATION] No visit found for ID:', lookupId);
             } else {
               // Load discount from visit_discounts table
-              console.log('🔍 [DISCOUNT INTEGRATION] Querying visit_discounts with visit UUID:', visitData.id);
+              console.log(' [DISCOUNT INTEGRATION] Querying visit_discounts with visit UUID:', visitData.id);
               const { data: discountData, error: discountError } = await supabase
                 .from('visit_discounts')
                 .select('*')
                 .eq('visit_id', visitData.id)
                 .single();
 
-              console.log('🔍 [DISCOUNT INTEGRATION] Discount query result:', { discountData, discountError });
+              console.log(' [DISCOUNT INTEGRATION] Discount query result:', { discountData, discountError });
 
               if (discountError) {
                 if (discountError.code === 'PGRST116') {
-                  console.log('📝 [DISCOUNT INTEGRATION] No discount record found (PGRST116 - expected for new visits)');
+                  console.log(' [DISCOUNT INTEGRATION] No discount record found (PGRST116 - expected for new visits)');
                 } else {
-                  console.error('❌ [DISCOUNT INTEGRATION] Unexpected error loading discount:', discountError);
-                  console.log('❌ [DISCOUNT INTEGRATION] Discount query details:', {
+                  console.error(' [DISCOUNT INTEGRATION] Unexpected error loading discount:', discountError);
+                  console.log(' [DISCOUNT INTEGRATION] Discount query details:', {
                     table: 'visit_discounts',
                     select: '*',
                     where: `visit_id = ${visitData.id}`,
@@ -1094,33 +1094,33 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
                   });
                 }
               } else if (discountData) {
-                console.log('✅ [DISCOUNT INTEGRATION] SUCCESS! Found discount from database:', discountData.discount_amount);
-                console.log('✅ [DISCOUNT INTEGRATION] Full discount record:', discountData);
-                console.log('✅ [DISCOUNT INTEGRATION] Converting to string:', discountData.discount_amount?.toString());
+                console.log(' [DISCOUNT INTEGRATION] SUCCESS! Found discount from database:', discountData.discount_amount);
+                console.log(' [DISCOUNT INTEGRATION] Full discount record:', discountData);
+                console.log(' [DISCOUNT INTEGRATION] Converting to string:', discountData.discount_amount?.toString());
                 // Update the discount total with value from new table
                 convertedData.discount.total = discountData.discount_amount?.toString() || '';
-                console.log('✅ [DISCOUNT INTEGRATION] Set convertedData.discount.total to:', convertedData.discount.total);
+                console.log(' [DISCOUNT INTEGRATION] Set convertedData.discount.total to:', convertedData.discount.total);
               } else {
-                console.log('📝 [DISCOUNT INTEGRATION] Query succeeded but no data returned');
-                console.log('📝 [DISCOUNT INTEGRATION] discountData:', discountData);
-                console.log('📝 [DISCOUNT INTEGRATION] discountError:', discountError);
+                console.log(' [DISCOUNT INTEGRATION] Query succeeded but no data returned');
+                console.log(' [DISCOUNT INTEGRATION] discountData:', discountData);
+                console.log(' [DISCOUNT INTEGRATION] discountError:', discountError);
               }
             }
           }
         } catch (discountIntegrationError) {
-          console.error('❌ [DISCOUNT INTEGRATION] Exception:', discountIntegrationError);
+          console.error(' [DISCOUNT INTEGRATION] Exception:', discountIntegrationError);
         }
 
-        // 🔥 CRITICAL: Protect discount value if it was loaded from database
+        //  CRITICAL: Protect discount value if it was loaded from database
         if (convertedData.discount.total && convertedData.discount.total !== '0' && convertedData.discount.total !== '') {
-          console.log('🛡️ [DISCOUNT PROTECTION] Discount value loaded from database, protecting it:', convertedData.discount.total);
+          console.log(' [DISCOUNT PROTECTION] Discount value loaded from database, protecting it:', convertedData.discount.total);
         }
 
         setFinancialSummaryDataTracked(convertedData);
 
-        // 🔥 CRITICAL LOGGING: Confirm what was set in React state
-        console.log('📱 [REACT STATE SET] ✅ FINAL DISCOUNT TOTAL SET TO:', convertedData.discount.total);
-        console.log('📱 [REACT STATE SET] Discount values set in React state:', {
+        //  CRITICAL LOGGING: Confirm what was set in React state
+        console.log(' [REACT STATE SET]  FINAL DISCOUNT TOTAL SET TO:', convertedData.discount.total);
+        console.log(' [REACT STATE SET] Discount values set in React state:', {
           radiologyInState: convertedData.discount.radiology,
           laboratoryInState: convertedData.discount.laboratoryServices,
           clinicalInState: convertedData.discount.clinicalServices,
@@ -1138,7 +1138,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         setUserHasModifiedDiscounts(false); // Reset modification flag on database load
         setIsInitializing(false);
 
-        console.log('✅ [FINANCIAL SUMMARY] Data converted and set in React state:', {
+        console.log(' [FINANCIAL SUMMARY] Data converted and set in React state:', {
           discountValuesSetInState: {
             laboratory: convertedData.discount.laboratoryServices,
             radiology: convertedData.discount.radiology,
@@ -1161,22 +1161,22 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
           });
         }
 
-        console.log('✅ [FINANCIAL SUMMARY] Loaded from database successfully');
+        console.log(' [FINANCIAL SUMMARY] Loaded from database successfully');
         setHasLoadedFromDatabase(true);
       } else {
-        console.log('❌ [FINANCIAL SUMMARY] No saved data found for billId:', billId);
-        console.log('🔍 [FINANCIAL SUMMARY] This means either:');
+        console.log(' [FINANCIAL SUMMARY] No saved data found for billId:', billId);
+        console.log(' [FINANCIAL SUMMARY] This means either:');
         console.log('  1. No financial_summary record exists for this bill');
         console.log('  2. The save operation failed silently');
         console.log('  3. We are loading from a different billId than we saved to');
         console.log('  4. The financial_summary table has different constraints than expected');
 
-        // 🔥 CRITICAL FIX: Load discount from visit_discounts table even if financial_summary doesn't exist
-        console.log('🔍 [DISCOUNT INTEGRATION - NO RECORD] Attempting to load discount from visit_discounts table...');
+        //  CRITICAL FIX: Load discount from visit_discounts table even if financial_summary doesn't exist
+        console.log(' [DISCOUNT INTEGRATION - NO RECORD] Attempting to load discount from visit_discounts table...');
         try {
           const lookupId = visitId || billId;
           if (lookupId) {
-            console.log('🔍 [DISCOUNT INTEGRATION - NO RECORD] Using ID for discount lookup:', lookupId);
+            console.log(' [DISCOUNT INTEGRATION - NO RECORD] Using ID for discount lookup:', lookupId);
 
             // Get visit UUID from visitId or billId
             const { data: visitData, error: visitError } = await supabase
@@ -1185,21 +1185,21 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
               .eq('visit_id', lookupId)
               .single();
 
-            console.log('🔍 [DISCOUNT INTEGRATION - NO RECORD] Visit query result:', { visitData, visitError });
+            console.log(' [DISCOUNT INTEGRATION - NO RECORD] Visit query result:', { visitData, visitError });
 
             if (!visitError && visitData) {
               // Load discount from visit_discounts table
-              console.log('🔍 [DISCOUNT INTEGRATION - NO RECORD] Querying visit_discounts with visit UUID:', visitData.id);
+              console.log(' [DISCOUNT INTEGRATION - NO RECORD] Querying visit_discounts with visit UUID:', visitData.id);
               const { data: discountData, error: discountError } = await supabase
                 .from('visit_discounts')
                 .select('*')
                 .eq('visit_id', visitData.id)
                 .single();
 
-              console.log('🔍 [DISCOUNT INTEGRATION - NO RECORD] Discount query result:', { discountData, discountError });
+              console.log(' [DISCOUNT INTEGRATION - NO RECORD] Discount query result:', { discountData, discountError });
 
               if (!discountError && discountData) {
-                console.log('✅ [DISCOUNT INTEGRATION - NO RECORD] SUCCESS! Found discount:', discountData.discount_amount);
+                console.log(' [DISCOUNT INTEGRATION - NO RECORD] SUCCESS! Found discount:', discountData.discount_amount);
                 // Update state with discount value
                 setFinancialSummaryDataTracked(prev => ({
                   ...prev,
@@ -1208,7 +1208,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
                     total: discountData.discount_amount?.toString() || ''
                   }
                 }));
-                console.log('✅ [DISCOUNT INTEGRATION - NO RECORD] Updated state with discount total:', discountData.discount_amount);
+                console.log(' [DISCOUNT INTEGRATION - NO RECORD] Updated state with discount total:', discountData.discount_amount);
                 setIsInitializing(false);
                 setHasLoadedFromDatabase(true);
                 return; // Exit early - discount loaded successfully
@@ -1216,18 +1216,18 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
             }
           }
         } catch (discountError) {
-          console.error('❌ [DISCOUNT INTEGRATION - NO RECORD] Exception loading discount:', discountError);
+          console.error(' [DISCOUNT INTEGRATION - NO RECORD] Exception loading discount:', discountError);
         }
 
         // Try session backup first, then emergency backup as last resort
-        console.log('🚨 [RECOVERY SEQUENCE] Starting recovery sequence for missing database data...');
+        console.log(' [RECOVERY SEQUENCE] Starting recovery sequence for missing database data...');
 
         // Try session backup first
         try {
           const sessionBackup = sessionStorage.getItem(`financial_backup_${billId}`);
           if (sessionBackup) {
             const parsed = JSON.parse(sessionBackup);
-            console.log('✅ [SESSION RECOVERY] Found session backup, restoring discount values:', parsed);
+            console.log(' [SESSION RECOVERY] Found session backup, restoring discount values:', parsed);
             setFinancialSummaryDataTracked(prev => ({
               ...prev,
               discount: parsed.discount
@@ -1239,14 +1239,14 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
             return; // Exit early - session backup found
           }
         } catch (sessionError) {
-          console.error('❌ [SESSION RECOVERY] Session backup failed to load:', sessionError);
+          console.error(' [SESSION RECOVERY] Session backup failed to load:', sessionError);
         }
 
         // Try emergency localStorage backup as last resort
-        console.log('🚨 [EMERGENCY RECOVERY] Session backup not found, attempting emergency localStorage backup...');
+        console.log(' [EMERGENCY RECOVERY] Session backup not found, attempting emergency localStorage backup...');
         const emergencyData = loadEmergencyBackup(billId);
         if (emergencyData) {
-          console.log('✅ [EMERGENCY RECOVERY] Found emergency backup, restoring discount values');
+          console.log(' [EMERGENCY RECOVERY] Found emergency backup, restoring discount values');
           setFinancialSummaryDataTracked(prev => ({
             ...prev,
             discount: emergencyData
@@ -1254,7 +1254,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
           emergencyBackupRef.current = JSON.stringify(emergencyData);
           toast.success('Recovered discount values from emergency backup');
         } else {
-          console.log('❌ [RECOVERY FAILED] No backups found - discount values will be empty');
+          console.log(' [RECOVERY FAILED] No backups found - discount values will be empty');
         }
 
         setIsInitializing(false);
@@ -1262,19 +1262,19 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         setHasLoadedFromDatabase(true);
       }
     } catch (error) {
-      console.error('❌ [FINANCIAL SUMMARY] Error loading financial summary:', error);
+      console.error(' [FINANCIAL SUMMARY] Error loading financial summary:', error);
       toast.error('Failed to load financial summary data');
       setIsInitializing(false);
     } finally {
       setIsLoading(false);
       setIsStateLocked(false);
-      console.log('🔓 [STATE UNLOCK] State unlocked after database operation');
+      console.log(' [STATE UNLOCK] State unlocked after database operation');
 
       // FIXED: Remove automatic auto-populate after load to prevent overwriting loaded discount values
       // Auto-populate should only be triggered manually via "Refresh Totals" button
       if (shouldAutoPopulateAfterLoad) {
-        console.log('🛡️ [LOAD COMPLETE] Auto-populate was queued but SKIPPED to preserve loaded discount values');
-        console.log('💡 [LOAD COMPLETE] Use "Refresh Totals Only" button to manually refresh if needed');
+        console.log(' [LOAD COMPLETE] Auto-populate was queued but SKIPPED to preserve loaded discount values');
+        console.log(' [LOAD COMPLETE] Use "Refresh Totals Only" button to manually refresh if needed');
         setShouldAutoPopulateAfterLoad(false);
       }
     }
@@ -1283,7 +1283,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
   // Save financial summary data to database
   const saveFinancialSummary = async () => {
     const saveSessionId = Math.random().toString(36).substr(2, 9);
-    console.log('💾 [FINANCIAL SUMMARY] Save attempt with:', {
+    console.log(' [FINANCIAL SUMMARY] Save attempt with:', {
       billId: billId,
       billIdType: typeof billId,
       billIdLength: billId?.length,
@@ -1294,7 +1294,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
     });
 
     if (!billId || !billId.trim()) {
-      console.error('❌ [FINANCIAL SUMMARY] Cannot save: billId validation failed:', {
+      console.error(' [FINANCIAL SUMMARY] Cannot save: billId validation failed:', {
         billId: billId,
         billIdType: typeof billId,
         billIdLength: billId?.length,
@@ -1303,16 +1303,16 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
       toast.error('Bill ID is required to save financial summary. Please wait for bill creation.');
       return;
     }
-    console.log('✅ [FINANCIAL SUMMARY] Starting save process with saveSessionId:', saveSessionId);
+    console.log(' [FINANCIAL SUMMARY] Starting save process with saveSessionId:', saveSessionId);
 
     setIsSaving(true);
-    console.log('🔄 [SAVE TRANSACTION] Starting comprehensive database transaction with enhanced logging...');
+    console.log(' [SAVE TRANSACTION] Starting comprehensive database transaction with enhanced logging...');
 
     try {
       // Step 1: Convert visitId (TEXT) to visits.id (UUID) for proper foreign key reference
       let visitUUID = null;
       if (visitId) {
-        console.log('🔍 [SAVE TRANSACTION] Step 1: Converting visitId from TEXT to UUID:', visitId);
+        console.log(' [SAVE TRANSACTION] Step 1: Converting visitId from TEXT to UUID:', visitId);
         const { data: visitData, error: visitError } = await supabase
           .from('visits')
           .select('id')
@@ -1320,27 +1320,27 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
           .single();
 
         if (visitError) {
-          console.error('❌ [SAVE TRANSACTION] Step 1 ERROR: Failed to find visit UUID for visitId:', {
+          console.error(' [SAVE TRANSACTION] Step 1 ERROR: Failed to find visit UUID for visitId:', {
             visitId: visitId,
             error: visitError,
             errorMessage: visitError.message,
             errorCode: visitError.code
           });
           // Don't fail completely - proceed with null visit_id
-          console.log('⚠️ [SAVE TRANSACTION] Step 1 RECOVERY: Proceeding with null visit_id due to lookup failure');
+          console.log(' [SAVE TRANSACTION] Step 1 RECOVERY: Proceeding with null visit_id due to lookup failure');
         } else if (visitData) {
           visitUUID = visitData.id;
-          console.log('✅ [SAVE TRANSACTION] Step 1 SUCCESS: Converted visitId to UUID:', {
+          console.log(' [SAVE TRANSACTION] Step 1 SUCCESS: Converted visitId to UUID:', {
             fromVisitId: visitId,
             toVisitUUID: visitUUID
           });
         }
       } else {
-        console.log('ℹ️ [SAVE TRANSACTION] Step 1 SKIPPED: No visitId provided, proceeding with null visit_id');
+        console.log('ℹ [SAVE TRANSACTION] Step 1 SKIPPED: No visitId provided, proceeding with null visit_id');
       }
 
       // Step 2: Log and validate discount values being saved
-      console.log('🔍 [SAVE TRANSACTION] Step 2: Validating discount values before save:', {
+      console.log(' [SAVE TRANSACTION] Step 2: Validating discount values before save:', {
         discountValues: financialSummaryData.discount,
         hasNonEmptyDiscounts: Object.values(financialSummaryData.discount).some(val => val && val.trim() !== '' && val !== '0'),
         billId: billId,
@@ -1356,13 +1356,13 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
           version: 'session_backup_v1'
         };
         sessionStorage.setItem(`financial_backup_${billId}`, JSON.stringify(sessionBackup));
-        console.log('✅ [SAVE TRANSACTION] Step 2a: Session backup saved successfully');
+        console.log(' [SAVE TRANSACTION] Step 2a: Session backup saved successfully');
       } catch (sessionError) {
-        console.error('❌ [SAVE TRANSACTION] Step 2a ERROR: Session backup failed:', sessionError);
+        console.error(' [SAVE TRANSACTION] Step 2a ERROR: Session backup failed:', sessionError);
       }
 
-      // 🔥 CRITICAL DISCOVERY: Add detailed logging for discount value conversion
-      console.log('💥 [SAVE DIAGNOSTIC] Raw discount values from React state:', {
+      //  CRITICAL DISCOVERY: Add detailed logging for discount value conversion
+      console.log(' [SAVE DIAGNOSTIC] Raw discount values from React state:', {
         radiology: financialSummaryData.discount.radiology,
         radiologyType: typeof financialSummaryData.discount.radiology,
         radiologyLength: financialSummaryData.discount.radiology?.length,
@@ -1396,7 +1396,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         total_amount_accommodation_charges: parseFloat(financialSummaryData.totalAmount.accommodationCharges) || 0,
         total_amount_total: parseFloat(financialSummaryData.totalAmount.total) || 0,
         
-        // 🔥 ENHANCED: Discount Row - handle DEFAULT 0 database constraint properly
+        //  ENHANCED: Discount Row - handle DEFAULT 0 database constraint properly
         discount_advance_payment: financialSummaryData.discount.advancePayment && financialSummaryData.discount.advancePayment.trim() !== '' && financialSummaryData.discount.advancePayment.trim() !== '0' ? parseFloat(financialSummaryData.discount.advancePayment) : null,
         discount_clinical_services: financialSummaryData.discount.clinicalServices && financialSummaryData.discount.clinicalServices.trim() !== '' && financialSummaryData.discount.clinicalServices.trim() !== '0' ? parseFloat(financialSummaryData.discount.clinicalServices) : null,
         discount_laboratory_services: financialSummaryData.discount.laboratoryServices && financialSummaryData.discount.laboratoryServices.trim() !== '' && financialSummaryData.discount.laboratoryServices.trim() !== '0' ? parseFloat(financialSummaryData.discount.laboratoryServices) : null,
@@ -1475,8 +1475,8 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         total_admission_days: packageDates.total_admission_days || 0
       };
 
-      // 🔥 CRITICAL LOGGING: Show exact values being sent to database
-      console.log('💾 [DATABASE SAVE] Values being sent to database:', {
+      //  CRITICAL LOGGING: Show exact values being sent to database
+      console.log(' [DATABASE SAVE] Values being sent to database:', {
         discount_radiology: dbData.discount_radiology,
         discount_laboratory_services: dbData.discount_laboratory_services,
         discount_clinical_services: dbData.discount_clinical_services,
@@ -1486,9 +1486,9 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         visit_id: dbData.visit_id
       });
 
-      // 🔥 ENHANCED: Use native Supabase UPSERT for atomic operation
-      console.log('🔄 [FINANCIAL SUMMARY] Performing UPSERT operation for billId:', billId);
-      console.log('💾 [UPSERT] Using atomic UPSERT with conflict resolution on bill_id');
+      //  ENHANCED: Use native Supabase UPSERT for atomic operation
+      console.log(' [FINANCIAL SUMMARY] Performing UPSERT operation for billId:', billId);
+      console.log(' [UPSERT] Using atomic UPSERT with conflict resolution on bill_id');
 
       const result = await supabase
         .from('financial_summary')
@@ -1499,10 +1499,10 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         .select();
 
       const operationType = result.data && result.data.length > 0 ? 'UPSERT' : 'UNKNOWN';
-      console.log(`✅ [FINANCIAL SUMMARY] ${operationType} operation completed for billId:`, billId);
+      console.log(` [FINANCIAL SUMMARY] ${operationType} operation completed for billId:`, billId);
 
       if (result.error) {
-        console.error('❌ [FINANCIAL SUMMARY] UPSERT operation failed:', {
+        console.error(' [FINANCIAL SUMMARY] UPSERT operation failed:', {
           operation: 'UPSERT',
           error: result.error,
           billId: billId,
@@ -1515,7 +1515,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         return;
       }
 
-      console.log(`✅ [FINANCIAL SUMMARY] UPSERT operation successful:`, {
+      console.log(` [FINANCIAL SUMMARY] UPSERT operation successful:`, {
         operation: 'UPSERT',
         billId: billId,
         recordsAffected: result.data?.length || 0,
@@ -1535,7 +1535,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
       });
 
       // VERIFICATION: Immediately read back the data to confirm it was saved correctly
-      console.log('🔍 [FINANCIAL SUMMARY] Verifying save operation with immediate read-back...');
+      console.log(' [FINANCIAL SUMMARY] Verifying save operation with immediate read-back...');
       const { data: verificationData, error: verificationError } = await supabase
         .from('financial_summary')
         .select('*')
@@ -1543,10 +1543,10 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         .single();
 
       if (verificationError) {
-        console.error('❌ [FINANCIAL SUMMARY] Verification read failed:', verificationError);
+        console.error(' [FINANCIAL SUMMARY] Verification read failed:', verificationError);
         toast.error('Save completed but verification failed. Please refresh to check data.');
       } else if (verificationData) {
-        console.log('✅ [FINANCIAL SUMMARY] Verification successful - data confirmed in database:', {
+        console.log(' [FINANCIAL SUMMARY] Verification successful - data confirmed in database:', {
           verifiedDiscounts: {
             laboratory: verificationData.discount_laboratory_services,
             radiology: verificationData.discount_radiology,
@@ -1568,13 +1568,13 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
 
         toast.success('Financial summary saved and verified successfully!');
       } else {
-        console.error('❌ [FINANCIAL SUMMARY] Verification failed: No data found after save');
+        console.error(' [FINANCIAL SUMMARY] Verification failed: No data found after save');
         toast.error('Save operation unclear. Please refresh to check data.');
       }
 
-      console.log('✅ [FINANCIAL SUMMARY] Saved to database successfully with billId:', billId);
+      console.log(' [FINANCIAL SUMMARY] Saved to database successfully with billId:', billId);
     } catch (error) {
-      console.error('❌ [FINANCIAL SUMMARY] Unexpected error during save operation:', {
+      console.error(' [FINANCIAL SUMMARY] Unexpected error during save operation:', {
         error: error,
         errorMessage: error instanceof Error ? error.message : 'Unknown error',
         errorStack: error instanceof Error ? error.stack : null,
@@ -1592,15 +1592,15 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
   const triggerAutoSave = useCallback(async () => {
     if (!billId || isAutoSaving || isSaving) return;
 
-    console.log('🔄 [AUTO-SAVE] Triggering auto-save using main save function...');
+    console.log(' [AUTO-SAVE] Triggering auto-save using main save function...');
     setIsAutoSaving(true);
 
     try {
       // Use the main, tested save function instead of duplicate logic
       await saveFinancialSummary();
-      console.log('✅ [AUTO-SAVE] Auto-save completed successfully via main save function');
+      console.log(' [AUTO-SAVE] Auto-save completed successfully via main save function');
     } catch (error) {
-      console.error('❌ [AUTO-SAVE] Auto-save failed:', error);
+      console.error(' [AUTO-SAVE] Auto-save failed:', error);
       toast.error('Auto-save failed - your changes may not be saved');
     } finally {
       setIsAutoSaving(false);
@@ -1609,7 +1609,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
 
   // Handle financial summary input change with auto-save
   const handleFinancialSummaryChange = (row: string, column: string, value: string) => {
-    console.log('📝 [INPUT CHANGE] Financial summary changed:', { row, column, value });
+    console.log(' [INPUT CHANGE] Financial summary changed:', { row, column, value });
 
     setFinancialSummaryDataTracked(prev => {
       const newData = {
@@ -1622,7 +1622,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
 
       // Detailed logging for discount changes
       if (row === 'discount') {
-        console.log('💡 [DISCOUNT TRACKING] Discount value change detected:', {
+        console.log(' [DISCOUNT TRACKING] Discount value change detected:', {
           column: column,
           oldValue: prev.discount[column as keyof typeof prev.discount],
           newValue: value,
@@ -1646,26 +1646,26 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
 
     // Track user modifications to discount values (auto-save disabled)
     if (row === 'discount' && initialDiscountLoadRef.current) {
-      console.log('🛡️ [USER MODIFICATION] User manually modified discount value:', { column, value });
+      console.log(' [USER MODIFICATION] User manually modified discount value:', { column, value });
       setUserHasModifiedDiscounts(true);
 
       // Note: Auto-save removed - user must manually click Calculate and then Save
-      console.log('📝 [DISCOUNT CHANGE] Discount value changed (auto-save disabled - requires manual calculation)');
+      console.log(' [DISCOUNT CHANGE] Discount value changed (auto-save disabled - requires manual calculation)');
     }
   };
 
-  // 🔄 TOTALS-ONLY AUTO-POPULATE (PROPER SEPARATION OF CONCERNS)
+  //  TOTALS-ONLY AUTO-POPULATE (PROPER SEPARATION OF CONCERNS)
   const autoPopulateFinancialData = async () => {
-    console.log('🔥 [AUTO-POPULATE] Starting totals-only auto-populate (discount preservation via state)');
+    console.log(' [AUTO-POPULATE] Starting totals-only auto-populate (discount preservation via state)');
 
     if (!visitId) {
-      console.log('🚫 No visitId provided for auto-population');
+      console.log(' No visitId provided for auto-population');
       return;
     }
 
     // CRITICAL: Block all operations during state lock
     if (isStateLocked) {
-      console.log('🔒 [AUTO-POPULATE] State is locked - operation blocked to prevent race conditions');
+      console.log(' [AUTO-POPULATE] State is locked - operation blocked to prevent race conditions');
       setShouldAutoPopulateAfterLoad(true);
       return;
     }
@@ -1686,13 +1686,13 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
 
     // CRITICAL: Ensure database load has completed first
     if (!hasLoadedFromDatabase && billId) {
-      console.log('🔄 [AUTO-POPULATE] Database load has not completed yet - queuing auto-populate to run after load');
+      console.log(' [AUTO-POPULATE] Database load has not completed yet - queuing auto-populate to run after load');
       setShouldAutoPopulateAfterLoad(true);
       return;
     }
 
-    console.log('🔄 Auto-populating financial totals for visit:', visitId);
-    console.log('📊 [AUTO-POPULATE] Current state before auto-populate:', {
+    console.log(' Auto-populating financial totals for visit:', visitId);
+    console.log(' [AUTO-POPULATE] Current state before auto-populate:', {
       isLoading: isLoading,
       hasLoadedFromDatabase: hasLoadedFromDatabase,
       billId: billId,
@@ -1705,8 +1705,8 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
     setIsLoading(true);
 
     try {
-      // 🔥 STEP 1: Fetch all totals from visit data (NO DISCOUNT LOADING)
-      console.log('📊 [AUTO-POPULATE] Step 1: Fetching totals from visit data only...');
+      //  STEP 1: Fetch all totals from visit data (NO DISCOUNT LOADING)
+      console.log(' [AUTO-POPULATE] Step 1: Fetching totals from visit data only...');
       const [
         labTotal,
         clinicalTotal,
@@ -1735,18 +1735,18 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
 
       // Calculate grand total (including surgery, anesthetist, and implant)
       const grandTotal = labTotal + clinicalTotal + mandatoryTotal + radiologyTotal + pharmacyTotal + accommodationTotal + surgeryTotal + anesthetistTotal + implantTotal;
-      console.log('✅ [AUTO-POPULATE] Step 1 Complete: Calculated totals only');
+      console.log(' [AUTO-POPULATE] Step 1 Complete: Calculated totals only');
 
-      // 🔥 STEP 2: Update ONLY totals, preserve existing discount values from state
-      console.log('📝 [AUTO-POPULATE] Step 2: Updating totals only, preserving existing discount values...');
+      //  STEP 2: Update ONLY totals, preserve existing discount values from state
+      console.log(' [AUTO-POPULATE] Step 2: Updating totals only, preserving existing discount values...');
       setFinancialSummaryDataTracked(prev => {
-        console.log('🔍 [AUTO-POPULATE] State preservation details:', {
+        console.log(' [AUTO-POPULATE] State preservation details:', {
           preservingDiscountValues: prev.discount,
           discountSource: 'existing state (loaded by loadFinancialSummary)',
           noDiscountDatabaseQuery: true
         });
 
-        // 🔄 TOTALS-ONLY UPDATE: Update totals, preserve ALL existing values
+        //  TOTALS-ONLY UPDATE: Update totals, preserve ALL existing values
         const updatedData = {
           ...prev,
           // ONLY update totalAmount - auto-calculated from visit data
@@ -1764,22 +1764,22 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
             accommodationCharges: accommodationTotal.toString(),
             total: grandTotal.toString()
           },
-          // 🛡️ PRESERVE EXISTING DISCOUNT VALUES: No database loading, use current state
+          //  PRESERVE EXISTING DISCOUNT VALUES: No database loading, use current state
           discount: { ...prev.discount },
-          // ✅ Update advance payments in Amount Paid row
+          //  Update advance payments in Amount Paid row
           amountPaid: {
             ...prev.amountPaid,
             advancePayment: advancePaymentTotal.toString(),
             total: advancePaymentTotal.toString()
           },
-          // ✅ Update refunded amount in Refunded Amount row
+          //  Update refunded amount in Refunded Amount row
           refundedAmount: {
             ...prev.refundedAmount,
             advancePayment: refundedTotal.toString(),
             total: refundedTotal.toString()
           },
 
-          // ⚠️ SIMPLE BALANCE: Calculate without discount (discount applied separately via Calculate button)
+          //  SIMPLE BALANCE: Calculate without discount (discount applied separately via Calculate button)
           balance: {
             ...prev.balance,
             advancePayment: '0', // Always 0 - advance payment has no service balance
@@ -1794,7 +1794,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
           }
         };
 
-        console.log('✅ [AUTO-POPULATE] Step 2 Complete: Totals-only update with proper separation:', {
+        console.log(' [AUTO-POPULATE] Step 2 Complete: Totals-only update with proper separation:', {
           totalAmountUpdated: true,
           advancePaymentMoved: true,
           discountValuesPreserved: true,
@@ -1805,7 +1805,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         return updatedData;
       });
 
-      console.log('✅ [AUTO-POPULATE] Totals-only auto-populate completed successfully:', {
+      console.log(' [AUTO-POPULATE] Totals-only auto-populate completed successfully:', {
         advancePaymentTotal,
         refundedTotal,
         labTotal,
@@ -1820,7 +1820,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
       });
 
     } catch (error) {
-      console.error('❌ Error auto-populating financial data:', error);
+      console.error(' Error auto-populating financial data:', error);
       toast.error('Failed to load financial data from database');
     } finally {
       setIsLoading(false);
@@ -1829,7 +1829,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
 
   // Load data when billId becomes available or changes
   useEffect(() => {
-    console.log('🔄 [FINANCIAL SUMMARY] useEffect triggered - billId changed:', {
+    console.log(' [FINANCIAL SUMMARY] useEffect triggered - billId changed:', {
       billId: billId,
       billIdType: typeof billId,
       billIdLength: billId?.length || 0,
@@ -1838,10 +1838,10 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
     });
 
     if (billId && billId.trim()) {
-      console.log('✅ [FINANCIAL SUMMARY] Valid billId found, triggering loadFinancialSummary...');
+      console.log(' [FINANCIAL SUMMARY] Valid billId found, triggering loadFinancialSummary...');
       loadFinancialSummary();
     } else {
-      console.log('❌ [FINANCIAL SUMMARY] Invalid billId - cannot load financial summary:', {
+      console.log(' [FINANCIAL SUMMARY] Invalid billId - cannot load financial summary:', {
         providedBillId: billId,
         reason: !billId ? 'billId is falsy' : 'billId is empty string'
       });
@@ -1850,13 +1850,13 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
 
   // CRITICAL: Force load on component mount regardless of useEffect timing
   useEffect(() => {
-    console.log('🚀 [FINANCIAL SUMMARY] Component mounted - force loading mechanism activated');
+    console.log(' [FINANCIAL SUMMARY] Component mounted - force loading mechanism activated');
 
     const forceLoadWithRetry = () => {
-      console.log('⚡ [FORCE LOAD] Attempting immediate load with billId:', billId);
+      console.log(' [FORCE LOAD] Attempting immediate load with billId:', billId);
 
       if (billId && billId.trim()) {
-        console.log('✅ [FORCE LOAD] billId available immediately, triggering loadFinancialSummary');
+        console.log(' [FORCE LOAD] billId available immediately, triggering loadFinancialSummary');
         loadFinancialSummary();
         return;
       }
@@ -1868,14 +1868,14 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
 
       const pollForBillId = setInterval(() => {
         attempts++;
-        console.log(`🔍 [FORCE LOAD] Polling attempt ${attempts}/${maxAttempts} for billId:`, billId);
+        console.log(` [FORCE LOAD] Polling attempt ${attempts}/${maxAttempts} for billId:`, billId);
 
         if (billId && billId.trim()) {
-          console.log('✅ [FORCE LOAD] billId found via polling, triggering loadFinancialSummary');
+          console.log(' [FORCE LOAD] billId found via polling, triggering loadFinancialSummary');
           clearInterval(pollForBillId);
           loadFinancialSummary();
         } else if (attempts >= maxAttempts) {
-          console.log('❌ [FORCE LOAD] Max polling attempts reached, giving up');
+          console.log(' [FORCE LOAD] Max polling attempts reached, giving up');
           clearInterval(pollForBillId);
         }
       }, 500); // Check every 500ms
@@ -1897,7 +1897,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
     };
   }, []);
 
-  // 🔄 RACE CONDITION FIXED: Removed separate discount loading useEffect
+  //  RACE CONDITION FIXED: Removed separate discount loading useEffect
   // Discount loading is now integrated into autoPopulateFinancialData to prevent race conditions
 
   // Track all discount value changes for debugging
@@ -1906,11 +1906,11 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
     const previousDiscountData = lastDiscountDataRef.current;
 
     // Log discount total specifically
-    console.log('🔍 [DISCOUNT TRACKER] Current discount total in state:', financialSummaryData.discount.total);
-    console.log('🔍 [DISCOUNT TRACKER] Full discount object:', financialSummaryData.discount);
+    console.log(' [DISCOUNT TRACKER] Current discount total in state:', financialSummaryData.discount.total);
+    console.log(' [DISCOUNT TRACKER] Full discount object:', financialSummaryData.discount);
 
     if (previousDiscountData && currentDiscountData !== previousDiscountData) {
-      console.log('🔍 [DISCOUNT MONITORING] Discount values changed externally:', {
+      console.log(' [DISCOUNT MONITORING] Discount values changed externally:', {
         from: JSON.parse(previousDiscountData),
         to: financialSummaryData.discount,
         billId: billId,
@@ -1943,7 +1943,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
 
         // STEP 2: Only fetch final payment if patient IS CURRENTLY DISCHARGED
         if (!visitData?.discharge_date) {
-          console.log('⚠️ Patient is not discharged (discharge_date is NULL), skipping final payment load for Amount Pending calculation');
+          console.log(' Patient is not discharged (discharge_date is NULL), skipping final payment load for Amount Pending calculation');
           // Reset finalPayment to 0 for undischarged patients
           setFinancialSummaryDataTracked((prev) => ({
             ...prev,
@@ -1968,7 +1968,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         }
 
         if (data) {
-          console.log('✅ Final payment data loaded for discharged patient:', data);
+          console.log(' Final payment data loaded for discharged patient:', data);
 
           // Update finalPayment in state with the amount
           // For now, we'll put the full amount in the total
@@ -1989,14 +1989,14 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
     fetchFinalPayment();
   }, [visitId]);
 
-  // 🔄 DEDICATED DISCOUNT PERSISTENCE SYSTEM - Completely separate from auto-populate
+  //  DEDICATED DISCOUNT PERSISTENCE SYSTEM - Completely separate from auto-populate
   const loadSavedDiscountValues = useCallback(async () => {
     if (!billId) {
-      console.log('🚫 [DISCOUNT LOAD] No billId provided');
+      console.log(' [DISCOUNT LOAD] No billId provided');
       return null;
     }
 
-    console.log('🔍 [DISCOUNT LOAD] Loading saved discount values from database...');
+    console.log(' [DISCOUNT LOAD] Loading saved discount values from database...');
     try {
       const { data: savedData, error: savedError } = await supabase
         .from('financial_summary')
@@ -2005,7 +2005,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         .single();
 
       if (savedError && savedError.code !== 'PGRST116') {
-        console.error('❌ [DISCOUNT LOAD] Error loading saved discount values:', savedError);
+        console.error(' [DISCOUNT LOAD] Error loading saved discount values:', savedError);
         return null;
       }
 
@@ -2029,25 +2029,25 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
           advancePayment: '' // Not applicable for discounts
         };
 
-        console.log('✅ [DISCOUNT LOAD] Successfully loaded discount values:', discountValues);
+        console.log(' [DISCOUNT LOAD] Successfully loaded discount values:', discountValues);
         return discountValues;
       } else {
-        console.log('📝 [DISCOUNT LOAD] No saved discount values found in database');
+        console.log(' [DISCOUNT LOAD] No saved discount values found in database');
         return null;
       }
     } catch (error) {
-      console.error('❌ [DISCOUNT LOAD] Exception loading saved discount values:', error);
+      console.error(' [DISCOUNT LOAD] Exception loading saved discount values:', error);
       return null;
     }
   }, [billId]);
 
   const saveDiscountValues = useCallback(async (discountData: any) => {
     if (!billId) {
-      console.log('🚫 [DISCOUNT SAVE] No billId provided');
+      console.log(' [DISCOUNT SAVE] No billId provided');
       return false;
     }
 
-    console.log('💾 [DISCOUNT SAVE] Saving discount values to database...');
+    console.log(' [DISCOUNT SAVE] Saving discount values to database...');
     try {
       const dbData = {
         bill_id: billId,
@@ -2073,25 +2073,25 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
         .upsert(dbData, { onConflict: 'bill_id', ignoreDuplicates: false });
 
       if (upsertError) {
-        console.error('❌ [DISCOUNT SAVE] Error saving discount values:', upsertError);
+        console.error(' [DISCOUNT SAVE] Error saving discount values:', upsertError);
         return false;
       }
 
-      console.log('✅ [DISCOUNT SAVE] Successfully saved discount values');
+      console.log(' [DISCOUNT SAVE] Successfully saved discount values');
       return true;
     } catch (error) {
-      console.error('❌ [DISCOUNT SAVE] Exception saving discount values:', error);
+      console.error(' [DISCOUNT SAVE] Exception saving discount values:', error);
       return false;
     }
   }, [billId]);
 
-  // 🧮 ENHANCED MANUAL CALCULATION: Load discount values first, then calculate
+  //  ENHANCED MANUAL CALCULATION: Load discount values first, then calculate
   const calculateBalanceWithDiscount = useCallback(async () => {
-    console.log('🧮 [MANUAL CALCULATE] Starting enhanced balance calculation...');
+    console.log(' [MANUAL CALCULATE] Starting enhanced balance calculation...');
 
     // Step 1: Load current discount values from database
     const savedDiscountValues = await loadSavedDiscountValues();
-    console.log('🔍 [MANUAL CALCULATE] Loaded discount values:', savedDiscountValues);
+    console.log(' [MANUAL CALCULATE] Loaded discount values:', savedDiscountValues);
 
     setFinancialSummaryDataTracked(prev => {
       // Step 2: Use saved discount values if available, otherwise use memory values
@@ -2105,7 +2105,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
       // Calculate new balance: Total - Discount - Amount Paid - Final Payment + Refunded
       const newBalance = totalAmount - discountTotal - amountPaidTotal - finalPaymentTotal + refundedTotal;
 
-      console.log('🧮 [MANUAL CALCULATE] Enhanced balance calculation:', {
+      console.log(' [MANUAL CALCULATE] Enhanced balance calculation:', {
         totalAmount,
         discountTotal,
         amountPaidTotal,
@@ -2126,7 +2126,7 @@ const fetchAnesthetistTotal = async (): Promise<number> => {
       };
     });
 
-    console.log('✅ [MANUAL CALCULATE] Enhanced balance calculation completed');
+    console.log(' [MANUAL CALCULATE] Enhanced balance calculation completed');
   }, [loadSavedDiscountValues]);
 
   // Note: Auto-populate is now manual only via "Refresh table" button

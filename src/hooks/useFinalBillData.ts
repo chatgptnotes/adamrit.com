@@ -55,7 +55,7 @@ export const useFinalBillData = (visitId: string) => {
     queryKey: ['final-bill', visitId],
     queryFn: async () => {
       try {
-        console.log('🔍 Fetching bill data for visit ID:', visitId);
+        console.log(' Fetching bill data for visit ID:', visitId);
 
         // Get visit dates
         const { data: visitData, error: visitError } = await supabase
@@ -65,20 +65,20 @@ export const useFinalBillData = (visitId: string) => {
           .single() as { data: any; error: any };
 
         if (visitError) {
-          console.error('❌ Error fetching visit:', visitError);
+          console.error(' Error fetching visit:', visitError);
           if (visitError.code === 'PGRST116') {
-            console.warn(`⚠️ No visit found with visit_id: ${visitId}`);
+            console.warn(` No visit found with visit_id: ${visitId}`);
             return null;
           }
           return null;
         }
 
         if (!visitData?.patient_id) {
-          console.warn('⚠️ Visit found but patient_id is missing:', visitData);
+          console.warn(' Visit found but patient_id is missing:', visitData);
           return null;
         }
 
-        console.log('✅ Visit data found:', {
+        console.log(' Visit data found:', {
           patient_id: visitData.patient_id,
           admission_date: visitData.admission_date,
           visit_date: visitData.visit_date
@@ -105,18 +105,18 @@ export const useFinalBillData = (visitId: string) => {
             .maybeSingle() as { data: any; error: any };
 
           if (billsError) {
-            console.error('❌ Error fetching bill:', billsError);
+            console.error(' Error fetching bill:', billsError);
             return null;
           }
           billsData = billByPatient;
         }
 
         if (!billsData) {
-          console.log('ℹ️ No bill found for patient, returning null');
+          console.log('ℹ No bill found for patient, returning null');
           return null;
         }
 
-        console.log('✅ Bill found:', billsData.bill_no);
+        console.log(' Bill found:', billsData.bill_no);
 
         // Get sections
         const { data: sectionsData, error: sectionsError } = await supabase
@@ -126,7 +126,7 @@ export const useFinalBillData = (visitId: string) => {
           .order('section_order') as { data: any; error: any };
 
         if (sectionsError) {
-          console.error('❌ Error fetching sections:', sectionsError);
+          console.error(' Error fetching sections:', sectionsError);
         }
 
         // Get line items
@@ -137,7 +137,7 @@ export const useFinalBillData = (visitId: string) => {
           .order('item_order') as { data: any; error: any };
 
         if (lineItemsError) {
-          console.error('❌ Error fetching line items:', lineItemsError);
+          console.error(' Error fetching line items:', lineItemsError);
         }
 
         const result = {
@@ -150,10 +150,10 @@ export const useFinalBillData = (visitId: string) => {
           line_items: lineItemsData || []
         } as BillData;
 
-        console.log('✅ Successfully loaded bill data with', result.line_items.length, 'line items');
+        console.log(' Successfully loaded bill data with', result.line_items.length, 'line items');
         return result;
       } catch (err) {
-        console.error('❌ Unexpected error in useFinalBillData:', err);
+        console.error(' Unexpected error in useFinalBillData:', err);
         return null;
       }
     },
@@ -176,7 +176,7 @@ export const useFinalBillData = (visitId: string) => {
       bill_patient_data?: any;
       bill_items_json?: any;
     }) => {
-      console.log('💾 Starting bill save with total_amount:', billData.total_amount);
+      console.log(' Starting bill save with total_amount:', billData.total_amount);
 
       // Find existing bill: first by id, then by visit_id, then by patient_id
       let existingBillId = billData.id;
@@ -191,7 +191,7 @@ export const useFinalBillData = (visitId: string) => {
           .maybeSingle() as { data: any };
         if (existingBill) {
           existingBillId = existingBill.id;
-          console.log('📌 Found existing bill by visit_id:', existingBillId);
+          console.log(' Found existing bill by visit_id:', existingBillId);
         }
       }
 
@@ -205,7 +205,7 @@ export const useFinalBillData = (visitId: string) => {
           .maybeSingle() as { data: any };
         if (existingBill) {
           existingBillId = existingBill.id;
-          console.log('📌 Found existing bill by patient_id:', existingBillId);
+          console.log(' Found existing bill by patient_id:', existingBillId);
         }
       }
 
@@ -214,7 +214,7 @@ export const useFinalBillData = (visitId: string) => {
 
       if (existingBillId) {
         // UPDATE existing bill - only edit, no new row
-        console.log('📝 Updating existing bill:', existingBillId);
+        console.log(' Updating existing bill:', existingBillId);
         const result = await supabase
           .from('bills')
           .update({
@@ -318,8 +318,8 @@ export const useFinalBillData = (visitId: string) => {
         }
       }
 
-      console.log('✅ Bill saved successfully with ID:', bill.id);
-      console.log('✅ Saved total_amount:', bill.total_amount);
+      console.log(' Bill saved successfully with ID:', bill.id);
+      console.log(' Saved total_amount:', bill.total_amount);
 
       return bill;
     },

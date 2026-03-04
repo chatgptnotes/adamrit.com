@@ -21,15 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { 
-  FileText, 
-  Search, 
-  Download,
-  Edit,
-  Eye,
-  User,
-  RefreshCw
-} from 'lucide-react';
+import { Download, Edit, Eye, FileText, RefreshCw, Search, User } from 'lucide-react';
 
 const RadiologyOrders: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -56,7 +48,7 @@ const RadiologyOrders: React.FC = () => {
       primaryCareProvider: '',
       status: 'Pending',
       orderDate: '06/10/2024 10:01:33',
-      icon: '👩‍⚕️'
+      icon: ''
     },
     {
       id: 2,
@@ -68,7 +60,7 @@ const RadiologyOrders: React.FC = () => {
       primaryCareProvider: '',
       status: 'Pending',
       orderDate: '06/10/2024 10:16:11',
-      icon: '👩‍⚕️'
+      icon: ''
     },
     {
       id: 3,
@@ -80,7 +72,7 @@ const RadiologyOrders: React.FC = () => {
       primaryCareProvider: '',
       status: 'Pending',
       orderDate: '06/10/2024 10:17:07',
-      icon: '👩‍⚕️'
+      icon: ''
     },
     {
       id: 4,
@@ -92,7 +84,7 @@ const RadiologyOrders: React.FC = () => {
       primaryCareProvider: '',
       status: 'Pending',
       orderDate: '06/10/2024 15:51:49',
-      icon: '👩‍⚕️'
+      icon: ''
     },
     {
       id: 5,
@@ -104,7 +96,7 @@ const RadiologyOrders: React.FC = () => {
       primaryCareProvider: '',
       status: 'Pending',
       orderDate: '06/10/2024 13:30:57',
-      icon: '👩‍⚕️'
+      icon: ''
     },
     {
       id: 6,
@@ -116,7 +108,7 @@ const RadiologyOrders: React.FC = () => {
       primaryCareProvider: '',
       status: 'Pending',
       orderDate: '05/10/2024 18:23:50',
-      icon: '👩‍⚕️'
+      icon: ''
     },
     {
       id: 7,
@@ -128,7 +120,7 @@ const RadiologyOrders: React.FC = () => {
       primaryCareProvider: '',
       status: 'Pending',
       orderDate: '05/10/2024 18:24:00',
-      icon: '👩‍⚕️'
+      icon: ''
     },
     {
       id: 8,
@@ -140,7 +132,7 @@ const RadiologyOrders: React.FC = () => {
       primaryCareProvider: '',
       status: 'Pending',
       orderDate: '05/10/2024 14:12:28',
-      icon: '👩‍⚕️'
+      icon: ''
     },
     {
       id: 9,
@@ -152,7 +144,7 @@ const RadiologyOrders: React.FC = () => {
       primaryCareProvider: '',
       status: 'Pending',
       orderDate: '05/10/2024 14:12:28',
-      icon: '👩‍⚕️'
+      icon: ''
     },
     {
       id: 10,
@@ -164,7 +156,7 @@ const RadiologyOrders: React.FC = () => {
       primaryCareProvider: '',
       status: 'Pending',
       orderDate: '05/10/2024 20:26:15',
-      icon: '👩‍⚕️'
+      icon: ''
     }
   ];
 

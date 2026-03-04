@@ -105,7 +105,7 @@ export async function saveTestWithNestedSubTests(
       }
     });
 
-    console.log(`💾 Saving test at level ${testLevel}:`, params.testName);
+    console.log(` Saving test at level ${testLevel}:`, params.testName);
 
     // Insert the main test
     const { data: savedTest, error } = await supabase
@@ -122,11 +122,11 @@ export async function saveTestWithNestedSubTests(
     const currentTestId = savedTest.id;
     savedIds.push(currentTestId);
 
-    console.log(`✅ Saved test "${params.testName}" with ID:`, currentTestId);
+    console.log(` Saved test "${params.testName}" with ID:`, currentTestId);
 
     // Recursively save nested sub-tests
     if (subTests && subTests.length > 0) {
-      console.log(`📂 Saving ${subTests.length} nested sub-tests for "${params.testName}"`);
+      console.log(` Saving ${subTests.length} nested sub-tests for "${params.testName}"`);
 
       for (let i = 0; i < subTests.length; i++) {
         const subTest = subTests[i];

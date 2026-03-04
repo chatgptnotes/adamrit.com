@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { HOSPITAL_CONFIGS, HospitalType } from '@/types/hospital';
+import { FileText, Key } from 'lucide-react'
 
 interface HospitalSelectionProps {
   onHospitalSelect: (hospitalType: HospitalType) => void;
@@ -102,14 +103,14 @@ const HospitalSelection = ({ onHospitalSelect, onBackToHome }: HospitalSelection
               onClick={() => window.location.href = '/signup'}
               className="px-6 py-2 border-blue-300 text-blue-600 hover:bg-blue-50"
             >
-              📝 Create New Account
+               Create New Account
             </Button>
             <Button 
               variant="outline" 
               onClick={() => window.location.href = '/login'}
               className="px-6 py-2 border-green-300 text-green-600 hover:bg-green-50"
             >
-              🔑 Database Login
+               Database Login
             </Button>
           </div>
           

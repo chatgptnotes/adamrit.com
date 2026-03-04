@@ -28,7 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabaseClient } from '@/lib/supabase';
 import { GRNService } from '@/lib/grn-service';
 import type { PurchaseOrder, CreateGRNItemPayload } from '@/types/pharmacy';
-import { Loader2, Package, AlertCircle, CheckCircle } from 'lucide-react';
+import { AlertCircle, AlertTriangle, CheckCircle, Loader2, Package } from 'lucide-react';
 
 interface GRNItemRow extends CreateGRNItemPayload {
   product_name: string;
@@ -699,7 +699,7 @@ const CreateGRN: React.FC = () => {
                 </div>
                 {grnStatus === 'DRAFT' && (
                   <p className="text-sm text-blue-700 mt-2">
-                    ⚠️ GRN saved as draft. Click <strong>Submit</strong> to add inventory.
+                     GRN saved as draft. Click <strong>Submit</strong> to add inventory.
                   </p>
                 )}
               </div>

@@ -6,16 +6,17 @@ export const dynamic = 'force-dynamic';
 import { useParams } from 'next/navigation';
 import DischargeSummary from '@/components/DischargeSummary';
 import { useVisitDiagnosis } from '@/hooks/useVisitDiagnosis';
+import { BarChart3, CheckCircle, File, FileText, Printer, RefreshCw, Rocket } from 'lucide-react'
 
 export default function DischargeSummaryPrint() {
   const { visitId } = useParams<{ visitId: string }>();
 
-  console.log('🚀 DischargeSummaryPrint rendered with visitId:', visitId);
+  console.log(' DischargeSummaryPrint rendered with visitId:', visitId);
 
   // Fetch real visit diagnosis data from database
   const { data: visitDiagnosis, isLoading, error } = useVisitDiagnosis(visitId || '');
 
-  console.log('📊 useVisitDiagnosis results:', { data: visitDiagnosis, isLoading, error });
+  console.log(' useVisitDiagnosis results:', { data: visitDiagnosis, isLoading, error });
 
   // Generate dynamic patient data string from database data only
   const generatePatientDataString = (data: any) => {
@@ -42,7 +43,7 @@ Discharge Condition: ${data.condition.length > 0 ? data.condition.join(', ') : '
   // Only use real database data - no fallbacks
   const patientDataString = visitDiagnosis ? generatePatientDataString(visitDiagnosis) : null;
 
-  console.log('📝 Generated patientDataString:', patientDataString);
+  console.log(' Generated patientDataString:', patientDataString);
 
   const handlePrint = () => {
     try {
@@ -159,7 +160,7 @@ Discharge Condition: ${data.condition.length > 0 ? data.condition.join(', ') : '
               onClick={() => window.location.reload()}
               className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors font-medium shadow-sm"
             >
-              🔄 Retry
+               Retry
             </button>
           </div>
           <div className="mt-4 text-xs text-gray-400">
@@ -205,7 +206,7 @@ Discharge Condition: ${data.condition.length > 0 ? data.condition.join(', ') : '
             className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors font-medium shadow-sm"
             title="Print this discharge summary"
           >
-            🖨️ Print OPD Summary
+             Print OPD Summary
           </button>
           <button
             onClick={() => {
@@ -221,7 +222,7 @@ Discharge Condition: ${data.condition.length > 0 ? data.condition.join(', ') : '
             className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition-colors font-medium shadow-sm"
             title="Alternative print method"
           >
-            📄 Alternative Print
+             Alternative Print
           </button>
           <button
             onClick={() => window.history.back()}
@@ -235,7 +236,7 @@ Discharge Condition: ${data.condition.length > 0 ? data.condition.join(', ') : '
           If print button doesn't work, use <kbd className="bg-gray-200 px-1 rounded">Ctrl+P</kbd> (Windows) or <kbd className="bg-gray-200 px-1 rounded">Cmd+P</kbd> (Mac)
         </p>
         <div className="text-xs text-gray-500 mt-1">
-          Data Source: ✅ Database (Real Data Only) |
+          Data Source:  Database (Real Data Only) |
           Print Status: <span id="print-status">Ready</span> |
           Browser: {navigator.userAgent.includes('Chrome') ? 'Chrome' : navigator.userAgent.includes('Firefox') ? 'Firefox' : navigator.userAgent.includes('Safari') ? 'Safari' : 'Other'}
         </div>

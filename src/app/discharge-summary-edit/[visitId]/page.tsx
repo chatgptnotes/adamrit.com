@@ -14,7 +14,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Printer, Sparkles, Download, Eye, Loader2, Edit3, Settings } from 'lucide-react';
+import { AlertOctagon, AlertTriangle, ArrowLeft, BarChart3, Bot, Check, CheckCircle, ClipboardList, Download, Edit3, Eye, File, FileText, FlaskConical, Globe, Loader2, Microscope, Printer, Radio, RefreshCw, Rocket, Save, Search, Settings, Shield, Sparkles, Target, Wrench, XCircle, Zap } from 'lucide-react';
 import { useDebounce } from 'use-debounce';
 import DischargeSummary from '@/components/DischargeSummary';
 import { useVisitDiagnosis } from '@/hooks/useVisitDiagnosis';
@@ -445,18 +445,18 @@ export default function DischargeSummaryEdit() {
       }
 
       // 4. Use diagnosis data from the hook - no more database query here
-      console.log('🔍 Using diagnosis data from hook:', visitDiagnosis);
+      console.log(' Using diagnosis data from hook:', visitDiagnosis);
       if (visitDiagnosis) {
-        console.log('✅ Primary Diagnosis:', visitDiagnosis.primaryDiagnosis);
-        console.log('✅ Secondary Diagnoses:', visitDiagnosis.secondaryDiagnoses);
-        console.log('📊 Total diagnosis count:', 1 + (visitDiagnosis.secondaryDiagnoses?.length || 0));
+        console.log(' Primary Diagnosis:', visitDiagnosis.primaryDiagnosis);
+        console.log(' Secondary Diagnoses:', visitDiagnosis.secondaryDiagnoses);
+        console.log(' Total diagnosis count:', 1 + (visitDiagnosis.secondaryDiagnoses?.length || 0));
       } else {
-        console.log('⚠️ No diagnosis data available from hook');
+        console.log(' No diagnosis data available from hook');
       }
 
       // Check if we have valid visitData with UUID for subsequent queries
       if (!visitData?.id) {
-        console.error('❌ Critical: No visitData.id available for database queries');
+        console.error(' Critical: No visitData.id available for database queries');
         alert('Error: Unable to fetch additional data - missing visit UUID. Basic discharge summary will be generated with available data.');
       }
 
@@ -465,8 +465,8 @@ export default function DischargeSummaryEdit() {
       let compError = null;
 
       if (visitData?.id) {
-        console.log('🔍 Fetching complications for visit:', visitId);
-        console.log('🔍 Current visitData.id (UUID):', visitData.id);
+        console.log(' Fetching complications for visit:', visitId);
+        console.log(' Current visitData.id (UUID):', visitData.id);
 
         // CRITICAL: Use the same visit UUID resolution logic as FinalBill.tsx (lines 9444-9448)
         // This ensures we target the same visit record that FinalBill uses for saving complications
@@ -476,7 +476,7 @@ export default function DischargeSummaryEdit() {
           .eq('visit_id', visitId)
           .single();
 
-        console.log('🔍 FinalBill-style visit resolution:');
+        console.log(' FinalBill-style visit resolution:');
         console.log('- Original visitData.id:', visitData.id);
         console.log('- FinalBill resolution visitData.id:', visitDataForComplications?.id);
         console.log('- UUIDs match:', visitData.id === visitDataForComplications?.id);
@@ -500,7 +500,7 @@ export default function DischargeSummaryEdit() {
           `)
           .eq('visits.patient_id', visitData.patient_id);
 
-        console.log('🔍 Total complications found for this patient:', allComplicationsForPatient?.length || 0);
+        console.log(' Total complications found for this patient:', allComplicationsForPatient?.length || 0);
 
         // Try to find complications for this patient across all their visits
         const { data: patientComps, error: patientCompsError } = await supabase
@@ -520,7 +520,7 @@ export default function DischargeSummaryEdit() {
           .eq('visits.patient_id', visitData.patient_id);
 
         // Primary query - use the SAME UUID that FinalBill uses for saving
-        console.log('🔍 Querying complications with FinalBill UUID:', complicationsVisitUUID);
+        console.log(' Querying complications with FinalBill UUID:', complicationsVisitUUID);
         let result = await supabase
           .from('visit_complications')
           .select(`
@@ -537,7 +537,7 @@ export default function DischargeSummaryEdit() {
 
         // Enhanced fallback logic to find complications for this logical visit
         if ((!visitComplications || visitComplications.length === 0) && allComplicationsForPatient && allComplicationsForPatient.length > 0) {
-          console.log('🔄 Primary UUID query empty, using smart visit matching');
+          console.log(' Primary UUID query empty, using smart visit matching');
 
           // Strategy 1: Find complications that match the FinalBill-resolved UUID
           const complicationsByFinalBillUUID = allComplicationsForPatient.filter(comp =>
@@ -554,7 +554,7 @@ export default function DischargeSummaryEdit() {
             comp.visits?.patient_id === visitData.patient_id
           );
 
-          console.log('🔍 SMART MATCHING RESULTS:');
+          console.log(' SMART MATCHING RESULTS:');
           console.log('- Complications by FinalBill UUID:', complicationsByFinalBillUUID?.length || 0);
           console.log('- Complications by visit_id TEXT:', complicationsByVisitText?.length || 0);
           console.log('- Total patient complications:', complicationsForPatient?.length || 0);
@@ -562,41 +562,41 @@ export default function DischargeSummaryEdit() {
           if (complicationsByFinalBillUUID && complicationsByFinalBillUUID.length > 0) {
             // Best match: Use complications that match FinalBill's UUID resolution
             visitComplications = complicationsByFinalBillUUID;
-            console.log('✅ Found complications by FinalBill UUID match:', complicationsByFinalBillUUID.length);
-            console.log('✅ Matched complications:', complicationsByFinalBillUUID.map(c => c.complications?.name));
+            console.log(' Found complications by FinalBill UUID match:', complicationsByFinalBillUUID.length);
+            console.log(' Matched complications:', complicationsByFinalBillUUID.map(c => c.complications?.name));
           } else if (complicationsByVisitText && complicationsByVisitText.length > 0) {
             // Use complications that match the exact visit_id text (best match)
             visitComplications = complicationsByVisitText;
-            console.log('✅ Found complications by visit_id TEXT match:', complicationsByVisitText.length);
-            console.log('✅ Matched complications:', complicationsByVisitText.map(c => c.complications?.name));
+            console.log(' Found complications by visit_id TEXT match:', complicationsByVisitText.length);
+            console.log(' Matched complications:', complicationsByVisitText.map(c => c.complications?.name));
           } else if (complicationsForPatient && complicationsForPatient.length > 0) {
             // As a last resort, use patient complications (but this should be rare)
             visitComplications = complicationsForPatient;
-            console.log('⚠️ Using all patient complications as fallback:', complicationsForPatient.length);
+            console.log(' Using all patient complications as fallback:', complicationsForPatient.length);
           } else {
-            console.log('❌ No complications found for this visit or patient');
+            console.log(' No complications found for this visit or patient');
             visitComplications = [];
           }
           compError = allCompsError;
         }
 
         if (compError && compError.code !== 'PGRST116') {
-          console.error('❌ Error fetching complications:', compError);
+          console.error(' Error fetching complications:', compError);
         } else {
-          console.log('✅ Final complications count:', visitComplications?.length || 0);
+          console.log(' Final complications count:', visitComplications?.length || 0);
           if (visitComplications && visitComplications.length > 0) {
-            console.log('✅ Complications:', visitComplications.map(c => c.complications?.name).filter(Boolean));
+            console.log(' Complications:', visitComplications.map(c => c.complications?.name).filter(Boolean));
           }
         }
       } else {
-        console.log('❌ No visitData.id available for complications query');
+        console.log(' No visitData.id available for complications query');
       }
 
       // 6. Fetch lab orders - try multiple approaches
       let labOrders = null;
       let labError = null;
 
-      console.log('🔍 Attempting to fetch lab orders...');
+      console.log(' Attempting to fetch lab orders...');
       console.log('Available identifiers:', {
         visitId: visitId,
         visitDataId: visitData?.id,
@@ -624,12 +624,12 @@ export default function DischargeSummaryEdit() {
 
       for (const attempt of labQueryAttempts) {
         if (!attempt.value) {
-          console.log(`⏭️ Skipping lab query attempt: ${attempt.desc} - value is null`);
+          console.log(`⏭ Skipping lab query attempt: ${attempt.desc} - value is null`);
           continue;
         }
 
         try {
-          console.log(`🔄 Lab query attempt: ${attempt.desc} (${attempt.field} = ${attempt.value})`);
+          console.log(` Lab query attempt: ${attempt.desc} (${attempt.field} = ${attempt.value})`);
 
           const result = await supabase
             .from('visit_labs')
@@ -649,11 +649,11 @@ export default function DischargeSummaryEdit() {
           if (result.data && result.data.length > 0) {
             labOrders = result.data;
             labError = result.error;
-            console.log(`✅ Lab orders fetched successfully using ${attempt.desc}:`, labOrders.length, 'orders');
+            console.log(` Lab orders fetched successfully using ${attempt.desc}:`, labOrders.length, 'orders');
 
             // Debug: Show detailed structure of lab orders
             if (labOrders && labOrders.length > 0) {
-              console.log('📋 Lab Orders Structure:');
+              console.log(' Lab Orders Structure:');
               labOrders.forEach((order, index) => {
                 console.log(`Lab Order ${index + 1}:`, {
                   lab_name: order.lab?.name,
@@ -671,18 +671,18 @@ export default function DischargeSummaryEdit() {
             }
             break; // Success, stop trying other methods
           } else if (result.error && result.error.code !== 'PGRST116') {
-            console.error(`❌ Error in lab query (${attempt.desc}):`, result.error);
+            console.error(` Error in lab query (${attempt.desc}):`, result.error);
           } else {
-            console.log(`📝 No lab orders found using ${attempt.desc}`);
+            console.log(` No lab orders found using ${attempt.desc}`);
           }
         } catch (error) {
-          console.log(`💥 Exception in lab query (${attempt.desc}):`, error);
+          console.log(` Exception in lab query (${attempt.desc}):`, error);
         }
       }
 
       // If still no lab orders, set empty array
       if (!labOrders) {
-        console.log('❌ No lab orders found after all attempts');
+        console.log(' No lab orders found after all attempts');
         labOrders = [];
       }
 
@@ -691,27 +691,27 @@ export default function DischargeSummaryEdit() {
       let labResultsError = null;
 
       // Debug: Show all available visit identifiers
-      console.log('🔬 LAB RESULTS DEBUG - Available Visit Identifiers:');
-      console.log('📋 visitId parameter:', visitId);
-      console.log('📋 visitData.id:', visitData?.id);
-      console.log('📋 visitData.visit_id:', visitData?.visit_id);
-      console.log('📋 visitData.patient_id:', visitData?.patient_id);
-      console.log('📋 patient.visit_id:', patient?.visit_id);
-      console.log('📋 patient.id:', patient?.id);
-      console.log('📋 patient name:', patient?.patients?.name);
-      console.log('📋 Full visitData object:', visitData);
-      console.log('📋 Full patient object keys:', patient ? Object.keys(patient) : 'null');
+      console.log(' LAB RESULTS DEBUG - Available Visit Identifiers:');
+      console.log(' visitId parameter:', visitId);
+      console.log(' visitData.id:', visitData?.id);
+      console.log(' visitData.visit_id:', visitData?.visit_id);
+      console.log(' visitData.patient_id:', visitData?.patient_id);
+      console.log(' patient.visit_id:', patient?.visit_id);
+      console.log(' patient.id:', patient?.id);
+      console.log(' patient name:', patient?.patients?.name);
+      console.log(' Full visitData object:', visitData);
+      console.log(' Full patient object keys:', patient ? Object.keys(patient) : 'null');
 
       // Always attempt to fetch lab results, not just when visitData.id exists
-      console.log('🔍 Attempting to fetch lab results from lab_results table...');
+      console.log(' Attempting to fetch lab results from lab_results table...');
 
       // Based on database schema analysis: lab_results uses patient_name (denormalized)
       // visit_id is optional and might be NULL, so prioritize patient_name queries
       const patientNameForQuery = patient?.patients?.name || visitData?.patient_name || patient?.name || '';
-      console.log('🎯 Patient name for lab results query:', patientNameForQuery);
+      console.log(' Patient name for lab results query:', patientNameForQuery);
 
       // FIRST: Try a direct, simple query for "radha" since we know this exists
-      console.log('🔍 Trying direct query for patient_name = "radha"...');
+      console.log(' Trying direct query for patient_name = "radha"...');
       try {
         const { data: directResults, error: directError } = await supabase
           .from('lab_results')
@@ -719,21 +719,21 @@ export default function DischargeSummaryEdit() {
           .eq('patient_name', 'radha');
 
         if (directError) {
-          console.error('❌ Direct query error:', directError);
+          console.error(' Direct query error:', directError);
         } else if (directResults && directResults.length > 0) {
-          console.log('✅ SUCCESS! Found lab results with direct query for "radha":', directResults.length, 'results');
-          console.log('📋 Lab results found:', directResults);
+          console.log(' SUCCESS! Found lab results with direct query for "radha":', directResults.length, 'results');
+          console.log(' Lab results found:', directResults);
           labResultsData = directResults;
         } else {
-          console.log('📝 No results found with direct query for "radha"');
+          console.log(' No results found with direct query for "radha"');
         }
       } catch (error) {
-        console.log('💥 Exception in direct query:', error);
+        console.log(' Exception in direct query:', error);
       }
 
       // Only try other queries if direct query didn't work
       if (!labResultsData || labResultsData.length === 0) {
-        console.log('🔄 Direct query did not find results, trying other methods...');
+        console.log(' Direct query did not find results, trying other methods...');
 
       const queryAttempts = [
         { field: 'patient_name', value: patientNameForQuery, desc: `patient_name: ${patientNameForQuery}` },
@@ -753,12 +753,12 @@ export default function DischargeSummaryEdit() {
         const { field, value, desc } = queryAttempts[attempt];
 
         if (!value) {
-          console.log(`⏭️ Skipping attempt ${attempt + 1}: ${desc} - value is null/undefined`);
+          console.log(`⏭ Skipping attempt ${attempt + 1}: ${desc} - value is null/undefined`);
           continue;
         }
 
         try {
-          console.log(`🔄 Attempt ${attempt + 1}: Querying lab_results.${field} = ${value} (${desc})`);
+          console.log(` Attempt ${attempt + 1}: Querying lab_results.${field} = ${value} (${desc})`);
 
           const { data: results, error: resultsError } = await supabase
               .from('lab_results')
@@ -784,7 +784,7 @@ export default function DischargeSummaryEdit() {
               .eq(field, value)
               .order('created_at', { ascending: true });
 
-          console.log(`📊 Query result for ${desc}:`, {
+          console.log(` Query result for ${desc}:`, {
             found: results?.length || 0,
             error: resultsError?.message || 'none',
             sampleData: results?.[0] || 'none'
@@ -793,24 +793,24 @@ export default function DischargeSummaryEdit() {
           if (results && results.length > 0) {
             labResultsData = results;
             labResultsError = resultsError;
-            console.log(`✅ SUCCESS! Found ${results.length} lab results using ${desc}`);
-            console.log(`🧪 Sample result:`, results[0]);
+            console.log(` SUCCESS! Found ${results.length} lab results using ${desc}`);
+            console.log(` Sample result:`, results[0]);
             break; // Success, stop trying other methods
           } else if (resultsError) {
-            console.log(`❌ Query error for ${desc}:`, resultsError);
+            console.log(` Query error for ${desc}:`, resultsError);
           } else {
-            console.log(`📝 No results found for ${desc}`);
+            console.log(` No results found for ${desc}`);
           }
 
         } catch (error) {
-          console.log(`💥 Exception for attempt ${attempt + 1} (${desc}):`, error);
+          console.log(` Exception for attempt ${attempt + 1} (${desc}):`, error);
         }
       }
       } // Close the if block for other query attempts
 
       // If no results found with .eq(), try with .ilike() for flexible matching
       if (!labResultsData || labResultsData.length === 0) {
-        console.log('🔄 Attempting to fetch with ilike for flexible matching...');
+        console.log(' Attempting to fetch with ilike for flexible matching...');
 
         try {
           // Try ilike with patient name AND filter by visit_id if available
@@ -839,15 +839,15 @@ export default function DischargeSummaryEdit() {
           // If we have visit_id, also filter by that for more specific results
           if (visitId === 'IH25I24003') {
             query = query.or(`visit_id.eq.${visitId},patient_visit_id.eq.${visitId}`);
-            console.log('🔍 Filtering by visit_id:', visitId);
+            console.log(' Filtering by visit_id:', visitId);
           }
 
           const { data: ilikeResults, error: ilikeError } = await query;
 
           if (ilikeError) {
-            console.error('❌ Error with ilike query:', ilikeError);
+            console.error(' Error with ilike query:', ilikeError);
           } else if (ilikeResults && ilikeResults.length > 0) {
-            console.log('✅ SUCCESS! Found lab results for radha:', ilikeResults.length, 'results');
+            console.log(' SUCCESS! Found lab results for radha:', ilikeResults.length, 'results');
 
             // Filter to only show results for visit IH25I24003 if we have multiple visits
             if (visitId === 'IH25I24003') {
@@ -855,7 +855,7 @@ export default function DischargeSummaryEdit() {
                 r.visit_id === visitId || r.patient_visit_id === visitId
               );
               if (visitSpecificResults.length > 0) {
-                console.log('🎯 Using visit-specific results:', visitSpecificResults.length);
+                console.log(' Using visit-specific results:', visitSpecificResults.length);
                 labResultsData = visitSpecificResults;
               } else {
                 // Use all results for this patient
@@ -865,26 +865,26 @@ export default function DischargeSummaryEdit() {
               labResultsData = ilikeResults;
             }
           } else {
-            console.log('📝 No results found even with ilike for radha');
+            console.log(' No results found even with ilike for radha');
           }
         } catch (error) {
-          console.log('💥 Exception in ilike query:', error);
+          console.log(' Exception in ilike query:', error);
         }
       }
 
       // If still no results, leave empty - DO NOT show other patients' data
       if (!labResultsData || labResultsData.length === 0) {
-        console.log('ℹ️ No lab results found for patient "radha"');
+        console.log('ℹ No lab results found for patient "radha"');
         labResultsData = [];
       }
 
       // Store lab results in state
-      console.log('📊 Final labResultsData to store:', labResultsData?.length || 0, 'results');
+      console.log(' Final labResultsData to store:', labResultsData?.length || 0, 'results');
       setLabResults(labResultsData || []);
 
       // 6c. Fetch lab test orders from visit_labs table (ordered tests from billing page)
       let visitLabsData = [];
-      console.log('🔬 Fetching lab test orders from visit_labs table...');
+      console.log(' Fetching lab test orders from visit_labs table...');
 
       if (visitData?.id) {
         try {
@@ -895,9 +895,9 @@ export default function DischargeSummaryEdit() {
             .order('ordered_date', { ascending: false });
 
           if (visitLabsError) {
-            console.error('❌ Error fetching visit_labs:', visitLabsError);
+            console.error(' Error fetching visit_labs:', visitLabsError);
           } else if (visitLabsRaw && visitLabsRaw.length > 0) {
-            console.log('✅ Found visit_labs:', visitLabsRaw.length, 'lab orders');
+            console.log(' Found visit_labs:', visitLabsRaw.length, 'lab orders');
 
             // Get lab details for each lab_id
             const labIds = visitLabsRaw.map((item: any) => item.lab_id);
@@ -907,7 +907,7 @@ export default function DischargeSummaryEdit() {
               .in('id', labIds);
 
             if (labsError) {
-              console.error('❌ Error fetching lab details:', labsError);
+              console.error(' Error fetching lab details:', labsError);
               visitLabsData = visitLabsRaw.map((item: any) => ({
                 ...item,
                 lab_name: `Lab ID: ${item.lab_id}`,
@@ -925,16 +925,16 @@ export default function DischargeSummaryEdit() {
                   category: labDetail?.category || ''
                 };
               });
-              console.log('📋 Formatted visit_labs data:', visitLabsData);
+              console.log(' Formatted visit_labs data:', visitLabsData);
             }
           } else {
-            console.log('ℹ️ No lab orders found in visit_labs');
+            console.log('ℹ No lab orders found in visit_labs');
           }
         } catch (error) {
-          console.error('💥 Exception fetching visit_labs:', error);
+          console.error(' Exception fetching visit_labs:', error);
         }
       } else {
-        console.log('⏭️ Skipping visit_labs fetch - no visit UUID available');
+        console.log('⏭ Skipping visit_labs fetch - no visit UUID available');
       }
 
       // Store visit_labs in state for AI generation
@@ -945,7 +945,7 @@ export default function DischargeSummaryEdit() {
       let radError = null;
 
       if (visitData?.id) {
-        console.log('🔍 Fetching radiology orders for visit UUID:', visitData.id);
+        console.log(' Fetching radiology orders for visit UUID:', visitData.id);
         try {
           const result = await supabase
             .from('visit_radiology')
@@ -961,7 +961,7 @@ export default function DischargeSummaryEdit() {
 
           radiologyOrders = result.data;
           radError = result.error;
-          console.log('✅ Radiology orders fetched:', radiologyOrders);
+          console.log(' Radiology orders fetched:', radiologyOrders);
         } catch (error) {
           console.log('Radiology table might not exist, using empty data');
           radiologyOrders = [];
@@ -972,7 +972,7 @@ export default function DischargeSummaryEdit() {
           radiologyOrders = [];
         }
       } else {
-        console.log('❌ No visitData.id available for radiology orders query');
+        console.log(' No visitData.id available for radiology orders query');
         radiologyOrders = [];
       }
 
@@ -981,7 +981,7 @@ export default function DischargeSummaryEdit() {
       let prescriptionError = null;
 
       if (visitData?.id || visitId) {
-        console.log('🔍 Fetching prescription/pharmacy data for visit:', visitId);
+        console.log(' Fetching prescription/pharmacy data for visit:', visitId);
         try {
           // Try to fetch from prescriptions table if it exists
           const { data: prescriptions, error: prescError } = await supabase
@@ -992,7 +992,7 @@ export default function DischargeSummaryEdit() {
 
           if (prescriptions && !prescError) {
             prescriptionData = prescriptions;
-            console.log('✅ Prescription data fetched:', prescriptions);
+            console.log(' Prescription data fetched:', prescriptions);
           }
         } catch (error) {
           console.log('Prescriptions table might not exist, checking visit_pharmacy');
@@ -1016,7 +1016,7 @@ export default function DischargeSummaryEdit() {
 
             if (visitMedications && !medError) {
               prescriptionData = visitMedications;
-              console.log('✅ Visit medication data fetched:', visitMedications);
+              console.log(' Visit medication data fetched:', visitMedications);
             } else if (medError) {
               console.log('Error fetching visit_medications:', medError);
             }
@@ -1043,7 +1043,7 @@ export default function DischargeSummaryEdit() {
 
             if (visitPharmacy && !pharmError) {
               prescriptionData = visitPharmacy;
-              console.log('✅ Visit pharmacy data fetched:', visitPharmacy);
+              console.log(' Visit pharmacy data fetched:', visitPharmacy);
             }
           } catch (error) {
             console.log('Visit pharmacy table might not exist');
@@ -1060,12 +1060,12 @@ export default function DischargeSummaryEdit() {
       const secondaryDiagnoses = visitDiagnosis?.secondaryDiagnoses || [];
 
       // Process complications - only use complications specifically linked to this visit
-      console.log('🔍 DEBUG: Processing complications...');
+      console.log(' DEBUG: Processing complications...');
       console.log('- visitComplications raw data:', visitComplications);
       console.log('- visitComplications length:', visitComplications?.length || 0);
 
       if (visitComplications && visitComplications.length > 0) {
-        console.log('🔍 DEBUG: Individual complications:');
+        console.log(' DEBUG: Individual complications:');
         visitComplications.forEach((comp, index) => {
           console.log(`  [${index}]:`, {
             raw_comp: comp,
@@ -1106,9 +1106,9 @@ export default function DischargeSummaryEdit() {
         }
       }
 
-      console.log('🔍 Final processed complications array:', complications);
-      console.log('🔍 Final complications length:', complications.length);
-      console.log('🔍 Extraction method used:', complications.length > 0 ? 'Success' : 'All methods failed');
+      console.log(' Final processed complications array:', complications);
+      console.log(' Final complications length:', complications.length);
+      console.log(' Extraction method used:', complications.length > 0 ? 'Success' : 'All methods failed');
 
       // Store complications in component state for use by handleAIGenerate
       setComplications(complications);
@@ -1117,7 +1117,7 @@ export default function DischargeSummaryEdit() {
       let labTests = labOrders?.map(l => l.lab?.name).filter(Boolean) || [];
 
       // Debug lab orders structure
-      console.log('🔬 Lab Orders Debug:', {
+      console.log(' Lab Orders Debug:', {
         count: labOrders?.length || 0,
         sample: labOrders?.[0] || 'none',
         fields: labOrders?.[0] ? Object.keys(labOrders[0]) : 'no fields'
@@ -1146,15 +1146,15 @@ export default function DischargeSummaryEdit() {
       let abnormalResultsLocal = [];
 
       try {
-        console.log('🧪 LAB RESULTS PROCESSING DEBUG:');
-        console.log('📊 visitLabsData exists:', !!visitLabsData);
-        console.log('📊 visitLabsData length:', visitLabsData?.length || 0);
-        console.log('📊 labResultsData exists:', !!labResultsData);
-        console.log('📊 labResultsData length:', labResultsData?.length || 0);
+        console.log(' LAB RESULTS PROCESSING DEBUG:');
+        console.log(' visitLabsData exists:', !!visitLabsData);
+        console.log(' visitLabsData length:', visitLabsData?.length || 0);
+        console.log(' labResultsData exists:', !!labResultsData);
+        console.log(' labResultsData length:', labResultsData?.length || 0);
 
       // PRIORITY: Process visit_labs data first (ordered tests from billing page)
       if (visitLabsData && visitLabsData.length > 0) {
-        console.log('✅ Processing visit_labs data for AI modal:', visitLabsData);
+        console.log(' Processing visit_labs data for AI modal:', visitLabsData);
 
         visitLabsData.forEach(test => {
           const testName = test.test_name || test.lab_name || 'Unknown Test';
@@ -1163,7 +1163,7 @@ export default function DischargeSummaryEdit() {
       }
       // ONLY process lab_results if visit_labs is empty
       else if (labResultsData && labResultsData.length > 0) {
-        console.log('✅ Processing lab results data (no visit_labs):', labResultsData);
+        console.log(' Processing lab results data (no visit_labs):', labResultsData);
 
         // Group results by test category or main_test_name for better organization
         const groupedResults = {};
@@ -1181,7 +1181,7 @@ export default function DischargeSummaryEdit() {
           formattedLabResultsLocal.push(`\n**${groupName}:**`);
 
           results.forEach(result => {
-            const abnormalFlag = result.is_abnormal ? ' ⚠ ABNORMAL' : ' ✓';
+            const abnormalFlag = result.is_abnormal ? '  ABNORMAL' : ' ';
             const valueWithUnit = result.result_value ?
               `${result.result_value}${result.result_unit ? ' ' + result.result_unit : ''}` : 'N/A';
             formattedLabResultsLocal.push(`• ${result.test_name}: ${valueWithUnit}${abnormalFlag}`);
@@ -1197,19 +1197,19 @@ export default function DischargeSummaryEdit() {
         });
       }
 
-        console.log('🔬 Formatted lab results:', formattedLabResultsLocal);
-        console.log('⚠️ Abnormal results:', abnormalResultsLocal);
+        console.log(' Formatted lab results:', formattedLabResultsLocal);
+        console.log(' Abnormal results:', abnormalResultsLocal);
 
         // Debug final data before summary generation
-        console.log('📋 FINAL SUMMARY DATA:');
-        console.log('🧪 formattedLabResults.length:', formattedLabResultsLocal.length);
-        console.log('🧪 labResultsList.length:', labResultsList.length);
-        console.log('🧪 abnormalResults.length:', abnormalResultsLocal.length);
-        console.log('🧪 Sample formattedLabResults:', formattedLabResultsLocal.slice(0, 3));
+        console.log(' FINAL SUMMARY DATA:');
+        console.log(' formattedLabResults.length:', formattedLabResultsLocal.length);
+        console.log(' labResultsList.length:', labResultsList.length);
+        console.log(' abnormalResults.length:', abnormalResultsLocal.length);
+        console.log(' Sample formattedLabResults:', formattedLabResultsLocal.slice(0, 3));
 
       } catch (labError) {
-        console.error('💥 Error processing lab results:', labError);
-        console.log('🛡️ Using fallback empty arrays for lab results');
+        console.error(' Error processing lab results:', labError);
+        console.log(' Using fallback empty arrays for lab results');
         formattedLabResultsLocal = [];
         abnormalResultsLocal = [];
       }
@@ -1288,7 +1288,7 @@ export default function DischargeSummaryEdit() {
 
           // Use actual medication name or log error
           if (!medName) {
-            console.error('❌ Could not find medication name in record:', p);
+            console.error(' Could not find medication name in record:', p);
             console.error('Please check database for correct field name');
             // Don't default to generic name
             medName = '';
@@ -1305,11 +1305,11 @@ export default function DischargeSummaryEdit() {
           // Make sure to include all fields properly separated
           return `${medName} ${dosage} ${route} ${frequency} ${duration}`;
         });
-        console.log('📝 Using fetched prescription data:', medicationsToUse);
+        console.log(' Using fetched prescription data:', medicationsToUse);
       } else {
         // No medications prescribed
         medicationsToUse = [];
-        console.log('ℹ️ No medications prescribed for this visit');
+        console.log('ℹ No medications prescribed for this visit');
       }
 
       medicationsTable = `Medications on Discharge:
@@ -1370,7 +1370,7 @@ Test Name                       Result              Reference Range     Status
         // PRIORITY: Add lab tests from visit_labs table (ordered tests from billing page)
         // This is the source of truth for what tests were ordered for THIS visit
         if (visitLabsData && visitLabsData.length > 0) {
-          console.log('📊 Including lab tests from visit_labs table:', visitLabsData.length, 'tests');
+          console.log(' Including lab tests from visit_labs table:', visitLabsData.length, 'tests');
           visitLabsData.forEach(test => {
             const testName = (test.test_name || test.lab_name || 'Unknown Test').substring(0, 30).padEnd(30);
             const value = 'Ordered'.substring(0, 18).padEnd(18);
@@ -1381,17 +1381,17 @@ Test Name                       Result              Reference Range     Status
         }
         // ONLY add lab_results if visit_labs is empty AND we have visit-specific results
         else if (labResultsData && labResultsData.length > 0) {
-          console.log('📊 Including lab results from lab_results table (no visit_labs found):', labResultsData.length, 'results');
+          console.log(' Including lab results from lab_results table (no visit_labs found):', labResultsData.length, 'results');
           labResultsData.forEach(result => {
             const testName = (result.test_name || 'Unknown Test').substring(0, 30).padEnd(30);
             const value = (result.result_value ? `${result.result_value}${result.result_unit ? ' ' + result.result_unit : ''}` : 'N/A').substring(0, 18).padEnd(18);
             const range = (result.reference_range || 'N/A').substring(0, 17).padEnd(17);
-            const status = result.is_abnormal ? '⚠ ABNORMAL' : '✓ Normal';
+            const status = result.is_abnormal ? ' ABNORMAL' : ' Normal';
             labResultsTable += `${testName}${value}${range} ${status}\n`;
           });
         } else if (labOrders && labOrders.length > 0) {
           // If no lab_results data, use lab orders from visit_labs table
-          console.log('📊 Including lab orders from visit_labs table:', labOrders.length, 'orders');
+          console.log(' Including lab orders from visit_labs table:', labOrders.length, 'orders');
           labOrders.forEach(order => {
             // Get test name - ensure it's not too long
             const testName = (order.lab?.name || order.test_name || 'Lab Test');
@@ -1414,7 +1414,7 @@ Test Name                       Result              Reference Range     Status
             const paddedRange = formattedRange.padEnd(20);
 
             // Get status based on whether we have a value
-            const status = observedValue ? '✓ Complete' : '⏳ Pending';
+            const status = observedValue ? ' Complete' : '⏳ Pending';
 
             // Build the row with proper spacing
             labResultsTable += `${paddedTestName}${paddedResult}${paddedRange}${status}\n`;
@@ -1527,7 +1527,7 @@ PLEASE CONTACT: 7030974619, 9373111709.
       setDischargeSummaryText(summary);
 
       // Show success message with accurate data counts
-      console.log('📊 Lab results for success message:', {
+      console.log(' Lab results for success message:', {
         labResultsData: labResultsData?.length || 0,
         labOrders: labOrders?.length || 0
       });
@@ -1562,21 +1562,21 @@ PLEASE CONTACT: 7030974619, 9373111709.
       if (complications.length > 0) dataInfo.push(`${complications.length} complication(s)`);
 
       const message = dataInfo.length > 0
-        ? `✅ Discharge summary data fetched successfully!\n\nIncluded data:\n• ${dataInfo.join('\n• ')}\n\nTotal characters: ${summary.length}`
-        : `✅ Discharge summary generated with available database data.\n\nDiagnosis: ${visitDiagnosis ? 'Found' : 'Not found'}\nTotal characters: ${summary.length}`;
+        ? ` Discharge summary data fetched successfully!\n\nIncluded data:\n• ${dataInfo.join('\n• ')}\n\nTotal characters: ${summary.length}`
+        : ` Discharge summary generated with available database data.\n\nDiagnosis: ${visitDiagnosis ? 'Found' : 'Not found'}\nTotal characters: ${summary.length}`;
 
       alert(message);
 
     } catch (error) {
       console.error('Error in handleFetchData:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      alert(`❌ Failed to fetch discharge data.\n\nError: ${errorMessage}\n\nPlease check the console for detailed information.`);
+      alert(` Failed to fetch discharge data.\n\nError: ${errorMessage}\n\nPlease check the console for detailed information.`);
     }
   };
 
   // Open AI generation modal with prompt and data editing
   const handleAIGenerate = async () => {
-    console.log('🚀 handleAIGenerate started');
+    console.log(' handleAIGenerate started');
 
     // Declare ALL variables at the very beginning to ensure proper scope
     let existingDiagnosis = ''; // Initialize with empty string first
@@ -1584,7 +1584,7 @@ PLEASE CONTACT: 7030974619, 9373111709.
 
     // Main try block
     try {
-      console.log('📝 Initializing AI generation...');
+      console.log(' Initializing AI generation...');
 
       if (!patient) {
         alert('Please fetch patient data first before generating AI summary.');
@@ -1593,15 +1593,15 @@ PLEASE CONTACT: 7030974619, 9373111709.
 
       // Extract existing diagnosis from current discharge summary to preserve it
       const existingContent = dischargeSummaryText || '';
-      console.log('📄 Existing content length:', existingContent.length);
+      console.log(' Existing content length:', existingContent.length);
 
       if (existingContent) {
         const diagnosisMatch = existingContent.match(/Diagnosis:\s*([^\n]+)/i);
         if (diagnosisMatch && diagnosisMatch[1]) {
           existingDiagnosis = diagnosisMatch[1].trim();
-          console.log('📋 Preserving existing diagnosis:', existingDiagnosis);
+          console.log(' Preserving existing diagnosis:', existingDiagnosis);
         } else {
-          console.log('📋 No existing diagnosis found in content');
+          console.log(' No existing diagnosis found in content');
           existingDiagnosis = ''; // Explicitly set to empty string
         }
       } else {
@@ -1682,7 +1682,7 @@ PLEASE CONTACT: 7030974619, 9373111709.
               days: med.duration || med.days || ''
             };
           });
-          console.log('✅ Medications fetched for AI generation:', medicationsData);
+          console.log(' Medications fetched for AI generation:', medicationsData);
         }
       }
     } catch (error) {
@@ -1731,7 +1731,7 @@ PLEASE CONTACT: 7030974619, 9373111709.
 
         if (patientData) {
           fullPatientData = patientData;
-          console.log('✅ Full patient data fetched:', patientData);
+          console.log(' Full patient data fetched:', patientData);
         }
       } catch (error) {
         console.log('Error fetching full patient data:', error);
@@ -2052,7 +2052,7 @@ IMPORTANT: Format everything as plain text, include ALL provided investigations,
       setEditablePrompt(prompt);
       setShowGenerationModal(true);
     } catch (error) {
-      console.error('💥 Error in AI generation setup:', error);
+      console.error(' Error in AI generation setup:', error);
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
       console.error('Error details:', {
         error: errorMsg,
@@ -2071,10 +2071,10 @@ IMPORTANT: Format everything as plain text, include ALL provided investigations,
       setIsGenerating(true);
       setShowGenerationModal(false);
 
-      console.log('🤖 Generating AI discharge summary with edited data:', editablePatientData);
-      console.log('🤖 Using edited prompt:', editablePrompt);
+      console.log(' Generating AI discharge summary with edited data:', editablePatientData);
+      console.log(' Using edited prompt:', editablePrompt);
 
-      console.log('🔍 API Request Details:');
+      console.log(' API Request Details:');
       console.log('- Prompt length:', editablePrompt.length);
       console.log('- Patient data keys:', Object.keys(editablePatientData));
       console.log('- About to call Gemini API...');
@@ -2094,7 +2094,7 @@ IMPORTANT: Format everything as plain text, include ALL provided investigations,
         }
       };
 
-      console.log('🔍 Request body:', JSON.stringify(requestBody, null, 2));
+      console.log(' Request body:', JSON.stringify(requestBody, null, 2));
 
       // Call Google Gemini API
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`, {
@@ -2105,7 +2105,7 @@ IMPORTANT: Format everything as plain text, include ALL provided investigations,
         body: JSON.stringify(requestBody)
       });
 
-      console.log('📡 API Response received:');
+      console.log(' API Response received:');
       console.log('- Status:', response.status);
       console.log('- Status Text:', response.statusText);
       console.log('- Headers:', Object.fromEntries(response.headers));
@@ -2116,9 +2116,9 @@ IMPORTANT: Format everything as plain text, include ALL provided investigations,
         try {
           const errorData = await response.json();
           errorDetails = JSON.stringify(errorData, null, 2);
-          console.error('🚨 API Error Response:', errorData);
+          console.error(' API Error Response:', errorData);
         } catch (parseError) {
-          console.error('🚨 Could not parse error response:', parseError);
+          console.error(' Could not parse error response:', parseError);
           errorDetails = await response.text();
         }
 
@@ -2126,14 +2126,14 @@ IMPORTANT: Format everything as plain text, include ALL provided investigations,
       }
 
       const data = await response.json();
-      console.log('✅ API Response data structure:', {
+      console.log(' API Response data structure:', {
         candidates: data.candidates?.length,
         hasContent: !!data.candidates?.[0]?.content?.parts?.[0]?.text,
         usageMetadata: data.usageMetadata
       });
       // Get AI response content (Gemini format)
       const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      console.log('🤖 AI Response received:', aiResponse ? aiResponse.substring(0, 200) + '...' : 'No content');
+      console.log(' AI Response received:', aiResponse ? aiResponse.substring(0, 200) + '...' : 'No content');
 
       // Check if AI response is properly formatted
       let aiGeneratedSummary;
@@ -2145,19 +2145,19 @@ IMPORTANT: Format everything as plain text, include ALL provided investigations,
       );
 
       if (hasPromptEcho) {
-        console.log('🚨 AI response contains prompt echo - using fallback template');
+        console.log(' AI response contains prompt echo - using fallback template');
         aiGeneratedSummary = null; // Force fallback
       } else if (aiResponse && (aiResponse.includes('DISCHARGE SUMMARY') || aiResponse.includes('Diagnosis:'))) {
         // AI returned proper plain text format
         aiGeneratedSummary = aiResponse;
-        console.log('✅ AI returned proper plain text format');
+        console.log(' AI returned proper plain text format');
       } else {
         aiGeneratedSummary = null; // Force fallback for invalid content
       }
 
       // Generate fallback template if needed
       if (!aiGeneratedSummary) {
-        console.log('⚠️ Using fallback template with plain text formatting');
+        console.log(' Using fallback template with plain text formatting');
         aiGeneratedSummary = `OPD DISCHARGE SUMMARY
 ================================================================================
 
@@ -2301,22 +2301,22 @@ URGENT CARE/ EMERGENCY CARE IS AVAILABLE 24 X 7. PLEASE CONTACT: 7030974619, 937
       // @ts-ignore - existingDiagnosis is defined in outer scope
       const diagnosisWasPreserved = (typeof existingDiagnosis !== 'undefined' && existingDiagnosis && existingDiagnosis.length > 0);
       const preservedMessage = diagnosisWasPreserved
-        ? '✅ AI-powered discharge summary generated successfully! Your existing diagnosis has been preserved.'
-        : '✅ AI-powered discharge summary generated successfully using edited patient data!';
+        ? ' AI-powered discharge summary generated successfully! Your existing diagnosis has been preserved.'
+        : ' AI-powered discharge summary generated successfully using edited patient data!';
       alert(preservedMessage);
 
     } catch (error) {
-      console.error('🚨 DETAILED ERROR ANALYSIS:');
+      console.error(' DETAILED ERROR ANALYSIS:');
       console.error('- Error object:', error);
       console.error('- Error message:', error.message);
       console.error('- Error stack:', error.stack);
 
       // Try to get more details about the fetch error
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        console.error('🌐 Network/CORS error detected');
+        console.error(' Network/CORS error detected');
       }
 
-      alert(`❌ Failed to generate AI summary.\n\nError Details:\n${error.message}\n\nCheck console for full details.`);
+      alert(` Failed to generate AI summary.\n\nError Details:\n${error.message}\n\nCheck console for full details.`);
     } finally {
       setIsGenerating(false);
     }
@@ -2330,16 +2330,16 @@ URGENT CARE/ EMERGENCY CARE IS AVAILABLE 24 X 7. PLEASE CONTACT: 7030974619, 937
     }
 
     try {
-      console.log('🖨️ Printing discharge summary...');
-      console.log('📄 Content length:', dischargeSummaryText.length);
-      console.log('📄 Content preview (first 500 chars):', dischargeSummaryText.substring(0, 500));
+      console.log(' Printing discharge summary...');
+      console.log(' Content length:', dischargeSummaryText.length);
+      console.log(' Content preview (first 500 chars):', dischargeSummaryText.substring(0, 500));
 
       // Check if content is HTML or text
       const isHtmlContent = dischargeSummaryText.includes('<div') && dischargeSummaryText.includes('</div>');
-      console.log('📄 Content type:', isHtmlContent ? 'HTML' : 'Plain text');
+      console.log(' Content type:', isHtmlContent ? 'HTML' : 'Plain text');
 
       if (!isHtmlContent) {
-        console.log('🚨 WARNING: Content is not HTML format - this may cause display issues');
+        console.log(' WARNING: Content is not HTML format - this may cause display issues');
       }
 
       // Format content for printing
@@ -2347,7 +2347,7 @@ URGENT CARE/ EMERGENCY CARE IS AVAILABLE 24 X 7. PLEASE CONTACT: 7030974619, 937
 
       // Parse the plain text content and format it for HTML printing
       if (!isHtmlContent) {
-        console.log('🔧 Content is plain text - formatting for print with all sections');
+        console.log(' Content is plain text - formatting for print with all sections');
 
         // Convert plain text to HTML while preserving all content and formatting
         const lines = dischargeSummaryText.split('\n');
@@ -3024,7 +3024,7 @@ URGENT CARE/ EMERGENCY CARE IS AVAILABLE 24 X 7. PLEASE CONTACT: 7030974619, 937
   // Handle preview toggle with payment check
   const togglePreview = () => {
     if (!patient?.bill_paid) {
-      alert('⚠️ Final Payment Required\n\nPlease complete the final payment before previewing the discharge summary.');
+      alert(' Final Payment Required\n\nPlease complete the final payment before previewing the discharge summary.');
       return;
     }
     setShowPreview(!showPreview);
@@ -3033,7 +3033,7 @@ URGENT CARE/ EMERGENCY CARE IS AVAILABLE 24 X 7. PLEASE CONTACT: 7030974619, 937
   // Handle print with payment check
   const handlePrintWithCheck = () => {
     if (!patient?.bill_paid) {
-      alert('⚠️ Final Payment Required\n\nPlease complete the final payment before printing the discharge summary.');
+      alert(' Final Payment Required\n\nPlease complete the final payment before printing the discharge summary.');
       return;
     }
     handlePrint();
@@ -3095,7 +3095,7 @@ URGENT CARE/ EMERGENCY CARE IS AVAILABLE 24 X 7. PLEASE CONTACT: 7030974619, 937
             )}
             {isSaved && !isSaving && (
               <Badge variant="outline" className="text-green-600 border-green-200">
-                ✓ Saved
+                 Saved
               </Badge>
             )}
           </div>
@@ -3272,7 +3272,7 @@ URGENT CARE/ EMERGENCY CARE IS AVAILABLE 24 X 7. PLEASE CONTACT: 7030974619, 937
                       {!patient?.bill_paid && (
                         <TooltipContent className="bg-red-600 text-white border-red-700 font-semibold">
                           <p className="flex items-center gap-2">
-                            <span className="text-lg">⚠️</span>
+                            <span className="text-lg"></span>
                             Please complete final payment
                           </p>
                         </TooltipContent>
@@ -3298,7 +3298,7 @@ URGENT CARE/ EMERGENCY CARE IS AVAILABLE 24 X 7. PLEASE CONTACT: 7030974619, 937
                       {!patient?.bill_paid && (
                         <TooltipContent className="bg-red-600 text-white border-red-700 font-semibold">
                           <p className="flex items-center gap-2">
-                            <span className="text-lg">⚠️</span>
+                            <span className="text-lg"></span>
                             Please complete final payment
                           </p>
                         </TooltipContent>
@@ -3400,7 +3400,7 @@ URGENT CARE/ EMERGENCY CARE IS AVAILABLE 24 X 7. PLEASE CONTACT: 7030974619, 937
                   )}
                   {isSaved && !isSaving && (
                     <div className="absolute bottom-4 right-4 text-sm text-green-600 bg-green-50 px-3 py-1 rounded border border-green-200">
-                      ✓ Saved
+                       Saved
                     </div>
                   )}
                 </div>

@@ -16,16 +16,7 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Search,
-  Edit,
-  Trash2,
-  Upload,
-  FileText,
-  Save,
-  X,
-  Plus
-} from 'lucide-react';
+import { Building2, Drama, Edit, FileText, Plus, Save, Search, Trash2, Upload, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface RadiologyResultFormProps {
@@ -55,7 +46,7 @@ export const RadiologyResultForm: React.FC<RadiologyResultFormProps> = ({
   onClose,
   patientData
 }) => {
-  console.log('🏥 RadiologyResultForm rendered with props:', { isOpen, patientData });
+  console.log(' RadiologyResultForm rendered with props:', { isOpen, patientData });
   const [templates, setTemplates] = useState<Template[]>([]);
   const [findings, setFindings] = useState<Finding[]>([
     { id: '1', text: 'FINDINGS' }
@@ -186,7 +177,7 @@ export const RadiologyResultForm: React.FC<RadiologyResultFormProps> = ({
     onClose();
   };
 
-  console.log('🎭 Rendering Dialog with isOpen:', isOpen);
+  console.log(' Rendering Dialog with isOpen:', isOpen);
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

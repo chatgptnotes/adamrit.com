@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { AlertTriangle, Banknote, BarChart3, CheckCircle, CreditCard, DollarSign, Search } from 'lucide-react'
 
 // Convert amount to words (Indian format)
 const convertAmountToWords = (amount: number): string => {
@@ -151,7 +152,7 @@ const Invoice = () => {
         return [];
       }
 
-      console.log('✅ Payments fetched:', data);
+      console.log(' Payments fetched:', data);
       return data || [];
     },
     enabled: !!visitId
@@ -214,7 +215,7 @@ const Invoice = () => {
         return [];
       }
 
-      console.log('✅ Advances fetched:', data);
+      console.log(' Advances fetched:', data);
       return data || [];
     },
     enabled: !!visitId
@@ -263,7 +264,7 @@ const Invoice = () => {
             }
           });
 
-          console.log('✅ Advance payment totals:', {
+          console.log(' Advance payment totals:', {
             total_paid: totalPaid,
             total_refunded: totalRefunded,
             net_advance: totalPaid - totalRefunded
@@ -346,7 +347,7 @@ const Invoice = () => {
       }
 
       const discountAmount = data?.discount_amount || 0;
-      console.log('✅ Discount fetched from visit_discounts:', discountAmount);
+      console.log(' Discount fetched from visit_discounts:', discountAmount);
 
       return discountAmount;
     },
@@ -1147,7 +1148,7 @@ const Invoice = () => {
       // Check if patient has other corporate
       const usesNABHRate = hasCorporate && !usesNonNABHRate && !usesBhopaliNABHRate;
 
-      console.log('🔍 Patient Type Determination:', {
+      console.log(' Patient Type Determination:', {
         patientType,
         corporate,
         isPrivatePatient,
@@ -1172,12 +1173,12 @@ const Invoice = () => {
         totalLabCharges += storedCost;
       });
 
-      console.log('✅ Total lab charges (using stored costs):', totalLabCharges);
+      console.log(' Total lab charges (using stored costs):', totalLabCharges);
     }
 
     // Add single summary line for all lab charges if total > 0
     if (totalLabCharges > 0) {
-      console.log(`📊 Adding Laboratory Charges summary line: ₹${totalLabCharges}`);
+      console.log(` Adding Laboratory Charges summary line: ₹${totalLabCharges}`);
       services.push({
         srNo: srNo++,
         item: 'Laboratory Charges',
@@ -1187,7 +1188,7 @@ const Invoice = () => {
         type: 'lab'
       });
     } else {
-      console.warn('⚠️ Total lab charges is 0! No lab tests found or all rates are 0.');
+      console.warn(' Total lab charges is 0! No lab tests found or all rates are 0.');
     }
 
     // Calculate total radiology charges and add as single line
@@ -1639,10 +1640,10 @@ const Invoice = () => {
 
     const netAdvancePayment = advancePaymentTotal - advancePaymentRefunded;
 
-    console.log('💵 Advance Payment Data:', advancePaymentData);
-    console.log('💵 Advance Payment Total:', advancePaymentTotal);
-    console.log('💵 Advance Payment Refunded:', advancePaymentRefunded);
-    console.log('💵 Net Advance Payment:', netAdvancePayment);
+    console.log(' Advance Payment Data:', advancePaymentData);
+    console.log(' Advance Payment Total:', advancePaymentTotal);
+    console.log(' Advance Payment Refunded:', advancePaymentRefunded);
+    console.log(' Net Advance Payment:', netAdvancePayment);
 
     // Fallback: Calculate total payments from accounting_transactions (if no advance_payment data)
     console.log('Payment Data (accounting_transactions):', paymentData);
@@ -1652,29 +1653,29 @@ const Invoice = () => {
     const totalAdvances = (advanceData || []).reduce((sum, advance) => sum + (advance.amount || 0), 0);
     const accountingTransactionsTotal = totalPayments + totalAdvances;
 
-    console.log('💵 Total Payments (accounting_transactions):', totalPayments);
-    console.log('💵 Total Advances (accounting_transactions):', totalAdvances);
-    console.log('💵 Total from accounting_transactions:', accountingTransactionsTotal);
+    console.log(' Total Payments (accounting_transactions):', totalPayments);
+    console.log(' Total Advances (accounting_transactions):', totalAdvances);
+    console.log(' Total from accounting_transactions:', accountingTransactionsTotal);
 
     // Use advance_payment data if available, otherwise fall back to accounting_transactions
     const advanceAmount = netAdvancePayment > 0 ? netAdvancePayment : accountingTransactionsTotal;
 
     // Add final payment amount
     const finalPaymentAmount = finalPaymentData?.amount || 0;
-    console.log('💵 Final Payment Amount:', finalPaymentAmount);
+    console.log(' Final Payment Amount:', finalPaymentAmount);
 
     // Total Amount Paid = Advance Payment + Final Payment
     const totalAmountPaid = advanceAmount + finalPaymentAmount;
 
-    console.log('💵 FINAL Total Amount Paid (Advance + Final):', totalAmountPaid);
+    console.log(' FINAL Total Amount Paid (Advance + Final):', totalAmountPaid);
 
     // Get discount from visit_discounts table (same as Final Bill)
     const discountAmount = discountData || 0;
-    console.log('💰 Using discount from visit_discounts table:', discountAmount);
+    console.log(' Using discount from visit_discounts table:', discountAmount);
 
     // Calculate balance
     const balance = totalBillAmount - totalAmountPaid - discountAmount;
-    console.log('💳 Balance:', balance);
+    console.log(' Balance:', balance);
 
     return {
       total: totalBillAmount,

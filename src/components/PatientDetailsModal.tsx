@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Plus, X, Activity, Pill, FileText, AlertTriangle } from 'lucide-react';
+import { Activity, AlertTriangle, CheckCircle, Drama, FileText, Pill, Plus, Search, X, XCircle } from 'lucide-react';
 
 interface PatientDetailsModalProps {
   isOpen: boolean;
@@ -24,7 +24,7 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
   patient
 }) => {
   // Debug: Log what props the modal receives
-  console.log('🎭 PatientDetailsModal Received:', {
+  console.log(' PatientDetailsModal Received:', {
     isOpen,
     patient,
     patientId: patient?.id,
@@ -35,7 +35,7 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
   const { data: patientDetails, isLoading } = useQuery({
     queryKey: ['patient-details', patient.id],
     queryFn: async () => {
-      console.log('🔍 Fetching patient details for ID:', patient.id);
+      console.log(' Fetching patient details for ID:', patient.id);
 
       // First get patient basic info
       const { data: patientData, error: patientError } = await supabase
@@ -45,11 +45,11 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
         .single();
 
       if (patientError) {
-        console.error('❌ Error fetching patient:', patientError);
+        console.error(' Error fetching patient:', patientError);
         throw patientError;
       }
 
-      console.log('✅ Patient data fetched:', {
+      console.log(' Patient data fetched:', {
         name: patientData.name,
         patients_id: patientData.patients_id,
         id: patientData.id

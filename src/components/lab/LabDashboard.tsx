@@ -6,24 +6,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  TestTube, 
-  FileText, 
-  Package, 
-  Users,
-  AlertTriangle,
-  TrendingUp,
-  Clock,
-  CheckCircle,
-  Calendar,
-  BarChart3,
-  Settings,
-  Plus,
-  RefreshCw,
-  Activity,
-  Microscope,
-  FlaskConical
-} from 'lucide-react';
+import { Activity, AlertTriangle, BarChart3, Calendar, CheckCircle, Clock, File, FileText, FlaskConical, Microscope, Package, Plus, RefreshCw, Settings, TestTube, TrendingUp, Users } from 'lucide-react';
 
 // Import lab components
 import TestCatalog from './TestCatalog';
@@ -144,12 +127,12 @@ const LabDashboard: React.FC = () => {
             <TabsTrigger value="samples">Samples</TabsTrigger>
             <TabsTrigger value="results">Results</TabsTrigger>
             <TabsTrigger value="reports">Reports</TabsTrigger>
-            <TabsTrigger value="printformat">📄 Print Format</TabsTrigger>
+            <TabsTrigger value="printformat"> Print Format</TabsTrigger>
           </TabsList>
           <TabsList className="grid grid-cols-4 w-auto bg-blue-50 border-2 border-blue-200">
-            <TabsTrigger value="subspecialty" className="text-blue-700 font-semibold">🧪 Sub Specialty</TabsTrigger>
-            <TabsTrigger value="panels" className="text-blue-700 font-semibold">📊 Add Panel</TabsTrigger>
-            <TabsTrigger value="processing" className="text-blue-700 font-semibold">🔬 Sample Processing</TabsTrigger>
+            <TabsTrigger value="subspecialty" className="text-blue-700 font-semibold"> Sub Specialty</TabsTrigger>
+            <TabsTrigger value="panels" className="text-blue-700 font-semibold"> Add Panel</TabsTrigger>
+            <TabsTrigger value="processing" className="text-blue-700 font-semibold"> Sample Processing</TabsTrigger>
             <TabsTrigger value="quality">Quality</TabsTrigger>
           </TabsList>
         </div>

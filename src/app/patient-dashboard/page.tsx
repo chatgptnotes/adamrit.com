@@ -21,7 +21,7 @@ import { PatientsTable } from '@/components/dashboard/PatientsTable';
 import { PatientWorkflowVisual } from '@/components/dashboard/PatientWorkflowVisual';
 import { DeletePatientDialog } from '@/components/dashboard/DeletePatientDialog';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { AlertTriangle, Building2, CheckCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ClipboardList, Search, XCircle } from 'lucide-react';
 
 const PatientDashboard = () => {
   const { hospitalConfig } = useAuth();
@@ -65,8 +65,8 @@ const PatientDashboard = () => {
   const { data: patients = [], isLoading } = useQuery({
     queryKey: ['dashboard-patients', hospitalConfig?.name || 'default'],
     queryFn: async () => {
-      console.log('🏥 PatientDashboard: Fetching patients for hospital:', hospitalConfig?.name);
-      console.log('🔍 PatientDashboard: Full hospitalConfig:', hospitalConfig);
+      console.log(' PatientDashboard: Fetching patients for hospital:', hospitalConfig?.name);
+      console.log(' PatientDashboard: Full hospitalConfig:', hospitalConfig);
       
       let query = supabase
         .from('patients')
@@ -76,21 +76,21 @@ const PatientDashboard = () => {
       // Only apply filter if hospitalConfig exists and has a name
       if (hospitalConfig?.name) {
         query = query.eq('hospital_name', hospitalConfig.name);
-        console.log('🏥 PatientDashboard: Applied hospital filter for:', hospitalConfig.name);
+        console.log(' PatientDashboard: Applied hospital filter for:', hospitalConfig.name);
       } else {
-        console.warn('⚠️ PatientDashboard: No hospital filter applied - showing all patients');
+        console.warn(' PatientDashboard: No hospital filter applied - showing all patients');
       }
       
       const { data, error } = await query;
 
       if (error) {
-        console.error('❌ Error fetching patients:', error);
+        console.error(' Error fetching patients:', error);
         throw error;
       }
 
-      console.log(`✅ PatientDashboard: Found ${data?.length || 0} patients for ${hospitalConfig?.name}`);
+      console.log(` PatientDashboard: Found ${data?.length || 0} patients for ${hospitalConfig?.name}`);
       if (data && data.length > 0) {
-        console.log('📋 PatientDashboard: Patient details:', data.map(p => ({
+        console.log(' PatientDashboard: Patient details:', data.map(p => ({
           id: p.id,
           name: p.name,
           patients_id: p.patients_id,

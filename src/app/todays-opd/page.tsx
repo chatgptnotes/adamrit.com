@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Printer, Search, ClipboardList, Download } from 'lucide-react';
+import { BarChart3, ClipboardList, Download, FileText, MessageCircle, MessageSquare, Printer, Search } from 'lucide-react';
 import { OpdStatisticsCards } from '@/components/opd/OpdStatisticsCards';
 import { OpdPatientTable } from '@/components/opd/OpdPatientTable';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
@@ -171,14 +171,14 @@ const TodaysOpd = () => {
       console.log('Total OPD patients found:', data?.length || 0);
 
       // Debug: Check comments in fetched data
-      console.log('📊 Sample OPD patient data (first patient):', data?.[0]);
-      console.log('💬 Comments in first patient:', data?.[0]?.comments);
+      console.log(' Sample OPD patient data (first patient):', data?.[0]);
+      console.log(' Comments in first patient:', data?.[0]?.comments);
 
       // Log all patients with comments
       const patientsWithComments = data?.filter(v => v.comments) || [];
-      console.log(`📝 Found ${patientsWithComments.length} patients with comments out of ${data?.length || 0} total patients`);
+      console.log(` Found ${patientsWithComments.length} patients with comments out of ${data?.length || 0} total patients`);
       if (patientsWithComments.length > 0) {
-        console.log('💭 Patients with comments:', patientsWithComments.map(v => ({
+        console.log(' Patients with comments:', patientsWithComments.map(v => ({
           id: v.id,
           visit_id: v.visit_id,
           patient_name: v.patients?.name,

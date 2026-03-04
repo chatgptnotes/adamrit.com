@@ -27,18 +27,18 @@ export function useLabOrders() {
     setError(null);
 
     try {
-      // 🏥 EXPLICIT HOSPITAL FILTERING - If-Else Condition
+      //  EXPLICIT HOSPITAL FILTERING - If-Else Condition
       let hospitalFilter = '';
       if (hospitalConfig.name === 'hope') {
         hospitalFilter = 'hope';
-        console.log('🏥 HOPE Hospital login detected - fetching hope lab orders');
+        console.log(' HOPE Hospital login detected - fetching hope lab orders');
       } else if (hospitalConfig.name === 'ayushman') {
         hospitalFilter = 'ayushman';
-        console.log('🏥 AYUSHMAN Hospital login detected - fetching ayushman lab orders');
+        console.log(' AYUSHMAN Hospital login detected - fetching ayushman lab orders');
       } else {
         hospitalFilter = 'hope'; // default fallback
-        console.log('🏥 Unknown hospital type, defaulting to hope lab orders');
-        console.log('🚨 DEBUG: hospitalConfig.name was:', hospitalConfig.name);
+        console.log(' Unknown hospital type, defaulting to hope lab orders');
+        console.log(' DEBUG: hospitalConfig.name was:', hospitalConfig.name);
       }
 
       const { data, error: supabaseError } = await supabase
@@ -137,18 +137,18 @@ export function useLabOrders() {
 
   const createOrder = useCallback(async (orderData: Partial<LabOrder>) => {
     try {
-      // 🏥 EXPLICIT HOSPITAL FILTERING - If-Else Condition
+      //  EXPLICIT HOSPITAL FILTERING - If-Else Condition
       let hospitalFilter = '';
       if (hospitalConfig.name === 'hope') {
         hospitalFilter = 'hope';
-        console.log('🏥 HOPE Hospital login detected - creating hope lab order');
+        console.log(' HOPE Hospital login detected - creating hope lab order');
       } else if (hospitalConfig.name === 'ayushman') {
         hospitalFilter = 'ayushman';
-        console.log('🏥 AYUSHMAN Hospital login detected - creating ayushman lab order');
+        console.log(' AYUSHMAN Hospital login detected - creating ayushman lab order');
       } else {
         hospitalFilter = 'hope'; // default fallback
-        console.log('🏥 Unknown hospital type, defaulting to hope lab order');
-        console.log('🚨 DEBUG: hospitalConfig.name was:', hospitalConfig.name);
+        console.log(' Unknown hospital type, defaulting to hope lab order');
+        console.log(' DEBUG: hospitalConfig.name was:', hospitalConfig.name);
       }
 
       const { data, error: supabaseError } = await supabase
@@ -164,7 +164,7 @@ export function useLabOrders() {
           provisional_diagnosis: orderData.provisional_diagnosis,
           priority: orderData.priority,
           special_instructions: orderData.special_instructions
-          // 🏥 No hospital_name needed - will use patient's hospital through patient_id
+          //  No hospital_name needed - will use patient's hospital through patient_id
         })
         .select()
         .single();
@@ -233,18 +233,18 @@ export function useLabTests() {
     setError(null);
 
     try {
-      // 🏥 EXPLICIT HOSPITAL FILTERING - If-Else Condition
+      //  EXPLICIT HOSPITAL FILTERING - If-Else Condition
       let hospitalFilter = '';
       if (hospitalConfig.name === 'hope') {
         hospitalFilter = 'hope';
-        console.log('🏥 HOPE Hospital login detected - fetching hope lab tests');
+        console.log(' HOPE Hospital login detected - fetching hope lab tests');
       } else if (hospitalConfig.name === 'ayushman') {
         hospitalFilter = 'ayushman';
-        console.log('🏥 AYUSHMAN Hospital login detected - fetching ayushman lab tests');
+        console.log(' AYUSHMAN Hospital login detected - fetching ayushman lab tests');
       } else {
         hospitalFilter = 'hope'; // default fallback
-        console.log('🏥 Unknown hospital type, defaulting to hope lab tests');
-        console.log('🚨 DEBUG: hospitalConfig.name was:', hospitalConfig.name);
+        console.log(' Unknown hospital type, defaulting to hope lab tests');
+        console.log(' DEBUG: hospitalConfig.name was:', hospitalConfig.name);
       }
 
       const { data, error: supabaseError } = await supabase
@@ -263,7 +263,7 @@ export function useLabTests() {
         .eq('is_active', true)
         .order('test_name');
 
-      // 🏥 Lab tests can be shared across hospitals - no hospital filtering needed
+      //  Lab tests can be shared across hospitals - no hospital filtering needed
 
       if (supabaseError) {
         throw supabaseError;
@@ -381,18 +381,18 @@ export function useTestPanels() {
     setError(null);
 
     try {
-      // 🏥 EXPLICIT HOSPITAL FILTERING - If-Else Condition
+      //  EXPLICIT HOSPITAL FILTERING - If-Else Condition
       let hospitalFilter = '';
       if (hospitalConfig.name === 'hope') {
         hospitalFilter = 'hope';
-        console.log('🏥 HOPE Hospital login detected - fetching hope lab panels');
+        console.log(' HOPE Hospital login detected - fetching hope lab panels');
       } else if (hospitalConfig.name === 'ayushman') {
         hospitalFilter = 'ayushman';
-        console.log('🏥 AYUSHMAN Hospital login detected - fetching ayushman lab panels');
+        console.log(' AYUSHMAN Hospital login detected - fetching ayushman lab panels');
       } else {
         hospitalFilter = 'hope'; // default fallback
-        console.log('🏥 Unknown hospital type, defaulting to hope lab panels');
-        console.log('🚨 DEBUG: hospitalConfig.name was:', hospitalConfig.name);
+        console.log(' Unknown hospital type, defaulting to hope lab panels');
+        console.log(' DEBUG: hospitalConfig.name was:', hospitalConfig.name);
       }
 
       const { data, error: supabaseError } = await supabase
@@ -400,14 +400,14 @@ export function useTestPanels() {
         .select('*')
         .order('name');
 
-      // 🏥 Lab tests/panels can be shared across hospitals - no hospital filtering needed
+      //  Lab tests/panels can be shared across hospitals - no hospital filtering needed
 
       if (supabaseError) {
         throw supabaseError;
       }
 
-      console.log('📋 [useTestPanels] Fetched panels:', data?.length, 'Total panels from lab table');
-      console.log('📋 [useTestPanels] Panel names:', data?.slice(0, 20).map(p => p.name).join(', '));
+      console.log(' [useTestPanels] Fetched panels:', data?.length, 'Total panels from lab table');
+      console.log(' [useTestPanels] Panel names:', data?.slice(0, 20).map(p => p.name).join(', '));
       setPanels(data || []);
     } catch (err) {
       console.error('Error fetching lab panels:', err);
@@ -458,18 +458,18 @@ export function useTestPanels() {
     attributes?: any; // JSON field for test attributes
   }) => {
     try {
-      // 🏥 EXPLICIT HOSPITAL FILTERING - If-Else Condition
+      //  EXPLICIT HOSPITAL FILTERING - If-Else Condition
       let hospitalFilter = '';
       if (hospitalConfig.name === 'hope') {
         hospitalFilter = 'hope';
-        console.log('🏥 HOPE Hospital login detected - creating hope lab panel');
+        console.log(' HOPE Hospital login detected - creating hope lab panel');
       } else if (hospitalConfig.name === 'ayushman') {
         hospitalFilter = 'ayushman';
-        console.log('🏥 AYUSHMAN Hospital login detected - creating ayushman lab panel');
+        console.log(' AYUSHMAN Hospital login detected - creating ayushman lab panel');
       } else {
         hospitalFilter = 'hope'; // default fallback
-        console.log('🏥 Unknown hospital type, defaulting to hope lab panel');
-        console.log('🚨 DEBUG: hospitalConfig.name was:', hospitalConfig.name);
+        console.log(' Unknown hospital type, defaulting to hope lab panel');
+        console.log(' DEBUG: hospitalConfig.name was:', hospitalConfig.name);
       }
 
       // Now saving to 'lab' table instead of 'test_panels'
@@ -480,7 +480,7 @@ export function useTestPanels() {
           category: panelData.category || 'General',
           description: panelData.description,
           test_method: panelData.test_method,
-          // 🏥 Lab tests are shared across hospitals - no hospital assignment needed
+          //  Lab tests are shared across hospitals - no hospital assignment needed
           // Add all form fields to database insert
           icd_10_code: panelData.icd_10_code,
           CGHS_code: panelData.CGHS_code,
@@ -523,7 +523,7 @@ export function useTestPanels() {
               category: panelData.category || 'General',
               description: panelData.description,
               test_method: panelData.test_method,
-              // 🏥 Lab tests are shared across hospitals - no hospital assignment needed
+              //  Lab tests are shared across hospitals - no hospital assignment needed
               // Add all form fields to retry insert
               icd_10_code: panelData.icd_10_code,
               CGHS_code: panelData.CGHS_code,
@@ -744,18 +744,18 @@ export function useLabSamples() {
     setError(null);
 
     try {
-      // 🏥 EXPLICIT HOSPITAL FILTERING - If-Else Condition
+      //  EXPLICIT HOSPITAL FILTERING - If-Else Condition
       let hospitalFilter = '';
       if (hospitalConfig.name === 'hope') {
         hospitalFilter = 'hope';
-        console.log('🏥 HOPE Hospital login detected - fetching hope lab samples');
+        console.log(' HOPE Hospital login detected - fetching hope lab samples');
       } else if (hospitalConfig.name === 'ayushman') {
         hospitalFilter = 'ayushman';
-        console.log('🏥 AYUSHMAN Hospital login detected - fetching ayushman lab samples');
+        console.log(' AYUSHMAN Hospital login detected - fetching ayushman lab samples');
       } else {
         hospitalFilter = 'hope'; // default fallback
-        console.log('🏥 Unknown hospital type, defaulting to hope lab samples');
-        console.log('🚨 DEBUG: hospitalConfig.name was:', hospitalConfig.name);
+        console.log(' Unknown hospital type, defaulting to hope lab samples');
+        console.log(' DEBUG: hospitalConfig.name was:', hospitalConfig.name);
       }
 
       const { data, error: supabaseError } = await supabase
@@ -835,18 +835,18 @@ export function useTestResults() {
     setError(null);
 
     try {
-      // 🏥 EXPLICIT HOSPITAL FILTERING - If-Else Condition
+      //  EXPLICIT HOSPITAL FILTERING - If-Else Condition
       let hospitalFilter = '';
       if (hospitalConfig.name === 'hope') {
         hospitalFilter = 'hope';
-        console.log('🏥 HOPE Hospital login detected - fetching hope test results');
+        console.log(' HOPE Hospital login detected - fetching hope test results');
       } else if (hospitalConfig.name === 'ayushman') {
         hospitalFilter = 'ayushman';
-        console.log('🏥 AYUSHMAN Hospital login detected - fetching ayushman test results');
+        console.log(' AYUSHMAN Hospital login detected - fetching ayushman test results');
       } else {
         hospitalFilter = 'hope'; // default fallback
-        console.log('🏥 Unknown hospital type, defaulting to hope test results');
-        console.log('🚨 DEBUG: hospitalConfig.name was:', hospitalConfig.name);
+        console.log(' Unknown hospital type, defaulting to hope test results');
+        console.log(' DEBUG: hospitalConfig.name was:', hospitalConfig.name);
       }
 
       const { data, error: supabaseError } = await supabase
@@ -1098,18 +1098,18 @@ export function useLabReports() {
     setError(null);
 
     try {
-      // 🏥 EXPLICIT HOSPITAL FILTERING - If-Else Condition
+      //  EXPLICIT HOSPITAL FILTERING - If-Else Condition
       let hospitalFilter = '';
       if (hospitalConfig.name === 'hope') {
         hospitalFilter = 'hope';
-        console.log('🏥 HOPE Hospital login detected - fetching hope lab reports');
+        console.log(' HOPE Hospital login detected - fetching hope lab reports');
       } else if (hospitalConfig.name === 'ayushman') {
         hospitalFilter = 'ayushman';
-        console.log('🏥 AYUSHMAN Hospital login detected - fetching ayushman lab reports');
+        console.log(' AYUSHMAN Hospital login detected - fetching ayushman lab reports');
       } else {
         hospitalFilter = 'hope'; // default fallback
-        console.log('🏥 Unknown hospital type, defaulting to hope lab reports');
-        console.log('🚨 DEBUG: hospitalConfig.name was:', hospitalConfig.name);
+        console.log(' Unknown hospital type, defaulting to hope lab reports');
+        console.log(' DEBUG: hospitalConfig.name was:', hospitalConfig.name);
       }
 
       const { data, error: supabaseError } = await supabase
@@ -1289,18 +1289,18 @@ export function useLabDashboard() {
     setError(null);
 
     try {
-      // 🏥 EXPLICIT HOSPITAL FILTERING - If-Else Condition
+      //  EXPLICIT HOSPITAL FILTERING - If-Else Condition
       let hospitalFilter = '';
       if (hospitalConfig.name === 'hope') {
         hospitalFilter = 'hope';
-        console.log('🏥 HOPE Hospital login detected - fetching hope lab dashboard data');
+        console.log(' HOPE Hospital login detected - fetching hope lab dashboard data');
       } else if (hospitalConfig.name === 'ayushman') {
         hospitalFilter = 'ayushman';
-        console.log('🏥 AYUSHMAN Hospital login detected - fetching ayushman lab dashboard data');
+        console.log(' AYUSHMAN Hospital login detected - fetching ayushman lab dashboard data');
       } else {
         hospitalFilter = 'hope'; // default fallback
-        console.log('🏥 Unknown hospital type, defaulting to hope lab dashboard data');
-        console.log('🚨 DEBUG: hospitalConfig.name was:', hospitalConfig.name);
+        console.log(' Unknown hospital type, defaulting to hope lab dashboard data');
+        console.log(' DEBUG: hospitalConfig.name was:', hospitalConfig.name);
       }
 
       // Fetch summary statistics in parallel with patient hospital filtering
@@ -1387,7 +1387,7 @@ export function useLabSubspecialties() {
 
   useEffect(() => {
     const fetchSubspecialties = async () => {
-      console.log('🔍 [DEBUG] Fetching lab subspecialties...');
+      console.log(' [DEBUG] Fetching lab subspecialties...');
       setLoading(true);
       setError(null);
 
@@ -1398,30 +1398,30 @@ export function useLabSubspecialties() {
           .not('name', 'is', null)  // Filter out null names
           .order('name');
 
-        console.log('📊 [DEBUG] Supabase response:', { data, error: supabaseError });
+        console.log(' [DEBUG] Supabase response:', { data, error: supabaseError });
 
         if (supabaseError) {
-          console.error('❌ [DEBUG] Supabase error:', supabaseError);
+          console.error(' [DEBUG] Supabase error:', supabaseError);
           throw supabaseError;
         }
 
-        console.log('✅ [DEBUG] Subspecialties loaded:', data?.length || 0, 'items');
-        console.log('📋 [DEBUG] Subspecialties data:', data);
+        console.log(' [DEBUG] Subspecialties loaded:', data?.length || 0, 'items');
+        console.log(' [DEBUG] Subspecialties data:', data);
         setSubspecialties(data || []);
       } catch (err) {
-        console.error('❌ [DEBUG] Error fetching lab subspecialties:', err);
+        console.error(' [DEBUG] Error fetching lab subspecialties:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch lab subspecialties');
         setSubspecialties([]);
       } finally {
         setLoading(false);
-        console.log('🏁 [DEBUG] Fetch complete. Loading:', false);
+        console.log(' [DEBUG] Fetch complete. Loading:', false);
       }
     };
 
     fetchSubspecialties();
   }, []);
 
-  console.log('🔄 [useLabSubspecialties] Returning:', {
+  console.log(' [useLabSubspecialties] Returning:', {
     subspecialties,
     length: subspecialties?.length,
     loading,

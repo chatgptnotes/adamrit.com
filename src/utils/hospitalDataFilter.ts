@@ -67,7 +67,7 @@ export const getHospitalFromPatientId = (patientId: string): string => {
 
 // Debug utility to log hospital context
 export const logHospitalContext = (operation: string, hospitalName: string) => {
-  console.log(`🏥 Hospital Filter: ${operation} for hospital: ${hospitalName}`);
+  console.log(` Hospital Filter: ${operation} for hospital: ${hospitalName}`);
 };
 
 // Validate hospital data consistency
@@ -78,7 +78,7 @@ export const validateHospitalData = (data: any[], currentHospital: string, idFie
   });
   
   if (issues.length > 0) {
-    console.warn(`🚨 Hospital Data Validation: Found ${issues.length} records that don't belong to ${currentHospital} hospital:`, issues);
+    console.warn(` Hospital Data Validation: Found ${issues.length} records that don't belong to ${currentHospital} hospital:`, issues);
   }
   
   return issues.length === 0;

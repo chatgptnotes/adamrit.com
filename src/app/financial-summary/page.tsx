@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { BarChart3, Building2, CheckCircle, DollarSign, FlaskConical, RefreshCw, Search, XCircle } from 'lucide-react'
 
 // Define proper types for financial data
 type FinancialRow = {
@@ -37,7 +38,7 @@ const FinancialSummary = () => {
   const { visitId: paramVisitId } = useParams<{ visitId: string }>();
   const visitId = paramVisitId || (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('visitId')) || 'H25F27004';
   
-  console.log('🏥 [FINANCIAL SUMMARY] Using visitId:', visitId);
+  console.log(' [FINANCIAL SUMMARY] Using visitId:', visitId);
 
   // Fetch clinical services from junction table
   const { data: clinicalServicesData } = useQuery({
@@ -45,7 +46,7 @@ const FinancialSummary = () => {
     queryFn: async () => {
       if (!visitId) return [];
       
-      console.log('📊 [FINANCIAL] Fetching clinical services for visitId:', visitId);
+      console.log(' [FINANCIAL] Fetching clinical services for visitId:', visitId);
       
       // Get visit UUID first
       const { data: visitData, error: visitError } = await supabase
@@ -70,7 +71,7 @@ const FinancialSummary = () => {
         return [];
       }
 
-      console.log('📊 [FINANCIAL] Clinical services data:', data);
+      console.log(' [FINANCIAL] Clinical services data:', data);
       return data || [];
     },
     enabled: !!visitId
@@ -82,7 +83,7 @@ const FinancialSummary = () => {
     queryFn: async () => {
       if (!visitId) return [];
       
-      console.log('📊 [FINANCIAL] Fetching mandatory services for visitId:', visitId);
+      console.log(' [FINANCIAL] Fetching mandatory services for visitId:', visitId);
       
       // Get visit UUID first
       const { data: visitData, error: visitError } = await supabase
@@ -107,7 +108,7 @@ const FinancialSummary = () => {
         return [];
       }
 
-      console.log('📊 [FINANCIAL] Mandatory services data:', data);
+      console.log(' [FINANCIAL] Mandatory services data:', data);
       return data || [];
     },
     enabled: !!visitId
@@ -117,37 +118,37 @@ const FinancialSummary = () => {
   const { data: advancePaymentData } = useQuery({
     queryKey: ['advance-payments', visitId],
     queryFn: async () => {
-      console.log('🔍 [ADVANCE PAYMENT DEBUG] Starting comprehensive debug...');
-      console.log('🔍 [ADVANCE PAYMENT DEBUG] Current visitId:', visitId);
+      console.log(' [ADVANCE PAYMENT DEBUG] Starting comprehensive debug...');
+      console.log(' [ADVANCE PAYMENT DEBUG] Current visitId:', visitId);
       
       if (!visitId) {
-        console.log('❌ [ADVANCE PAYMENT DEBUG] No visitId provided');
+        console.log(' [ADVANCE PAYMENT DEBUG] No visitId provided');
         return [];
       }
       
       try {
         // Step 1: Check if table exists and get total count
-        console.log('🔍 [STEP 1] Checking advance_payment table...');
+        console.log(' [STEP 1] Checking advance_payment table...');
         const { data: countData, error: countError, count } = await supabase
           .from('advance_payment')
           .select('id', { count: 'exact' })
           .limit(0);
           
-        console.log('🔍 [STEP 1] Table status:', {
+        console.log(' [STEP 1] Table status:', {
           total_records: count,
           table_accessible: !countError,
           error: countError
         });
         
         // Step 2: Get all records to see what visit_ids exist
-        console.log('🔍 [STEP 2] Fetching all records to see available visit_ids...');
+        console.log(' [STEP 2] Fetching all records to see available visit_ids...');
         const { data: allRecords, error: allError } = await supabase
           .from('advance_payment')
           .select('id, visit_id, patient_name, advance_amount, status, created_at')
           .order('created_at', { ascending: false })
           .limit(10);
           
-        console.log('🔍 [STEP 2] All records in table:', {
+        console.log(' [STEP 2] All records in table:', {
           count: allRecords?.length || 0,
           error: allError,
           records: allRecords
@@ -155,19 +156,19 @@ const FinancialSummary = () => {
         
         if (allRecords && allRecords.length > 0) {
           const visitIds = allRecords.map(r => r.visit_id);
-          console.log('🔍 [STEP 2] Available visit_ids:', visitIds);
-          console.log('🔍 [STEP 2] Current visitId exists?', visitIds.includes(visitId));
+          console.log(' [STEP 2] Available visit_ids:', visitIds);
+          console.log(' [STEP 2] Current visitId exists?', visitIds.includes(visitId));
         }
         
         // Step 3: Try exact match for current visitId
-        console.log('🔍 [STEP 3] Searching for exact visitId match...');
+        console.log(' [STEP 3] Searching for exact visitId match...');
         const { data: exactMatch, error: exactError } = await supabase
           .from('advance_payment')
           .select('*')
           .eq('visit_id', visitId)
           .eq('status', 'ACTIVE');
 
-        console.log('🔍 [STEP 3] Exact match results:', {
+        console.log(' [STEP 3] Exact match results:', {
           visitId_searched: visitId,
           found_records: exactMatch?.length || 0,
           records: exactMatch,
@@ -176,14 +177,14 @@ const FinancialSummary = () => {
         
         // Step 4: If no exact match, try partial match
         if (!exactMatch || exactMatch.length === 0) {
-          console.log('🔍 [STEP 4] No exact match, trying partial match...');
+          console.log(' [STEP 4] No exact match, trying partial match...');
           const { data: partialMatch, error: partialError } = await supabase
             .from('advance_payment')
             .select('*')
             .ilike('visit_id', `%${visitId}%`)
             .eq('status', 'ACTIVE');
             
-          console.log('🔍 [STEP 4] Partial match results:', {
+          console.log(' [STEP 4] Partial match results:', {
             pattern_searched: `%${visitId}%`,
             found_records: partialMatch?.length || 0,
             records: partialMatch,
@@ -211,7 +212,7 @@ const FinancialSummary = () => {
             }
           });
           
-          console.log('🔍 [STEP 5] Calculated totals:', {
+          console.log(' [STEP 5] Calculated totals:', {
             total_paid: totalPaid,
             total_refunded: totalRefunded,
             net_advance: totalPaid - totalRefunded
@@ -219,14 +220,14 @@ const FinancialSummary = () => {
         }
 
         if (exactError) {
-          console.error('❌ [ADVANCE PAYMENT DEBUG] Database error:', exactError);
+          console.error(' [ADVANCE PAYMENT DEBUG] Database error:', exactError);
           return [];
         }
 
         return exactMatch || [];
         
       } catch (error) {
-        console.error('❌ [ADVANCE PAYMENT DEBUG] Exception:', error);
+        console.error(' [ADVANCE PAYMENT DEBUG] Exception:', error);
         return [];
       }
     },
@@ -256,13 +257,13 @@ const FinancialSummary = () => {
     });
   }
 
-  console.log('💰 [ADVANCE PAYMENT] Calculated totals:', {
+  console.log(' [ADVANCE PAYMENT] Calculated totals:', {
     paid_amount: advancePaymentTotals.paid,
     refunded_amount: advancePaymentTotals.refunded,
     total_records: advancePaymentData?.length || 0
   });
 
-  console.log('📊 [FINANCIAL] All calculated totals:', {
+  console.log(' [FINANCIAL] All calculated totals:', {
     clinical: clinicalTotal,
     mandatory: mandatoryTotal,
     advance_payment_paid: advancePaymentTotals.paid,
@@ -271,7 +272,7 @@ const FinancialSummary = () => {
 
   // Function to create test advance payment data
   const createTestData = async () => {
-    console.log('🧪 Creating test advance payment for visitId:', visitId);
+    console.log(' Creating test advance payment for visitId:', visitId);
     
     try {
       const testRecord = {
@@ -294,15 +295,15 @@ const FinancialSummary = () => {
         .single();
         
       if (error) {
-        console.error('❌ Test data creation failed:', error);
+        console.error(' Test data creation failed:', error);
         alert('Test data creation failed: ' + error.message);
       } else {
-        console.log('✅ Test data created successfully:', data);
+        console.log(' Test data created successfully:', data);
         alert('Test advance payment of ₹5000 created! Refreshing page...');
         window.location.reload();
       }
     } catch (err) {
-      console.error('❌ Exception creating test data:', err);
+      console.error(' Exception creating test data:', err);
     }
   };
   
@@ -357,7 +358,7 @@ const FinancialSummary = () => {
 
   // Update state when data changes
   useEffect(() => {
-    console.log('🔄 [STATE UPDATE] Updating financial data with advance payments:', {
+    console.log(' [STATE UPDATE] Updating financial data with advance payments:', {
       advance_paid: advancePaymentTotals.paid,
       advance_refunded: advancePaymentTotals.refunded
     });
@@ -486,7 +487,7 @@ const FinancialSummary = () => {
   const handleSubmit = (row: keyof FinancialData, column: keyof FinancialRow) => {
     console.log(`Submitted ${row} - ${column}:`, financialData[row][column]);
     // Here you can add API call to save the data
-    alert(`✅ ${row} - ${column} updated successfully!`);
+    alert(` ${row} - ${column} updated successfully!`);
   };
   return (
     <div className="min-h-screen bg-gray-50 p-6">

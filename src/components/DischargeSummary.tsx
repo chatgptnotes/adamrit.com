@@ -1,5 +1,6 @@
 // @ts-nocheck
 import React from "react";
+import { Search, Target } from 'lucide-react'
 
 /**
  * DischargeSummary
@@ -125,7 +126,7 @@ export default function DischargeSummary({
   allPatientData?: string;
   patientDataSummary?: string;
 }) {
-  console.log('🎯 DischargeSummary rendered with:', {
+  console.log(' DischargeSummary rendered with:', {
     hasData: !!data,
     visitId,
     hasAllPatientData: !!allPatientData,
@@ -281,8 +282,8 @@ export default function DischargeSummary({
   const dynamicData = allPatientData ? extractDataFromText(allPatientData) : null;
 
   // Debug: Log the data to see what's being extracted
-  console.log('🔍 allPatientData:', allPatientData);
-  console.log('🔍 dynamicData:', dynamicData);
+  console.log(' allPatientData:', allPatientData);
+  console.log(' dynamicData:', dynamicData);
 
   // Extract additional data from patientDataSummary if available
   const summaryData = patientDataSummary ? extractDataFromText(patientDataSummary) : null;

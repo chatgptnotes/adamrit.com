@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import React, { useState, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { X, Printer, FileSpreadsheet } from 'lucide-react';
+import { AlertTriangle, BarChart3, Building, Building2, Calendar, Camera, CheckCircle, ClipboardList, DollarSign, FileSpreadsheet, FileText, Home, ImageIcon, Key, Microscope, Pill, Printer, Radio, RefreshCw, Search, Syringe, Target, User, Wrench, X, XCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useQuery } from '@tanstack/react-query';
 import * as XLSX from 'xlsx';
@@ -37,9 +37,9 @@ const DetailedInvoiceInternal = () => {
 
   // Alternative print function using window.print()
   const handlePrint = () => {
-    console.log('🖨️ Print button clicked');
-    console.log('📋 Patient data available:', !!patientData);
-    console.log('🖼️ Print ref available:', !!printRef.current);
+    console.log(' Print button clicked');
+    console.log(' Patient data available:', !!patientData);
+    console.log(' Print ref available:', !!printRef.current);
 
     if (!patientData) {
       alert('Patient data is not loaded yet. Please wait for the data to load before printing.');
@@ -222,7 +222,7 @@ const DetailedInvoiceInternal = () => {
       }, 500);
 
     } catch (error) {
-      console.error('❌ Error during print:', error);
+      console.error(' Error during print:', error);
       alert('Failed to open print dialog. Please try again.');
     }
   };
@@ -686,7 +686,7 @@ const DetailedInvoiceInternal = () => {
     queryFn: async () => {
       if (!visitId) return null;
 
-      console.log('🔍 Fetching visit details for visitId:', visitId);
+      console.log(' Fetching visit details for visitId:', visitId);
 
       // Function to check if string is valid UUID format
       const isValidUUID = (str) => {
@@ -772,38 +772,38 @@ const DetailedInvoiceInternal = () => {
       }
 
       if (visitError) {
-        console.error('❌ Error fetching visit:', visitError);
+        console.error(' Error fetching visit:', visitError);
         throw visitError;
       }
 
-      console.log('✅ Visit data fetched:', visit);
-      console.log('📋 Visit ID from URL:', visitId);
-      console.log('📋 Visit ID field (visit_id):', visit?.visit_id);
+      console.log(' Visit data fetched:', visit);
+      console.log(' Visit ID from URL:', visitId);
+      console.log(' Visit ID field (visit_id):', visit?.visit_id);
 
       // Debug date and consultant fields
-      console.log('📅 Date fields check:', {
+      console.log(' Date fields check:', {
         visit_date: visit?.visit_date,
         discharge_date: visit?.discharge_date,
         admission_date: visit?.admission_date,
         admitted_date: visit?.admitted_date,
         discharged_date: visit?.discharged_date
       });
-      console.log('👨‍⚕️ Doctor fields check:', {
+      console.log(' Doctor fields check:', {
         appointment_with: visit?.appointment_with,
         consulting_doctor: visit?.consulting_doctor,
         doctor_name: visit?.doctor_name,
         consultant_name: visit?.consultant_name
       });
-      console.log('🏨 Accommodation from visits table:', {
+      console.log(' Accommodation from visits table:', {
         accommodation_id: visit?.accommodation_id,
         accommodations: visit?.accommodations,
         room_type: visit?.accommodations?.room_type
       });
-      console.log('🔑 Available visit fields:', Object.keys(visit || {}));
+      console.log(' Available visit fields:', Object.keys(visit || {}));
 
       // Use the actual visit ID (UUID) for related queries
       const actualVisitId = visit?.id;
-      console.log('✅ Using actual visit ID (UUID) for queries:', actualVisitId);
+      console.log(' Using actual visit ID (UUID) for queries:', actualVisitId);
 
       // Fetch lab orders for this visit
       let labOrders = [];
@@ -825,7 +825,7 @@ const DetailedInvoiceInternal = () => {
           .eq('visit_id', actualVisitId);
 
         if (labError) {
-          console.error('❌ Error fetching lab orders:', labError);
+          console.error(' Error fetching lab orders:', labError);
         } else {
           labOrders = labData || [];
         }
@@ -834,8 +834,8 @@ const DetailedInvoiceInternal = () => {
       // Fetch radiology orders for this visit
       let radiologyOrders = [];
       if (actualVisitId) {
-        console.log('🔍 Fetching radiology for actualVisitId:', actualVisitId);
-        console.log('🔍 Query: visit_radiology WHERE visit_id =', actualVisitId);
+        console.log(' Fetching radiology for actualVisitId:', actualVisitId);
+        console.log(' Query: visit_radiology WHERE visit_id =', actualVisitId);
 
         const { data: radioData, error: radioError } = await supabase
           .from('visit_radiology')
@@ -847,18 +847,18 @@ const DetailedInvoiceInternal = () => {
           `)
           .eq('visit_id', actualVisitId);
 
-        console.log('📡 Radiology query response:', { data: radioData, error: radioError });
+        console.log(' Radiology query response:', { data: radioData, error: radioError });
 
         if (radioError) {
-          console.error('❌ Error fetching radiology orders:', radioError);
-          console.error('❌ Error details:', JSON.stringify(radioError, null, 2));
+          console.error(' Error fetching radiology orders:', radioError);
+          console.error(' Error details:', JSON.stringify(radioError, null, 2));
         } else {
           radiologyOrders = radioData || [];
-          console.log('📊 Radiology data fetched:', radiologyOrders.length, 'records');
-          console.log('📋 Radiology raw data:', JSON.stringify(radioData, null, 2));
+          console.log(' Radiology data fetched:', radiologyOrders.length, 'records');
+          console.log(' Radiology raw data:', JSON.stringify(radioData, null, 2));
 
           if (radiologyOrders.length > 0) {
-            console.log('💰 First radiology item cost details:', {
+            console.log(' First radiology item cost details:', {
               id: radiologyOrders[0].id,
               radiology_id: radiologyOrders[0].radiology_id,
               radiology_name: radiologyOrders[0].radiology?.name,
@@ -867,23 +867,23 @@ const DetailedInvoiceInternal = () => {
               quantity: radiologyOrders[0].quantity,
               visit_id: radiologyOrders[0].visit_id
             });
-            console.log('✅ All radiology items:', radiologyOrders.map(r => ({
+            console.log(' All radiology items:', radiologyOrders.map(r => ({
               name: r.radiology?.name,
               cost: r.cost,
               unit_rate: r.unit_rate,
               quantity: r.quantity
             })));
           } else {
-            console.warn('⚠️ NO RADIOLOGY RECORDS FOUND for visit_id:', actualVisitId);
-            console.warn('⚠️ This could mean:');
+            console.warn(' NO RADIOLOGY RECORDS FOUND for visit_id:', actualVisitId);
+            console.warn(' This could mean:');
             console.warn('   1. No radiology tests have been added to this visit yet');
             console.warn('   2. The tests are saved with a different visit_id');
             console.warn('   3. React Query cache is stale - try hard refresh (Ctrl+Shift+R)');
           }
         }
       } else {
-        console.error('❌ No actualVisitId available for radiology query');
-        console.error('❌ Visit object:', visit);
+        console.error(' No actualVisitId available for radiology query');
+        console.error(' Visit object:', visit);
       }
 
       // Fetch pharmacy orders for this visit
@@ -901,7 +901,7 @@ const DetailedInvoiceInternal = () => {
           .eq('visit_id', actualVisitId);
 
         if (pharmaError) {
-          console.error('❌ Error fetching pharmacy orders:', pharmaError);
+          console.error(' Error fetching pharmacy orders:', pharmaError);
         } else {
           pharmacyOrders = pharmaData || [];
         }
@@ -910,7 +910,7 @@ const DetailedInvoiceInternal = () => {
       // Fetch clinical services for this visit
       let clinicalServices = [];
       if (actualVisitId) {
-        console.log('🔍 Fetching clinical services for actualVisitId:', actualVisitId);
+        console.log(' Fetching clinical services for actualVisitId:', actualVisitId);
         const { data: clinicalData, error: clinicalError } = await supabase
           .from('visit_clinical_services')
           .select(`
@@ -931,21 +931,21 @@ const DetailedInvoiceInternal = () => {
           `)
           .eq('visit_id', actualVisitId);
 
-        console.log('📡 Clinical services response:', { data: clinicalData, error: clinicalError });
+        console.log(' Clinical services response:', { data: clinicalData, error: clinicalError });
 
         if (clinicalError) {
-          console.error('❌ Error fetching clinical services:', clinicalError);
+          console.error(' Error fetching clinical services:', clinicalError);
         } else {
           clinicalServices = clinicalData || [];
-          console.log('✅ Clinical services fetched:', clinicalServices.length, 'records');
-          console.log('📋 Clinical services data:', JSON.stringify(clinicalData, null, 2));
+          console.log(' Clinical services fetched:', clinicalServices.length, 'records');
+          console.log(' Clinical services data:', JSON.stringify(clinicalData, null, 2));
         }
       }
 
       // Fetch visit accommodations for this visit
       let accommodationOrders = [];
       if (actualVisitId) {
-        console.log('🔍 Fetching accommodations for actualVisitId:', actualVisitId);
+        console.log(' Fetching accommodations for actualVisitId:', actualVisitId);
         const { data: accommodationData, error: accommodationError } = await supabase
           .from('visit_accommodations')
           .select(`
@@ -962,21 +962,21 @@ const DetailedInvoiceInternal = () => {
           .eq('visit_id', actualVisitId)
           .order('start_date', { ascending: false });
 
-        console.log('📡 Accommodation response:', { data: accommodationData, error: accommodationError });
+        console.log(' Accommodation response:', { data: accommodationData, error: accommodationError });
 
         if (accommodationError) {
-          console.error('❌ Error fetching accommodations:', accommodationError);
+          console.error(' Error fetching accommodations:', accommodationError);
         } else {
           accommodationOrders = accommodationData || [];
-          console.log('✅ Accommodations fetched:', accommodationOrders.length, 'records');
-          console.log('📋 Accommodation data:', JSON.stringify(accommodationData, null, 2));
+          console.log(' Accommodations fetched:', accommodationOrders.length, 'records');
+          console.log(' Accommodation data:', JSON.stringify(accommodationData, null, 2));
         }
       }
 
       // Fetch surgery orders for this visit
       let surgeryOrders = [];
       if (actualVisitId) {
-        console.log('🔍 Fetching surgeries for actualVisitId:', actualVisitId);
+        console.log(' Fetching surgeries for actualVisitId:', actualVisitId);
         const { data: surgeryData, error: surgeryError } = await supabase
           .from('visit_surgeries')
           .select(`
@@ -990,59 +990,59 @@ const DetailedInvoiceInternal = () => {
           `)
           .eq('visit_id', actualVisitId);
 
-        console.log('📡 Surgery response:', { data: surgeryData, error: surgeryError });
+        console.log(' Surgery response:', { data: surgeryData, error: surgeryError });
 
         if (surgeryError) {
-          console.error('❌ Error fetching surgery orders:', surgeryError);
+          console.error(' Error fetching surgery orders:', surgeryError);
         } else {
           surgeryOrders = surgeryData || [];
-          console.log('✅ Surgeries fetched:', surgeryOrders.length, 'records');
+          console.log(' Surgeries fetched:', surgeryOrders.length, 'records');
         }
       }
 
       // Fetch anesthetist data for this visit
       let anesthetistOrders: any[] = [];
       if (actualVisitId) {
-        console.log('🔍 Fetching anesthetists for actualVisitId:', actualVisitId);
+        console.log(' Fetching anesthetists for actualVisitId:', actualVisitId);
         const { data: anesthetistData, error: anesthetistError } = await supabase
           .from('visit_anesthetists')
           .select('*')
           .eq('visit_id', actualVisitId);
 
-        console.log('📡 Anesthetist response:', { data: anesthetistData, error: anesthetistError });
+        console.log(' Anesthetist response:', { data: anesthetistData, error: anesthetistError });
 
         if (anesthetistError) {
-          console.error('❌ Error fetching anesthetists:', anesthetistError);
+          console.error(' Error fetching anesthetists:', anesthetistError);
         } else {
           anesthetistOrders = anesthetistData || [];
-          console.log('✅ Anesthetists fetched:', anesthetistOrders.length, 'records');
+          console.log(' Anesthetists fetched:', anesthetistOrders.length, 'records');
         }
       }
 
       // Fetch implants for this visit
       let implantOrders = [];
       if (actualVisitId) {
-        console.log('🔍 Fetching implants for actualVisitId:', actualVisitId);
+        console.log(' Fetching implants for actualVisitId:', actualVisitId);
         const { data: implantData, error: implantError } = await supabase
           .from('visit_implants')
           .select('*')
           .eq('visit_id', actualVisitId)
           .eq('status', 'Active');
 
-        console.log('📡 Implants response:', { data: implantData, error: implantError });
+        console.log(' Implants response:', { data: implantData, error: implantError });
 
         if (implantError) {
-          console.error('❌ Error fetching implants:', implantError);
+          console.error(' Error fetching implants:', implantError);
         } else {
           implantOrders = implantData || [];
-          console.log('✅ Implants fetched:', implantOrders.length, 'records');
+          console.log(' Implants fetched:', implantOrders.length, 'records');
         }
       }
 
       // Fetch mandatory services for this visit
       let mandatoryServices = [];
       if (actualVisitId) {
-        console.log('🔍 Fetching mandatory services for actualVisitId:', actualVisitId);
+        console.log(' Fetching mandatory services for actualVisitId:', actualVisitId);
         const { data: mandatoryData, error: mandatoryError } = await supabase
           .from('visit_mandatory_services')
           .select(`
@@ -1065,13 +1065,13 @@ const DetailedInvoiceInternal = () => {
           `)
           .eq('visit_id', actualVisitId);
 
-        console.log('📡 Mandatory services response:', { data: mandatoryData, error: mandatoryError });
+        console.log(' Mandatory services response:', { data: mandatoryData, error: mandatoryError });
 
         if (mandatoryError) {
-          console.error('❌ Error fetching mandatory services:', mandatoryError);
+          console.error(' Error fetching mandatory services:', mandatoryError);
         } else {
           mandatoryServices = mandatoryData || [];
-          console.log('✅ Mandatory services fetched:', mandatoryServices.length, 'records');
+          console.log(' Mandatory services fetched:', mandatoryServices.length, 'records');
         }
       }
 
@@ -1094,25 +1094,25 @@ const DetailedInvoiceInternal = () => {
   // Process the fetched data
   useEffect(() => {
     if (visitData?.visit) {
-      console.log('🔄 Processing visit data:', visitData);
+      console.log(' Processing visit data:', visitData);
       const visit = visitData.visit;
       const patient = visit.patients;
 
-      console.log('👤 Patient data:', patient);
-      console.log('🏥 Visit data:', visit);
-      console.log('🔬 Lab orders:', visitData.labOrders);
-      console.log('📸 Radiology orders:', visitData.radiologyOrders);
-      console.log('💊 Pharmacy orders:', visitData.pharmacyOrders);
-      console.log('🏥 Clinical services:', visitData.clinicalServices);
-      console.log('🏥 Surgery orders:', visitData.surgeryOrders);
-      console.log('💉 Anesthetist orders:', visitData.anesthetistOrders);
-      console.log('🔩 Implant orders:', visitData.implantOrders);
+      console.log(' Patient data:', patient);
+      console.log(' Visit data:', visit);
+      console.log(' Lab orders:', visitData.labOrders);
+      console.log(' Radiology orders:', visitData.radiologyOrders);
+      console.log(' Pharmacy orders:', visitData.pharmacyOrders);
+      console.log(' Clinical services:', visitData.clinicalServices);
+      console.log(' Surgery orders:', visitData.surgeryOrders);
+      console.log(' Anesthetist orders:', visitData.anesthetistOrders);
+      console.log(' Implant orders:', visitData.implantOrders);
 
       // Calculate total amount from all services
       const labTotal = visitData.labOrders.reduce((sum, order) => sum + ((order.lab?.private && order.lab.private > 0) ? order.lab.private : 100), 0);
       const radioTotal = visitData.radiologyOrders.reduce((sum, order) => {
         const cost = parseFloat(order.cost) || parseFloat(order.unit_rate) || 0;
-        console.log('🔍 Radiology order cost:', { name: order.radiology?.name, cost, raw_cost: order.cost, unit_rate: order.unit_rate });
+        console.log(' Radiology order cost:', { name: order.radiology?.name, cost, raw_cost: order.cost, unit_rate: order.unit_rate });
         return sum + cost;
       }, 0);
       const pharmaTotal = visitData.pharmacyOrders.reduce((sum, order) => sum + (order.medications?.price_per_strip || 0), 0);
@@ -1138,9 +1138,9 @@ const DetailedInvoiceInternal = () => {
       }, 0) || 0;
       const totalAmount = labTotal + radioTotal + pharmaTotal + clinicalTotal + roomTotal + surgeryTotal + implantTotal + mandatoryTotal;
 
-      console.log('💰 Calculated totals - Lab:', labTotal, 'Radio:', radioTotal, 'Pharma:', pharmaTotal, 'Clinical:', clinicalTotal, 'Room:', roomTotal, 'Surgery:', surgeryTotal, 'Implants:', implantTotal, 'Mandatory:', mandatoryTotal, 'Total:', totalAmount);
+      console.log(' Calculated totals - Lab:', labTotal, 'Radio:', radioTotal, 'Pharma:', pharmaTotal, 'Clinical:', clinicalTotal, 'Room:', roomTotal, 'Surgery:', surgeryTotal, 'Implants:', implantTotal, 'Mandatory:', mandatoryTotal, 'Total:', totalAmount);
 
-      console.log('📝 Processing patient data with fields:', {
+      console.log(' Processing patient data with fields:', {
         'visit.visit_date': visit.visit_date,
         'visit.discharge_date': visit.discharge_date,
         'visit.appointment_with': visit.appointment_with,
@@ -1149,7 +1149,7 @@ const DetailedInvoiceInternal = () => {
         'Will show as primaryConsultant': visit.appointment_with || 'N/A'
       });
 
-      console.log('🏨 Room type debug:', {
+      console.log(' Room type debug:', {
         'visit.accommodation_id': visit.accommodation_id,
         'visit.accommodations': visit.accommodations,
         'visit.accommodations?.room_type': visit.accommodations?.room_type,
@@ -1175,7 +1175,7 @@ const DetailedInvoiceInternal = () => {
         tariff: patient?.corporate || 'Private'
       };
 
-      console.log('📋 Final processed patient data:', processedData);
+      console.log(' Final processed patient data:', processedData);
       setPatientData(processedData);
     }
   }, [visitData, visitId]);
@@ -1189,7 +1189,7 @@ const DetailedInvoiceInternal = () => {
   };
 
   // Debug room charges
-  console.log('🏠 Room data:', {
+  console.log(' Room data:', {
     room_type: visitData?.visit?.room_type,
     room_days: visitData?.visit?.room_days,
     room_charges: visitData?.visit?.room_charges,
@@ -1293,7 +1293,7 @@ const DetailedInvoiceInternal = () => {
   // Convert to words
   const totalInWords = convertNumberToWords(calculatedTotal);
 
-  console.log('🎯 ServiceData radiology array:', {
+  console.log(' ServiceData radiology array:', {
     length: serviceData.radiology.length,
     items: serviceData.radiology,
     visitDataRadiologyOrders: visitData?.radiologyOrders
@@ -1519,9 +1519,9 @@ const DetailedInvoiceInternal = () => {
             <div className="bg-gray-200 border border-gray-400 border-t-0 p-1 flex justify-between items-center">
               <strong className="text-xs">LABORATORY</strong>
               <div className="flex gap-1">
-                <button onClick={() => handlePrintSectionAll('laboratory')} className="text-xs bg-green-100 px-1 hover:bg-green-200 cursor-pointer" title="Print All">📊</button>
-                <button onClick={() => handlePrintSectionSelected('laboratory')} className="text-xs bg-blue-100 px-1 hover:bg-blue-200 cursor-pointer" title="Print Selected">🖨️</button>
-                <button onClick={() => handlePrintSectionSummary('laboratory')} className="text-xs bg-red-100 px-1 hover:bg-red-200 cursor-pointer" title="Print Summary">📋</button>
+                <button onClick={() => handlePrintSectionAll('laboratory')} className="text-xs bg-green-100 px-1 hover:bg-green-200 cursor-pointer" title="Print All"></button>
+                <button onClick={() => handlePrintSectionSelected('laboratory')} className="text-xs bg-blue-100 px-1 hover:bg-blue-200 cursor-pointer" title="Print Selected"></button>
+                <button onClick={() => handlePrintSectionSummary('laboratory')} className="text-xs bg-red-100 px-1 hover:bg-red-200 cursor-pointer" title="Print Summary"></button>
               </div>
             </div>
             <table className="w-full border-collapse border border-gray-400 border-t-0 text-xs">
@@ -1557,9 +1557,9 @@ const DetailedInvoiceInternal = () => {
             <div className="bg-gray-200 border border-gray-400 border-t-0 p-1 flex justify-between items-center">
               <strong className="text-xs">RADIOLOGY</strong>
               <div className="flex gap-1">
-                <button onClick={() => handlePrintSectionAll('radiology')} className="text-xs bg-green-100 px-1 hover:bg-green-200 cursor-pointer" title="Print All">📊</button>
-                <button onClick={() => handlePrintSectionSelected('radiology')} className="text-xs bg-blue-100 px-1 hover:bg-blue-200 cursor-pointer" title="Print Selected">🖨️</button>
-                <button onClick={() => handlePrintSectionSummary('radiology')} className="text-xs bg-red-100 px-1 hover:bg-red-200 cursor-pointer" title="Print Summary">📋</button>
+                <button onClick={() => handlePrintSectionAll('radiology')} className="text-xs bg-green-100 px-1 hover:bg-green-200 cursor-pointer" title="Print All"></button>
+                <button onClick={() => handlePrintSectionSelected('radiology')} className="text-xs bg-blue-100 px-1 hover:bg-blue-200 cursor-pointer" title="Print Selected"></button>
+                <button onClick={() => handlePrintSectionSummary('radiology')} className="text-xs bg-red-100 px-1 hover:bg-red-200 cursor-pointer" title="Print Summary"></button>
               </div>
             </div>
             <table className="w-full border-collapse border border-gray-400 border-t-0 text-xs">
@@ -1595,9 +1595,9 @@ const DetailedInvoiceInternal = () => {
             <div className="bg-gray-200 border border-gray-400 border-t-0 p-1 flex justify-between items-center">
               <strong className="text-xs">SURGERY</strong>
               <div className="flex gap-1">
-                <button onClick={() => handlePrintSectionAll('surgery')} className="text-xs bg-green-100 px-1 hover:bg-green-200 cursor-pointer" title="Print All">📊</button>
-                <button onClick={() => handlePrintSectionSelected('surgery')} className="text-xs bg-blue-100 px-1 hover:bg-blue-200 cursor-pointer" title="Print Selected">🖨️</button>
-                <button onClick={() => handlePrintSectionSummary('surgery')} className="text-xs bg-red-100 px-1 hover:bg-red-200 cursor-pointer" title="Print Summary">📋</button>
+                <button onClick={() => handlePrintSectionAll('surgery')} className="text-xs bg-green-100 px-1 hover:bg-green-200 cursor-pointer" title="Print All"></button>
+                <button onClick={() => handlePrintSectionSelected('surgery')} className="text-xs bg-blue-100 px-1 hover:bg-blue-200 cursor-pointer" title="Print Selected"></button>
+                <button onClick={() => handlePrintSectionSummary('surgery')} className="text-xs bg-red-100 px-1 hover:bg-red-200 cursor-pointer" title="Print Summary"></button>
               </div>
             </div>
             <table className="w-full border-collapse border border-gray-400 border-t-0 text-xs">
@@ -1646,9 +1646,9 @@ const DetailedInvoiceInternal = () => {
             <div className="bg-gray-200 border border-gray-400 border-t-0 p-1 flex justify-between items-center">
               <strong className="text-xs">ANESTHETIST</strong>
               <div className="flex gap-1">
-                <button onClick={() => handlePrintSectionAll('anesthetist')} className="text-xs bg-green-100 px-1 hover:bg-green-200 cursor-pointer" title="Print All">📊</button>
-                <button onClick={() => handlePrintSectionSelected('anesthetist')} className="text-xs bg-blue-100 px-1 hover:bg-blue-200 cursor-pointer" title="Print Selected">🖨️</button>
-                <button onClick={() => handlePrintSectionSummary('anesthetist')} className="text-xs bg-red-100 px-1 hover:bg-red-200 cursor-pointer" title="Print Summary">📋</button>
+                <button onClick={() => handlePrintSectionAll('anesthetist')} className="text-xs bg-green-100 px-1 hover:bg-green-200 cursor-pointer" title="Print All"></button>
+                <button onClick={() => handlePrintSectionSelected('anesthetist')} className="text-xs bg-blue-100 px-1 hover:bg-blue-200 cursor-pointer" title="Print Selected"></button>
+                <button onClick={() => handlePrintSectionSummary('anesthetist')} className="text-xs bg-red-100 px-1 hover:bg-red-200 cursor-pointer" title="Print Summary"></button>
               </div>
             </div>
             <table className="w-full border-collapse border border-gray-400 border-t-0 text-xs">
@@ -1710,9 +1710,9 @@ const DetailedInvoiceInternal = () => {
               <div className="bg-gray-200 border border-gray-400 border-t-0 p-1 flex justify-between items-center">
                 <strong className="text-xs">PHARMACY</strong>
                 <div className="flex gap-1">
-                  <span className="text-xs bg-green-100 px-1">📊</span>
-                  <span className="text-xs bg-blue-100 px-1">🖨️</span>
-                  <span className="text-xs bg-red-100 px-1">📋</span>
+                  <span className="text-xs bg-green-100 px-1"></span>
+                  <span className="text-xs bg-blue-100 px-1"></span>
+                  <span className="text-xs bg-red-100 px-1"></span>
                 </div>
               </div>
               <table className="w-full border-collapse border border-gray-400 border-t-0 text-xs">

@@ -11,23 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDebounce } from 'use-debounce';
-import {
-  Search,
-  RotateCcw,
-  Package,
-  Loader2,
-  User,
-  ShoppingCart,
-  Plus,
-  Minus,
-  Trash2,
-  Receipt,
-  CreditCard,
-  DollarSign,
-  FileText,
-  ChevronDown,
-  ChevronUp
-} from 'lucide-react';
+import { BarChart3, CheckCircle, ChevronDown, ChevronUp, CreditCard, DollarSign, FileText, Loader2, Minus, Package, Plus, Receipt, RefreshCw, RotateCcw, Search, ShoppingCart, Trash2, User, XCircle } from 'lucide-react';
 
 interface SaleItem {
   id: string;
@@ -439,7 +423,7 @@ const ReturnSales: React.FC = () => {
       for (const item of returnCart) {
         if (item.can_restock && item.condition === 'GOOD') {
           try {
-            console.log(`🔄 Processing batch stock update for ${item.medicine_name}, returning ${item.quantity_to_return} units from batch ${item.batch_number}`);
+            console.log(` Processing batch stock update for ${item.medicine_name}, returning ${item.quantity_to_return} units from batch ${item.batch_number}`);
             
             // Find the batch inventory record using batch_number and medicine_id
             const { data: batchData, error: batchError } = await supabase
@@ -450,7 +434,7 @@ const ReturnSales: React.FC = () => {
               .single();
 
             if (batchError) {
-              console.error(`❌ Batch inventory lookup error for ${item.medicine_name} batch ${item.batch_number}:`, batchError);
+              console.error(` Batch inventory lookup error for ${item.medicine_name} batch ${item.batch_number}:`, batchError);
               continue;
             }
 
@@ -460,7 +444,7 @@ const ReturnSales: React.FC = () => {
               const newStock = currentStock + item.quantity_to_return;
               const newSoldQty = currentSoldQty - item.quantity_to_return;
               
-              console.log(`📊 Batch stock update: ${item.medicine_name} (${item.batch_number})`);
+              console.log(` Batch stock update: ${item.medicine_name} (${item.batch_number})`);
               console.log(`   Current stock: ${currentStock}, Adding back: ${item.quantity_to_return}, New stock: ${newStock}`);
               console.log(`   Current sold: ${currentSoldQty}, Reducing by: ${item.quantity_to_return}, New sold: ${newSoldQty}`);
               
@@ -474,13 +458,13 @@ const ReturnSales: React.FC = () => {
                 .eq('id', batchData.id);
 
               if (updateError) {
-                console.error(`❌ Batch stock update error for ${item.medicine_name}:`, updateError);
+                console.error(` Batch stock update error for ${item.medicine_name}:`, updateError);
               } else {
-                console.log(`✅ Batch stock updated successfully for ${item.medicine_name} (${item.batch_number}): ${currentStock} → ${newStock}`);
+                console.log(` Batch stock updated successfully for ${item.medicine_name} (${item.batch_number}): ${currentStock} → ${newStock}`);
               }
             }
           } catch (error) {
-            console.error(`❌ Batch stock processing error for ${item.medicine_name}:`, error);
+            console.error(` Batch stock processing error for ${item.medicine_name}:`, error);
             // Continue processing other items even if one fails
           }
         }

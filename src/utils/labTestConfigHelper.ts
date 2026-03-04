@@ -58,7 +58,7 @@ export async function saveTestConfigWithNested(
       is_active: config.is_active !== false
     };
 
-    console.log(`💾 Saving config at level ${testLevel}:`, config.sub_test_name);
+    console.log(` Saving config at level ${testLevel}:`, config.sub_test_name);
 
     // Insert the config
     const { data: savedConfig, error } = await supabase
@@ -75,11 +75,11 @@ export async function saveTestConfigWithNested(
     const currentConfigId = savedConfig.id;
     savedIds.push(currentConfigId);
 
-    console.log(`✅ Saved config "${config.sub_test_name}" with ID:`, currentConfigId);
+    console.log(` Saved config "${config.sub_test_name}" with ID:`, currentConfigId);
 
     // Recursively save nested configs
     if (config.nested_configs && config.nested_configs.length > 0) {
-      console.log(`📂 Saving ${config.nested_configs.length} nested configs for "${config.sub_test_name}"`);
+      console.log(` Saving ${config.nested_configs.length} nested configs for "${config.sub_test_name}"`);
 
       for (let i = 0; i < config.nested_configs.length; i++) {
         const nestedConfig = config.nested_configs[i];

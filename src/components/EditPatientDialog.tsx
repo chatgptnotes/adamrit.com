@@ -15,6 +15,7 @@ import { MedicalDataForm } from './MedicalDataForm';
 import { EnhancedDatePicker } from '@/components/ui/enhanced-date-picker';
 import { Patient } from '@/types/patient';
 import { saveVisitMedicalData, getVisitMedicalData, MedicalJunctionData } from '@/utils/medicalJunctionHelpers';
+import { CheckCircle, Rocket, Search, XCircle } from 'lucide-react'
 
 interface EditPatientDialogProps {
   isOpen: boolean;
@@ -73,7 +74,7 @@ export const EditPatientDialog: React.FC<EditPatientDialogProps> = ({
       const patientUuid = patient.patientUuid || patient.id;
       if (!patientUuid) return [];
       
-      console.log('🔍 EditPatientDialog fetching visits for patient UUID:', patientUuid);
+      console.log(' EditPatientDialog fetching visits for patient UUID:', patientUuid);
       
       const { data, error } = await supabase
         .from('visits')
@@ -89,7 +90,7 @@ export const EditPatientDialog: React.FC<EditPatientDialogProps> = ({
         return [];
       }
       
-      console.log('✅ EditPatientDialog found visits:', data?.length || 0);
+      console.log(' EditPatientDialog found visits:', data?.length || 0);
       return data || [];
     },
     enabled: isOpen && !!(patient.patientUuid || patient.id)
@@ -175,11 +176,11 @@ export const EditPatientDialog: React.FC<EditPatientDialogProps> = ({
   // Unified save mutation that handles all data types
   const saveAllChangesMutation = useMutation({
     mutationFn: async () => {
-      console.log('🚀 Starting save mutation...');
-      console.log('🔍 Current formData:', formData);
-      console.log('🔍 Current patient:', patient);
-      console.log('🔍 Patient ID:', patient.id);
-      console.log('🔍 Patient UUID:', patient.patientUuid);
+      console.log(' Starting save mutation...');
+      console.log(' Current formData:', formData);
+      console.log(' Current patient:', patient);
+      console.log(' Patient ID:', patient.id);
+      console.log(' Patient UUID:', patient.patientUuid);
       
       const results = {
         patient: null as any,
@@ -197,12 +198,12 @@ export const EditPatientDialog: React.FC<EditPatientDialogProps> = ({
       
       // Final validation - make sure we have a valid UUID
       if (!patientUuidForSave) {
-        console.error('❌ CRITICAL ERROR: No valid patient UUID found!');
+        console.error(' CRITICAL ERROR: No valid patient UUID found!');
         console.error('Patient object:', patient);
         throw new Error('Cannot update patient: No valid patient UUID found. Please refresh and try again.');
       }
       
-      console.log('✅ Extracted patient UUID for update:', patientUuidForSave);
+      console.log(' Extracted patient UUID for update:', patientUuidForSave);
       
       // 1. Update patient basic information
       const patientUpdateData = {

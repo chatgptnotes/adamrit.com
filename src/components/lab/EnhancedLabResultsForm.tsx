@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, FileUp, Save, Eye, Printer, Download, ArrowLeft, Plus, List } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, BarChart3, Calculator, CheckCircle, Circle, ClipboardList, Download, Eye, FileText, FileUp, Flag, Hash, List, Loader2, MapPin, Package, Plus, Printer, RefreshCw, Ruler, Save, Search, Trash2, Wrench, XCircle } from 'lucide-react';
 import { useLabTestConfig, TestResult } from '@/hooks/useLabTestConfig';
 
 interface Patient {
@@ -111,13 +111,13 @@ const EnhancedLabResultsForm: React.FC<EnhancedLabResultsFormProps> = ({
   }, [selectedTest, fetchSubTestsForTest, debugTestData]);
 
   useEffect(() => {
-    console.log('📦 SubTests updated:', subTests.length, 'tests');
-    console.log('🔍 Checking for formulas:');
+    console.log(' SubTests updated:', subTests.length, 'tests');
+    console.log(' Checking for formulas:');
     subTests.forEach((st, idx) => {
       if (st.formula) {
-        console.log(`  ${idx}. ✅ "${st.sub_test_name}" has formula: ${st.formula}`);
+        console.log(`  ${idx}.  "${st.sub_test_name}" has formula: ${st.formula}`);
       } else {
-        console.log(`  ${idx}. ⚪ "${st.sub_test_name}" - no formula`);
+        console.log(`  ${idx}.  "${st.sub_test_name}" - no formula`);
       }
     });
 
@@ -139,7 +139,7 @@ const EnhancedLabResultsForm: React.FC<EnhancedLabResultsFormProps> = ({
 
       // Add nested sub-tests if they exist
       if (subTest.nested_sub_tests && subTest.nested_sub_tests.length > 0) {
-        console.log(`  📦 Adding ${subTest.nested_sub_tests.length} nested sub-tests for ${subTest.sub_test_name}`);
+        console.log(`   Adding ${subTest.nested_sub_tests.length} nested sub-tests for ${subTest.sub_test_name}`);
         subTest.nested_sub_tests.forEach((nested, idx) => {
           results.push({
             subTestId: `${subTest.id}_nested_${idx}`,
@@ -157,7 +157,7 @@ const EnhancedLabResultsForm: React.FC<EnhancedLabResultsFormProps> = ({
     });
 
     console.log('Generated test results with nested:', results);
-    console.log('🔍 SubTests with formulas:', subTests.filter(st => st.formula).map(st => ({
+    console.log(' SubTests with formulas:', subTests.filter(st => st.formula).map(st => ({
       name: st.sub_test_name,
       formula: st.formula
     })));
@@ -166,11 +166,11 @@ const EnhancedLabResultsForm: React.FC<EnhancedLabResultsFormProps> = ({
 
   // Function to calculate formula-based values
   const calculateFormulaValues = (updatedResults: TestResult[]) => {
-    console.log('🧮 Starting formula calculations...');
-    console.log('📋 Test Results:', updatedResults.map(r => ({ name: r.subTestName, value: r.observedValue })));
+    console.log(' Starting formula calculations...');
+    console.log(' Test Results:', updatedResults.map(r => ({ name: r.subTestName, value: r.observedValue })));
 
     // DEBUG: Check if _subTestData exists
-    console.log('🔍 Checking _subTestData in results:');
+    console.log(' Checking _subTestData in results:');
     updatedResults.forEach((r, idx) => {
       const subTestData = (r as any)._subTestData;
       console.log(`  ${idx}. "${r.subTestName}" - has _subTestData:`, !!subTestData, 'has formula:', !!subTestData?.formula);
@@ -185,13 +185,13 @@ const EnhancedLabResultsForm: React.FC<EnhancedLabResultsFormProps> = ({
       return subTestData && subTestData.formula;
     });
 
-    console.log('📋 Results with formulas:', resultsWithFormulas.map(r => {
+    console.log(' Results with formulas:', resultsWithFormulas.map(r => {
       const subTestData = (r as any)._subTestData;
       return { name: r.subTestName, formula: subTestData?.formula };
     }));
 
     if (resultsWithFormulas.length === 0) {
-      console.warn('⚠️ NO FORMULAS FOUND! Calculation skipped.');
+      console.warn(' NO FORMULAS FOUND! Calculation skipped.');
       return updatedResults;
     }
 
@@ -203,7 +203,7 @@ const EnhancedLabResultsForm: React.FC<EnhancedLabResultsFormProps> = ({
     while (changesMade && iterations < maxIterations) {
       changesMade = false;
       iterations++;
-      console.log(`\n🔄 Formula calculation pass ${iterations}...`);
+      console.log(`\n Formula calculation pass ${iterations}...`);
 
       // Create a map of test name to value AND index for easy lookup
       // Rebuild each iteration to pick up newly calculated values
@@ -217,27 +217,27 @@ const EnhancedLabResultsForm: React.FC<EnhancedLabResultsFormProps> = ({
           valueMap.set(cleanName, { value: numValue, index: resultIndex });
           valueMap.set(cleanName.toLowerCase(), { value: numValue, index: resultIndex });
           if (iterations === 1) {
-            console.log(`  📍 Stored value for "${cleanName}" (index ${resultIndex}): ${numValue}`);
+            console.log(`   Stored value for "${cleanName}" (index ${resultIndex}): ${numValue}`);
           }
         } else if (result.observedValue === '' || result.observedValue.trim() === '') {
           // Empty value - mark as null for deletion detection
           valueMap.set(cleanName, { value: null, index: resultIndex });
           valueMap.set(cleanName.toLowerCase(), { value: null, index: resultIndex });
           if (iterations === 1) {
-            console.log(`  🗑️ Empty value for "${cleanName}" (index ${resultIndex})`);
+            console.log(`   Empty value for "${cleanName}" (index ${resultIndex})`);
           }
         }
       });
 
       if (iterations === 1) {
-        console.log('📊 Value map:', Object.fromEntries(valueMap));
+        console.log(' Value map:', Object.fromEntries(valueMap));
       }
 
       // Check each result with formula
       resultsWithFormulas.forEach((resultWithFormula) => {
       const subTestData = (resultWithFormula as any)._subTestData;
       if (subTestData && subTestData.formula && subTestData.formula.trim()) {
-        console.log(`\n📐 Processing formula for "${subTestData.sub_test_name}":`);
+        console.log(`\n Processing formula for "${subTestData.sub_test_name}":`);
         console.log(`   Formula: ${subTestData.formula}`);
         let formula = subTestData.formula;
         let originalFormula = formula;
@@ -268,40 +268,40 @@ const EnhancedLabResultsForm: React.FC<EnhancedLabResultsFormProps> = ({
           const matches = formula.match(regex);
           if (matches) {
             // This test name is in the formula
-            console.log(`  🔍 Found "${testName}" in formula (value: ${value})`);
+            console.log(`   Found "${testName}" in formula (value: ${value})`);
             if (value === null) {
               // Dependency is empty/deleted
-              console.log(`  🗑️ "${testName}" is EMPTY - will clear calculated value`);
+              console.log(`   "${testName}" is EMPTY - will clear calculated value`);
               hasNullDependency = true;
             } else if (value !== undefined && value !== null) {
               // Valid value found
-              console.log(`  ✅ Replacing "${testName}" with ${value}`);
-              console.log(`  🔧 BEFORE: ${formula}`);
+              console.log(`   Replacing "${testName}" with ${value}`);
+              console.log(`   BEFORE: ${formula}`);
               formula = formula.replace(regex, value.toString());
-              console.log(`  🔧 AFTER: ${formula}`);
+              console.log(`   AFTER: ${formula}`);
               replacements++;
             } else {
               // Value not entered yet
-              console.log(`  ⚠️ "${testName}" - value not entered yet`);
+              console.log(`   "${testName}" - value not entered yet`);
               hasAllValues = false;
             }
           }
         });
 
-        console.log(`  📝 Replacements made: ${replacements}`);
-        console.log(`  📝 Formula after replacements: ${formula}`);
-        console.log(`  📝 Has null dependency: ${hasNullDependency}`);
+        console.log(`   Replacements made: ${replacements}`);
+        console.log(`   Formula after replacements: ${formula}`);
+        console.log(`   Has null dependency: ${hasNullDependency}`);
 
         // Find the correct index in updatedResults for this sub-test
         const targetIndex = updatedResults.findIndex(r =>
           r.subTestName.trim().toLowerCase() === subTestData.sub_test_name.trim().toLowerCase()
         );
 
-        console.log(`  📍 Target index for "${subTestData.sub_test_name}": ${targetIndex}`);
+        console.log(`   Target index for "${subTestData.sub_test_name}": ${targetIndex}`);
 
         // If any dependency is null/deleted, clear the calculated value
         if (hasNullDependency && targetIndex >= 0) {
-          console.log(`  🗑️ Clearing calculated value for "${subTestData.sub_test_name}"`);
+          console.log(`   Clearing calculated value for "${subTestData.sub_test_name}"`);
           updatedResults[targetIndex].observedValue = '';
           return; // Skip to next formula
         }
@@ -309,7 +309,7 @@ const EnhancedLabResultsForm: React.FC<EnhancedLabResultsFormProps> = ({
         // Check if formula still contains any test names (letters except scientific notation)
         const hasUnresolvedNames = /[a-zA-Z]/.test(formula.replace(/[eE][+-]?[0-9]+/g, '').replace(/[^a-zA-Z0-9+\-*/().\s]/g, ''));
         if (hasUnresolvedNames) {
-          console.log(`  ⚠️ Formula still has unresolved names: ${formula}`);
+          console.log(`   Formula still has unresolved names: ${formula}`);
           hasAllValues = false;
         }
 
@@ -318,7 +318,7 @@ const EnhancedLabResultsForm: React.FC<EnhancedLabResultsFormProps> = ({
           try {
             // Safe evaluation (only allow numbers and basic operators)
             const sanitizedFormula = formula.replace(/[^0-9+\-*/().\s]/g, '');
-            console.log(`  🔢 Sanitized formula: ${sanitizedFormula}`);
+            console.log(`   Sanitized formula: ${sanitizedFormula}`);
 
             if (sanitizedFormula.trim()) {
               // Use Function constructor for safe evaluation
@@ -328,34 +328,34 @@ const EnhancedLabResultsForm: React.FC<EnhancedLabResultsFormProps> = ({
                 const calculatedValue = result.toFixed(2);
                 const previousValue = updatedResults[targetIndex].observedValue;
                 if (previousValue !== calculatedValue) {
-                  console.log(`  ✅ Formula calculated: ${originalFormula} = ${calculatedValue}`);
-                  console.log(`  ✅ Updating result at index ${targetIndex} (was: ${previousValue})`);
+                  console.log(`   Formula calculated: ${originalFormula} = ${calculatedValue}`);
+                  console.log(`   Updating result at index ${targetIndex} (was: ${previousValue})`);
                   updatedResults[targetIndex].observedValue = calculatedValue;
                   changesMade = true; // Trigger another pass for chain calculations
                 }
               } else {
-                console.log(`  ❌ Invalid calculation result: ${result}`);
+                console.log(`   Invalid calculation result: ${result}`);
               }
             }
           } catch (error) {
-            console.error(`  ❌ Error calculating formula for ${subTestData.sub_test_name}:`, error);
+            console.error(`   Error calculating formula for ${subTestData.sub_test_name}:`, error);
           }
         } else if (replacements === 0) {
-          console.log(`  ⏸️ No replacements made - formula dependencies not entered yet`);
+          console.log(`  ⏸ No replacements made - formula dependencies not entered yet`);
         } else {
-          console.log(`  ⏸️ Skipping calculation - not all values available`);
+          console.log(`  ⏸ Skipping calculation - not all values available`);
         }
       }
     });
 
     } // End while loop
 
-    console.log(`🏁 Formula calculations complete after ${iterations} pass(es)\n`);
+    console.log(` Formula calculations complete after ${iterations} pass(es)\n`);
     return updatedResults;
   };
 
   const handleValueChange = (index: number, value: string) => {
-    console.log(`\n🔄 VALUE CHANGE TRIGGERED for index ${index}:`);
+    console.log(`\n VALUE CHANGE TRIGGERED for index ${index}:`);
     console.log(`   Test: ${testResults[index]?.subTestName}`);
     console.log(`   New Value: ${value}`);
     console.log(`   Has _subTestData:`, !!(testResults[index] as any)._subTestData);
@@ -370,7 +370,7 @@ const EnhancedLabResultsForm: React.FC<EnhancedLabResultsFormProps> = ({
       updatedResults[index].status = status;
     }
 
-    console.log('📊 Current test results before calculation:');
+    console.log(' Current test results before calculation:');
     updatedResults.forEach((r, i) => {
       if (r.observedValue) {
         console.log(`   ${i}. ${r.subTestName}: ${r.observedValue}`);
@@ -378,10 +378,10 @@ const EnhancedLabResultsForm: React.FC<EnhancedLabResultsFormProps> = ({
     });
 
     // Auto-calculate formula-based fields
-    console.log('🔄 Triggering formula calculation...');
+    console.log(' Triggering formula calculation...');
     updatedResults = calculateFormulaValues(updatedResults);
 
-    console.log('📊 Test results after calculation:');
+    console.log(' Test results after calculation:');
     updatedResults.forEach((r, i) => {
       if (r.observedValue) {
         console.log(`   ${i}. ${r.subTestName}: ${r.observedValue}`);
@@ -411,7 +411,7 @@ const EnhancedLabResultsForm: React.FC<EnhancedLabResultsFormProps> = ({
 
   // Manual trigger for formula calculations
   const handleRecalculate = () => {
-    console.log('🔄 Manual recalculation triggered');
+    console.log(' Manual recalculation triggered');
     const updatedResults = calculateFormulaValues([...testResults]);
     setTestResults(updatedResults);
   };

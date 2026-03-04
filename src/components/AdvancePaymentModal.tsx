@@ -11,7 +11,7 @@ import { EnhancedDatePicker } from '@/components/ui/enhanced-date-picker';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { Printer } from 'lucide-react';
+import { AlertTriangle, Check, CheckCircle, ClipboardList, CreditCard, DollarSign, FileText, Printer, Save, Search, User, Wrench, XCircle } from 'lucide-react';
 
 interface AdvancePaymentModalProps {
   isOpen: boolean;
@@ -169,20 +169,20 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
           .order('account_name');
 
         if (error) {
-          console.error('❌ Error fetching bank accounts:', error);
+          console.error(' Error fetching bank accounts:', error);
           // Fallback to hardcoded banks if database query fails
           const fallbackBanks = [
             { id: '1', account_name: 'Canara Bank [A/C120023677813)JARIPATHKA ]', account_code: '1123' },
             { id: '2', account_name: 'SARASWAT BANK', account_code: '1122' },
             { id: '3', account_name: 'STATE BANK OF INDIA (DRM)', account_code: '1121' }
           ];
-          console.log('⚠️ Using fallback hardcoded banks');
+          console.log(' Using fallback hardcoded banks');
           setBankAccounts(fallbackBanks);
           return;
         }
 
-        console.log('✅ Fetched bank accounts from database:', data);
-        console.log('✅ Number of banks fetched:', data?.length || 0);
+        console.log(' Fetched bank accounts from database:', data);
+        console.log(' Number of banks fetched:', data?.length || 0);
 
         // If no banks found in database, use fallback
         if (!data || data.length === 0) {
@@ -191,20 +191,20 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
             { id: '2', account_name: 'SARASWAT BANK', account_code: '1122' },
             { id: '3', account_name: 'STATE BANK OF INDIA (DRM)', account_code: '1121' }
           ];
-          console.log('⚠️ No banks in database, using fallback hardcoded banks');
+          console.log(' No banks in database, using fallback hardcoded banks');
           setBankAccounts(fallbackBanks);
         } else {
           setBankAccounts(data);
         }
       } catch (error) {
-        console.error('❌ Exception fetching bank accounts:', error);
+        console.error(' Exception fetching bank accounts:', error);
         // Fallback to hardcoded banks on exception
         const fallbackBanks = [
           { id: '1', account_name: 'Canara Bank [A/C120023677813)JARIPATHKA ]', account_code: '1123' },
           { id: '2', account_name: 'SARASWAT BANK', account_code: '1122' },
           { id: '3', account_name: 'STATE BANK OF INDIA (DRM)', account_code: '1121' }
         ];
-        console.log('⚠️ Exception occurred, using fallback hardcoded banks');
+        console.log(' Exception occurred, using fallback hardcoded banks');
         setBankAccounts(fallbackBanks);
       }
     };
@@ -219,8 +219,8 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
     try {
       if (patientData) {
         // Use provided patient data
-        console.log('✅ Using provided patient data:', patientData);
-        console.log('🔍 PatientData details:', {
+        console.log(' Using provided patient data:', patientData);
+        console.log(' PatientData details:', {
           name: patientData.name,
           billNo: patientData.billNo,
           registrationNo: patientData.registrationNo,
@@ -235,12 +235,12 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
           dateOfAdmission: patientData.dateOfAdmission || 'N/A'
         };
         
-        console.log('🔧 Setting safe patient info:', safePatientInfo);
+        console.log(' Setting safe patient info:', safePatientInfo);
         setPatientInfo(safePatientInfo);
         
         // If registration number is missing, try to fetch it directly from patients table
         if ((!patientData.registrationNo || patientData.registrationNo === 'N/A') && patientId && isValidUUID(patientId)) {
-          console.log('🔍 Registration number missing, fetching directly...');
+          console.log(' Registration number missing, fetching directly...');
           fetchRegistrationNumber(patientId);
         }
         
@@ -248,19 +248,19 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
         if (patientId && isValidUUID(patientId)) {
           fetchPaymentHistory(patientId);
         } else {
-          console.log('⚠️ Invalid or missing patient ID, skipping payment history fetch');
+          console.log(' Invalid or missing patient ID, skipping payment history fetch');
           setPaymentHistory([]);
           setReturnedAmount(0);
         }
       } else if (visitId) {
         // Fallback to fetching patient data
-        console.log('🔍 No patient data provided, fetching from database');
+        console.log(' No patient data provided, fetching from database');
         fetchPatientInfo();
       } else {
-        console.log('⚠️ No visitId or patientData provided');
+        console.log(' No visitId or patientData provided');
       }
     } catch (error) {
-      console.error('❌ Error in useEffect:', error);
+      console.error(' Error in useEffect:', error);
       // Set default values on error
       setPatientInfo({
         name: 'N/A',
@@ -274,11 +274,11 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
   const fetchRegistrationNumber = async (patientId: string) => {
     try {
       if (!patientId || !isValidUUID(patientId)) {
-        console.log('⚠️ Invalid patient ID provided for registration lookup:', patientId);
+        console.log(' Invalid patient ID provided for registration lookup:', patientId);
         return;
       }
 
-      console.log('🔍 Fetching registration number for patient:', patientId);
+      console.log(' Fetching registration number for patient:', patientId);
       
       const { data: patientData, error } = await supabase
         .from('patients')
@@ -286,24 +286,24 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
         .eq('id', patientId)
         .single();
 
-      console.log('📋 Registration number query result:', { patientData, error });
+      console.log(' Registration number query result:', { patientData, error });
 
       if (error) {
-        console.error('❌ Database error fetching registration number:', error);
+        console.error(' Database error fetching registration number:', error);
         return;
       }
 
       if (patientData?.patients_id) {
-        console.log('✅ Found registration number:', patientData.patients_id);
+        console.log(' Found registration number:', patientData.patients_id);
         setPatientInfo(prev => ({
           ...prev,
           registrationNo: patientData.patients_id
         }));
       } else {
-        console.log('📝 No registration number found in database');
+        console.log(' No registration number found in database');
       }
     } catch (error) {
-      console.error('❌ Exception in fetchRegistrationNumber:', error);
+      console.error(' Exception in fetchRegistrationNumber:', error);
     }
   };
 
@@ -312,13 +312,13 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
       // Use passed patientId or the one from props
       const currentPatientId = fetchedPatientId || patientId;
       if (!currentPatientId || !isValidUUID(currentPatientId)) {
-        console.log('⚠️ No valid patient ID available for payment history:', currentPatientId);
+        console.log(' No valid patient ID available for payment history:', currentPatientId);
         setPaymentHistory([]);
         setReturnedAmount(0);
         return;
       }
 
-      console.log('💳 Fetching payment history for patient:', currentPatientId);
+      console.log(' Fetching payment history for patient:', currentPatientId);
       setIsLoading(true);
       
       const { data, error } = await supabase
@@ -327,18 +327,18 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
         .eq('patient_id', currentPatientId)
         .order('payment_date', { ascending: false });
 
-      console.log('💳 Payment history query result:', { 
+      console.log(' Payment history query result:', { 
         data: data ? data.slice(0, 3) : null, // Only show first 3 for logging
         error, 
         totalCount: data?.length || 0 
       });
 
       if (error) {
-        console.error('❌ Database error fetching payment history:', error);
+        console.error(' Database error fetching payment history:', error);
         
         // Handle specific database errors gracefully
         if (error.message?.includes('relation') && error.message?.includes('does not exist')) {
-          console.log('📝 advance_payment table not found, this is expected if migration not applied yet');
+          console.log(' advance_payment table not found, this is expected if migration not applied yet');
           setPaymentHistory([]);
           setReturnedAmount(0);
           return; // Don't show error toast for this case
@@ -372,14 +372,14 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
             }
           }, 0);
         
-        console.log('💳 Total refunds calculated:', totalRefunds);
+        console.log(' Total refunds calculated:', totalRefunds);
         setReturnedAmount(totalRefunds);
       } catch (refundError) {
-        console.error('❌ Error calculating refunds:', refundError);
+        console.error(' Error calculating refunds:', refundError);
         setReturnedAmount(0);
       }
     } catch (error) {
-      console.error('❌ Exception in fetchPaymentHistory:', error);
+      console.error(' Exception in fetchPaymentHistory:', error);
       toast.error('Failed to fetch payment history');
       setPaymentHistory([]);
       setReturnedAmount(0);
@@ -394,7 +394,7 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
       return;
     }
 
-    console.log('🔍 Fetching patient info for visit:', visitId);
+    console.log(' Fetching patient info for visit:', visitId);
 
     try {
       // First, get visit data
@@ -410,16 +410,16 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
         .eq('visit_id', visitId)
         .single();
 
-      console.log('📋 Visit data query result:', { visitData, visitError });
+      console.log(' Visit data query result:', { visitData, visitError });
 
       if (visitError) {
-        console.error('❌ Error fetching visit info:', visitError);
+        console.error(' Error fetching visit info:', visitError);
         toast.error('Failed to fetch visit information');
         return;
       }
 
       if (!visitData) {
-        console.error('❌ No visit data found');
+        console.error(' No visit data found');
         return;
       }
 
@@ -430,7 +430,7 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
         .eq('id', visitData.patient_id)
         .single();
 
-      console.log('👤 Patient data query result:', { patientData, patientError });
+      console.log(' Patient data query result:', { patientData, patientError });
 
       // Fetch bill information separately
       let billNo = 'N/A';
@@ -440,7 +440,7 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
         .eq('visit_id', visitData.id)
         .single();
 
-      console.log('💰 Bill data query result:', { billData, billError });
+      console.log(' Bill data query result:', { billData, billError });
       
       if (billData && !billError) {
         billNo = billData.bill_no || 'N/A';
@@ -458,7 +458,7 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
           : 'N/A'
       };
 
-      console.log('✅ Setting patient info:', patientInfo);
+      console.log(' Setting patient info:', patientInfo);
       setPatientInfo(patientInfo);
 
       // Also fetch payment history with the patient_id we just got
@@ -467,7 +467,7 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
       }
 
     } catch (error) {
-      console.error('❌ Error in fetchPatientInfo:', error);
+      console.error(' Error in fetchPatientInfo:', error);
       toast.error('Failed to fetch patient information');
     }
   };
@@ -504,7 +504,7 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
 
     if (!patientId || !isValidUUID(patientId)) {
       toast.error('Invalid patient ID');
-      console.error('❌ Invalid patient ID:', patientId);
+      console.error(' Invalid patient ID:', patientId);
       return;
     }
 
@@ -543,7 +543,7 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
         created_by: 'current_user' // You can replace this with actual user info
       };
 
-      console.log('💾 Saving advance payment:', advancePaymentData);
+      console.log(' Saving advance payment:', advancePaymentData);
 
       const { data, error } = await supabase
         .from('advance_payment')
@@ -552,7 +552,7 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
         .single();
 
       if (error) {
-        console.error('❌ Error saving advance payment:', error);
+        console.error(' Error saving advance payment:', error);
         
         // Check if it's a table doesn't exist error
         if (error.message?.includes('relation') && error.message?.includes('does not exist')) {
@@ -565,7 +565,7 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
         return;
       }
 
-      console.log('✅ Advance payment saved successfully:', data);
+      console.log(' Advance payment saved successfully:', data);
       toast.success('Advance payment saved successfully');
 
       // Reset form
@@ -588,7 +588,7 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
       onPaymentAdded?.();
       
     } catch (error) {
-      console.error('❌ Exception saving advance payment:', error);
+      console.error(' Exception saving advance payment:', error);
       toast.error('Failed to save advance payment');
     } finally {
       setIsSaving(false);
@@ -1052,7 +1052,7 @@ export const AdvancePaymentModal: React.FC<AdvancePaymentModalProps> = ({
                 />
                 {formData.paymentMode === 'ONLINE' && formData.selectedBank && (
                   <div className="text-xs text-green-600 bg-green-50 p-2 rounded border border-green-200">
-                    ✓ Selected bank will be included in the payment receipt
+                     Selected bank will be included in the payment receipt
                   </div>
                 )}
               </div>

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Printer } from 'lucide-react';
+import { Printer, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 
@@ -311,7 +311,7 @@ export const TreatmentSheetForm: React.FC<TreatmentSheetFormProps> = ({ visitId,
                   <input type="checkbox" checked={row.administered} onChange={e => handleRowChange(idx, 'administered', e.target.checked)} />
                 </td>
                 <td className="px-2 py-1 text-center print:hidden">
-                  <button className="text-red-500 font-bold" onClick={() => removeRow(idx)} title="Remove Row">✖</button>
+                  <button className="text-red-500 font-bold" onClick={() => removeRow(idx)} title="Remove Row"></button>
                 </td>
               </tr>
             ))}

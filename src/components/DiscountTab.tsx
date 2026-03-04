@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { AlertTriangle, CheckCircle, FileText, Flame, Search, XCircle } from 'lucide-react'
 
 interface DiscountTabProps {
   visitId?: string;
@@ -29,13 +30,13 @@ export const DiscountTab: React.FC<DiscountTabProps> = ({
   useEffect(() => {
     const loadDiscountData = async () => {
       if (!visitId) {
-        console.log('⚠️ [DISCOUNT LOAD] No visitId provided');
+        console.log(' [DISCOUNT LOAD] No visitId provided');
         return;
       }
 
       setIsLoading(true);
       try {
-        console.log('🔍 [DISCOUNT LOAD] Loading discount data for visitId:', visitId);
+        console.log(' [DISCOUNT LOAD] Loading discount data for visitId:', visitId);
 
         // Convert visitId (string) to visit UUID
         const { data: visitData, error: visitError } = await supabase
@@ -45,17 +46,17 @@ export const DiscountTab: React.FC<DiscountTabProps> = ({
           .single();
 
         if (visitError) {
-          console.error('❌ [DISCOUNT LOAD] Error finding visit UUID:', visitError);
+          console.error(' [DISCOUNT LOAD] Error finding visit UUID:', visitError);
           toast.error('Error finding visit record for discount loading');
           return;
         }
 
         if (!visitData) {
-          console.log('⚠️ [DISCOUNT LOAD] No visit found for visitId:', visitId);
+          console.log(' [DISCOUNT LOAD] No visit found for visitId:', visitId);
           return;
         }
 
-        console.log('✅ [DISCOUNT LOAD] Found visit UUID:', visitData.id);
+        console.log(' [DISCOUNT LOAD] Found visit UUID:', visitData.id);
 
         // Load discount data using visit UUID
         const { data: discountData, error: discountError } = await supabase
@@ -65,13 +66,13 @@ export const DiscountTab: React.FC<DiscountTabProps> = ({
           .single();
 
         if (discountError && discountError.code !== 'PGRST116') {
-          console.error('❌ [DISCOUNT LOAD] Error loading discount data:', discountError);
+          console.error(' [DISCOUNT LOAD] Error loading discount data:', discountError);
           toast.error('Error loading discount data');
           return;
         }
 
         if (discountData) {
-          console.log('✅ [DISCOUNT LOAD] Found existing discount:', discountData);
+          console.log(' [DISCOUNT LOAD] Found existing discount:', discountData);
           setDiscountData({
             id: discountData.id,
             discount_amount: discountData.discount_amount || 0,
@@ -83,10 +84,10 @@ export const DiscountTab: React.FC<DiscountTabProps> = ({
             onDiscountUpdate(discountData.discount_amount || 0);
           }
         } else {
-          console.log('📝 [DISCOUNT LOAD] No existing discount found');
+          console.log(' [DISCOUNT LOAD] No existing discount found');
         }
       } catch (error) {
-        console.error('❌ [DISCOUNT LOAD] Exception:', error);
+        console.error(' [DISCOUNT LOAD] Exception:', error);
         toast.error('Failed to load discount data');
       } finally {
         setIsLoading(false);
@@ -151,13 +152,13 @@ export const DiscountTab: React.FC<DiscountTabProps> = ({
       }));
 
       // Notify parent component about discount update
-      console.log('🔥 [DISCOUNT SAVE] About to call onDiscountUpdate with amount:', discountData.discount_amount);
+      console.log(' [DISCOUNT SAVE] About to call onDiscountUpdate with amount:', discountData.discount_amount);
       if (onDiscountUpdate) {
-        console.log('🔥 [DISCOUNT SAVE] Calling onDiscountUpdate callback...');
+        console.log(' [DISCOUNT SAVE] Calling onDiscountUpdate callback...');
         onDiscountUpdate(discountData.discount_amount);
-        console.log('🔥 [DISCOUNT SAVE] onDiscountUpdate callback completed');
+        console.log(' [DISCOUNT SAVE] onDiscountUpdate callback completed');
       } else {
-        console.error('❌ [DISCOUNT SAVE] onDiscountUpdate callback not available!');
+        console.error(' [DISCOUNT SAVE] onDiscountUpdate callback not available!');
       }
 
       toast.success('Discount saved successfully!');

@@ -39,7 +39,7 @@ export const useCounts = () => {
           .select('*', { count: 'exact', head: true })
           .eq('hospital_name', hospitalConfig.name);
         
-        console.log('🏥 Counting patients for hospital:', hospitalConfig.name);
+        console.log(' Counting patients for hospital:', hospitalConfig.name);
         
         const { count, error } = await countQuery;
         

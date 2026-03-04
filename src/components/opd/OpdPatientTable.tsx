@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { X, Check, Eye, FileText, UserCheck, Trash2, DollarSign, MessageSquare, FileTextIcon, Activity, ClipboardEdit, Circle, Loader2 } from 'lucide-react';
+import { Activity, AlertTriangle, BarChart3, Bell, Check, CheckCircle, Circle, ClipboardEdit, ClipboardList, Diamond, DollarSign, Eye, File, FileText, FileTextIcon, FlaskConical, Link, Loader2, MessageSquare, Microscope, RefreshCw, Search, Trash2, User, UserCheck, X, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { VisitRegistrationForm } from '@/components/VisitRegistrationForm';
 import { supabase } from '@/integrations/supabase/client';
@@ -379,7 +379,7 @@ export const OpdPatientTable = ({ patients, refetch, isMarketingManager = false 
 
   // Comment handlers
   const handleCommentClick = (patient: Patient) => {
-    console.log('🔔 Comment icon clicked for patient:', {
+    console.log(' Comment icon clicked for patient:', {
       id: patient.id,
       visit_id: patient.visit_id,
       patient_name: patient.patients?.name,
@@ -389,7 +389,7 @@ export const OpdPatientTable = ({ patients, refetch, isMarketingManager = false 
     });
 
     const existingComment = patient.comments || '';
-    console.log('📄 Loading comment into textarea:', existingComment);
+    console.log(' Loading comment into textarea:', existingComment);
 
     // Load existing comment if any
     setCommentTexts(prev => ({
@@ -409,7 +409,7 @@ export const OpdPatientTable = ({ patients, refetch, isMarketingManager = false 
       [patient.id]: true
     }));
 
-    console.log('✅ Comment dialog opened with text:', existingComment);
+    console.log(' Comment dialog opened with text:', existingComment);
   };
 
   const handleCommentChange = (visitId: string, text: string) => {
@@ -430,7 +430,7 @@ export const OpdPatientTable = ({ patients, refetch, isMarketingManager = false 
       const hasChanged = text !== originalText;
 
       if (commentDialogs[visitId] && text !== undefined && hasChanged) {
-        console.log('🔄 Attempting to save comment for visit:', visitId, 'Text:', text, 'Original:', originalText);
+        console.log(' Attempting to save comment for visit:', visitId, 'Text:', text, 'Original:', originalText);
         setSavingComments(prev => ({ ...prev, [visitId]: true }));
 
         try {
@@ -441,7 +441,7 @@ export const OpdPatientTable = ({ patients, refetch, isMarketingManager = false 
             .select();
 
           if (error) {
-            console.error('❌ Error saving comment:', error);
+            console.error(' Error saving comment:', error);
             console.error('Error details:', {
               visitId,
               text,
@@ -451,7 +451,7 @@ export const OpdPatientTable = ({ patients, refetch, isMarketingManager = false 
             alert(`Failed to save comment: ${error.message}`);
             setSavingComments(prev => ({ ...prev, [visitId]: false }));
           } else {
-            console.log('✅ Comment saved successfully for visit:', visitId, 'Response:', data);
+            console.log(' Comment saved successfully for visit:', visitId, 'Response:', data);
             // Update the original comment after successful save
             setOriginalComments(prev => ({ ...prev, [visitId]: text }));
             // Show saved indicator
@@ -467,7 +467,7 @@ export const OpdPatientTable = ({ patients, refetch, isMarketingManager = false 
             }, 2000);
           }
         } catch (error) {
-          console.error('❌ Exception while saving comment:', error);
+          console.error(' Exception while saving comment:', error);
           setSavingComments(prev => ({ ...prev, [visitId]: false }));
         }
       }
@@ -591,7 +591,7 @@ export const OpdPatientTable = ({ patients, refetch, isMarketingManager = false 
 
           if (!otErrorAlt && otNoteAlt) {
             otNote = otNoteAlt;
-            console.log('✓ OT notes found with patient_id');
+            console.log(' OT notes found with patient_id');
           } else if (otErrorAlt) {
             console.error('Error with patient_id query:', otErrorAlt);
           }
@@ -610,7 +610,7 @@ export const OpdPatientTable = ({ patients, refetch, isMarketingManager = false 
 
           if (!nameError && otNoteByName) {
             otNote = otNoteByName;
-            console.log('✓ OT notes found with patient_name');
+            console.log(' OT notes found with patient_name');
           } else if (nameError) {
             console.error('Error with patient_name query:', nameError);
           }
@@ -627,7 +627,7 @@ export const OpdPatientTable = ({ patients, refetch, isMarketingManager = false 
             .single();
 
           if (anyOtNote) {
-            console.log('⚠️ Found OT note but not for this patient:', anyOtNote);
+            console.log(' Found OT note but not for this patient:', anyOtNote);
             console.log('This indicates ID mismatch. OT note has:', {
               visit_id: anyOtNote.visit_id,
               patient_id: anyOtNote.patient_id,
@@ -638,7 +638,7 @@ export const OpdPatientTable = ({ patients, refetch, isMarketingManager = false 
       }
 
       if (otNote) {
-        console.log('✅ OT NOTES FETCHED SUCCESSFULLY:', {
+        console.log(' OT NOTES FETCHED SUCCESSFULLY:', {
           surgery_name: otNote.surgery_name,
           implant: otNote.implant,
           anaesthetist: otNote.anaesthetist,
@@ -650,7 +650,7 @@ export const OpdPatientTable = ({ patients, refetch, isMarketingManager = false 
           patient_id: otNote.patient_id
         });
       } else {
-        console.log('❌ NO OT NOTES FOUND for this patient');
+        console.log(' NO OT NOTES FOUND for this patient');
         console.log('Consider creating OT notes with:', {
           visit_id: patient.id,
           patient_id: patient.patient_id || patient.patients?.id,
@@ -728,25 +728,25 @@ export const OpdPatientTable = ({ patients, refetch, isMarketingManager = false 
       let labResultsError = null;
 
       try {
-        console.log('🔬 Fetching lab results for visit:', patient.id);
-        console.log('📝 Visit ID:', patient.visit_id);
-        console.log('👤 Patient:', patient.patients?.name);
+        console.log(' Fetching lab results for visit:', patient.id);
+        console.log(' Visit ID:', patient.visit_id);
+        console.log(' Patient:', patient.patients?.name);
 
         // Step 1: Get visit_lab IDs from the labOrders we already fetched
         const visitLabIds = labOrders?.map(l => l.id).filter(Boolean) || [];
 
         console.log('═══════════════════════════════════════');
-        console.log('🔍 DEBUG: Lab Orders Data:', labOrders);
-        console.log('📋 Extracted visit_lab IDs:', visitLabIds);
+        console.log(' DEBUG: Lab Orders Data:', labOrders);
+        console.log(' Extracted visit_lab IDs:', visitLabIds);
         console.log('═══════════════════════════════════════');
 
         if (visitLabIds.length === 0) {
-          console.warn('⚠️ No visit_labs found, cannot fetch lab results');
-          alert(`⚠️ No lab tests ordered for this visit.\nVisit ID: ${patient.visit_id}\nPatient: ${patient.patients?.name}`);
+          console.warn(' No visit_labs found, cannot fetch lab results');
+          alert(` No lab tests ordered for this visit.\nVisit ID: ${patient.visit_id}\nPatient: ${patient.patients?.name}`);
           labResults = [];
         } else {
-          console.log(`✅ Found ${visitLabIds.length} visit_lab IDs`);
-          alert(`🔍 Searching lab results...\n\nFound ${visitLabIds.length} lab tests ordered.\nSearching for results in lab_results table...`);
+          console.log(` Found ${visitLabIds.length} visit_lab IDs`);
+          alert(` Searching lab results...\n\nFound ${visitLabIds.length} lab tests ordered.\nSearching for results in lab_results table...`);
 
           // Step 2: Fetch lab_results using visit_lab_id
           const { data: resultsData, error: resultsErr } = await supabase
@@ -764,7 +764,7 @@ export const OpdPatientTable = ({ patients, refetch, isMarketingManager = false 
             .order('created_at', { ascending: true });
 
           console.log('═══════════════════════════════════════');
-          console.log('🧪 RAW Lab Results Query Response:');
+          console.log(' RAW Lab Results Query Response:');
           console.log('Data:', resultsData);
           console.log('Error:', resultsErr);
           console.log('═══════════════════════════════════════');
@@ -772,25 +772,25 @@ export const OpdPatientTable = ({ patients, refetch, isMarketingManager = false 
           labResultsError = resultsErr;
 
           if (resultsErr) {
-            console.error('❌ Error fetching lab results:', resultsErr);
-            alert(`❌ Error fetching lab results:\n${resultsErr.message}\n\nCode: ${resultsErr.code}`);
+            console.error(' Error fetching lab results:', resultsErr);
+            alert(` Error fetching lab results:\n${resultsErr.message}\n\nCode: ${resultsErr.code}`);
             labResults = [];
           } else if (resultsData && resultsData.length > 0) {
-            console.log(`✅ SUCCESS! Found ${resultsData.length} lab results from lab_results table`);
+            console.log(` SUCCESS! Found ${resultsData.length} lab results from lab_results table`);
 
             // Show raw data in alert for debugging
             const rawDataPreview = resultsData.slice(0, 2).map(r =>
               `Test ID: ${r.visit_lab_id}\nValue: ${r.result_value}\nUnit: ${r.result_unit}`
             ).join('\n\n');
 
-            alert(`✅ Found ${resultsData.length} lab results!\n\nSample data:\n${rawDataPreview}`);
+            alert(` Found ${resultsData.length} lab results!\n\nSample data:\n${rawDataPreview}`);
 
             // Step 3: Map results with test names from labOrders
             labResults = resultsData.map(result => {
               // Find the corresponding lab order to get the test name
               const labOrder = labOrders?.find(l => l.id === result.visit_lab_id);
 
-              console.log('🔗 Mapping result:', {
+              console.log(' Mapping result:', {
                 visit_lab_id: result.visit_lab_id,
                 found_lab_order: !!labOrder,
                 test_name: labOrder?.lab?.name,
@@ -803,22 +803,22 @@ export const OpdPatientTable = ({ patients, refetch, isMarketingManager = false 
               };
             });
 
-            console.log('📊 Final mapped lab results with test names:', labResults);
+            console.log(' Final mapped lab results with test names:', labResults);
           } else {
-            console.warn('⚠️ No lab results found in lab_results table');
+            console.warn(' No lab results found in lab_results table');
             console.warn('Searched for visit_lab_ids:', visitLabIds);
-            alert(`⚠️ No results found in lab_results table!\n\nSearched for ${visitLabIds.length} lab tests but found 0 results.\n\nThis means:\n- Tests were ordered\n- But results not yet entered in lab_results table`);
+            alert(` No results found in lab_results table!\n\nSearched for ${visitLabIds.length} lab tests but found 0 results.\n\nThis means:\n- Tests were ordered\n- But results not yet entered in lab_results table`);
             labResults = [];
           }
         }
       } catch (error) {
-        console.error('⚠️ Exception while fetching lab results:', error);
-        alert(`⚠️ Exception occurred:\n${error.message}\n\nCheck console for details.`);
+        console.error(' Exception while fetching lab results:', error);
+        alert(` Exception occurred:\n${error.message}\n\nCheck console for details.`);
         labResults = [];
       }
 
       if (labResultsError && labResultsError.code !== 'PGRST116') {
-        console.error('❌ Error fetching lab results:', labResultsError);
+        console.error(' Error fetching lab results:', labResultsError);
         labResults = [];
       }
 
@@ -897,7 +897,7 @@ export const OpdPatientTable = ({ patients, refetch, isMarketingManager = false 
             const unit = r.result_unit || '';
             const refRange = r.reference_range || 'N/A';
 
-            console.log(`📊 Formatted result for ${testName}:`, {
+            console.log(` Formatted result for ${testName}:`, {
               actualValue,
               unit,
               refRange
@@ -905,15 +905,15 @@ export const OpdPatientTable = ({ patients, refetch, isMarketingManager = false 
 
             return `${testName}: ${actualValue} ${unit} (Reference: ${refRange})`;
           } catch (err) {
-            console.error('❌ Error processing lab result:', err, r);
+            console.error(' Error processing lab result:', err, r);
             return 'Error processing result';
           }
         }).filter(Boolean);
 
-        console.log('✅ All formatted lab results:', labResultsList);
+        console.log(' All formatted lab results:', labResultsList);
       } else {
         // Fallback to visit_labs result_value if lab_results table has no data
-        console.log('⚠️ No lab_results found, using visit_labs data as fallback');
+        console.log(' No lab_results found, using visit_labs data as fallback');
         labResultsList = labOrders?.filter(l => l.result_value).map(l => `${l.lab?.name}: ${l.result_value}`) || [];
       }
 
@@ -951,7 +951,7 @@ export const OpdPatientTable = ({ patients, refetch, isMarketingManager = false 
       const summary = `DISCHARGE SUMMARY
 
 ${otNote ? `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 SURGERY SUMMARY: ${otNote.surgery_name || 'Surgery Performed'}
+ SURGERY SUMMARY: ${otNote.surgery_name || 'Surgery Performed'}
    • Surgeon: ${otNote.surgeon || 'N/A'}
    • Anaesthesia: ${otNote.anaesthesia || 'N/A'}
    • Implant: ${otNote.implant || 'None'}
@@ -997,27 +997,27 @@ ${secondaryDiagnoses.map((d, i) => `  ${i + 1}. ${d}`).join('\n')}` : ''}
                     OT/SURGERY SECTION
 ═══════════════════════════════════════════════════════════════════
 
-${otNote ? `🔹 SURGERY INFORMATION:
+${otNote ? ` SURGERY INFORMATION:
 ───────────────────────
 SURGERY DATE:          ${formatDate(otNote.date)}
-SURGERY NAME:          ${otNote.surgery_name ? `✓ ${otNote.surgery_name}` : '⚠️ Not Specified'}
+SURGERY NAME:          ${otNote.surgery_name ? ` ${otNote.surgery_name}` : ' Not Specified'}
 SURGERY CODE:          ${otNote.surgery_code || 'N/A'}
-PROCEDURE PERFORMED:   ${otNote.procedure_performed ? `✓ ${otNote.procedure_performed}` : '⚠️ Not Specified'}
+PROCEDURE PERFORMED:   ${otNote.procedure_performed ? ` ${otNote.procedure_performed}` : ' Not Specified'}
 SURGERY STATUS:        ${otNote.surgery_status || 'Sanctioned'}
 
-🔹 SURGICAL TEAM:
+ SURGICAL TEAM:
 ─────────────────
-SURGEON NAME:          ${otNote.surgeon ? `Dr. ${otNote.surgeon}` : '⚠️ Not Specified'}
-ANAESTHETIST NAME:     ${otNote.anaesthetist ? `Dr. ${otNote.anaesthetist}` : '⚠️ Not Specified'}
+SURGEON NAME:          ${otNote.surgeon ? `Dr. ${otNote.surgeon}` : ' Not Specified'}
+ANAESTHETIST NAME:     ${otNote.anaesthetist ? `Dr. ${otNote.anaesthetist}` : ' Not Specified'}
 
-🔹 ANAESTHESIA & IMPLANT:
+ ANAESTHESIA & IMPLANT:
 ─────────────────────────
-TYPE OF ANAESTHESIA:   ${otNote.anaesthesia ? `✓ ${otNote.anaesthesia}` : '⚠️ Not Specified'}
-IMPLANT USED:          ${otNote.implant ? `✓ ${otNote.implant}` : '❌ No Implant Used'}
+TYPE OF ANAESTHESIA:   ${otNote.anaesthesia ? ` ${otNote.anaesthesia}` : ' Not Specified'}
+IMPLANT USED:          ${otNote.implant ? ` ${otNote.implant}` : ' No Implant Used'}
 
-🔹 SURGERY NOTES:
+ SURGERY NOTES:
 ─────────────────
-${otNote.description || 'No additional notes recorded'}` : `⚠️ NO SURGERY/OT DATA AVAILABLE
+${otNote.description || 'No additional notes recorded'}` : ` NO SURGERY/OT DATA AVAILABLE
 
 No operation theatre notes found for this patient visit.
 If surgery was performed, please ensure OT notes are created
@@ -1096,17 +1096,17 @@ Prepared by: Medical Records Department
                     DATA FETCH SUMMARY
 ═══════════════════════════════════════════════════════════════════
 [Debug Information - Remove in Production]
-• Patient Data: ${patientData ? '✓ Fetched' : '✗ Not found'}
-• Visit Data: ${visitData ? '✓ Fetched' : '✗ Not found'}
-• OT Notes: ${otNote ? '✓ Found' : '✗ Not found'}
+• Patient Data: ${patientData ? ' Fetched' : ' Not found'}
+• Visit Data: ${visitData ? ' Fetched' : ' Not found'}
+• OT Notes: ${otNote ? ' Found' : ' Not found'}
   ${otNote ? `- Surgeon: ${otNote.surgeon || 'N/A'}
   - Anaesthetist: ${otNote.anaesthetist || 'N/A'}
   - Anaesthesia: ${otNote.anaesthesia || 'N/A'}
   - Implant: ${otNote.implant || 'N/A'}` : '  Check console logs for debugging info'}
-• Diagnoses: ${diagnoses ? `✓ ${diagnoses.length} found` : '✗ None'}
+• Diagnoses: ${diagnoses ? ` ${diagnoses.length} found` : ' None'}
 • Complications: ${complications.length} found
-• Lab Orders: ${labOrders ? `✓ ${labOrders.length} found` : '✗ None'}
-• Radiology: ${radiologyOrders ? `✓ ${radiologyOrders.length} found` : '✗ None'}
+• Lab Orders: ${labOrders ? ` ${labOrders.length} found` : ' None'}
+• Radiology: ${radiologyOrders ? ` ${radiologyOrders.length} found` : ' None'}
 `;
 
       setDischargeSummaryTexts(prev => ({
@@ -1121,8 +1121,8 @@ Prepared by: Medical Records Department
       if (complications.length > 0) dataInfo.push(`${complications.length} complication(s)`);
 
       const message = dataInfo.length > 0
-        ? `✅ Discharge summary fetched successfully!\n\nIncluded data:\n• ${dataInfo.join('\n• ')}\n\nTotal characters: ${summary.length}`
-        : '✅ Discharge summary generated with sample medical data for testing purposes.';
+        ? ` Discharge summary fetched successfully!\n\nIncluded data:\n• ${dataInfo.join('\n• ')}\n\nTotal characters: ${summary.length}`
+        : ' Discharge summary generated with sample medical data for testing purposes.';
 
       alert(message);
     } catch (error) {
@@ -1130,7 +1130,7 @@ Prepared by: Medical Records Department
 
       // Provide more specific error messages
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      alert(`❌ Failed to fetch discharge data.\n\nError: ${errorMessage}\n\nPlease check the console for detailed information.`);
+      alert(` Failed to fetch discharge data.\n\nError: ${errorMessage}\n\nPlease check the console for detailed information.`);
     }
   };
 
@@ -1256,7 +1256,7 @@ Verified by: [To be verified by doctor]`;
   };
 
   const handleBillClick = (patient: Patient) => {
-    console.log('💰 Bill icon clicked for patient:', {
+    console.log(' Bill icon clicked for patient:', {
       visit_id: patient.visit_id,
       patient_id: patient.patient_id || patient.patients?.id,
       patient_name: patient.patients?.name,
@@ -1264,19 +1264,19 @@ Verified by: [To be verified by doctor]`;
     });
 
     if (!patient.visit_id) {
-      console.error('❌ Cannot navigate to bill: visit_id is missing');
+      console.error(' Cannot navigate to bill: visit_id is missing');
       alert('Error: Visit ID is missing. Please contact support.');
       return;
     }
 
     // Validate visit_id format (should not be empty or just whitespace)
     if (patient.visit_id.trim() === '') {
-      console.error('❌ Cannot navigate to bill: visit_id is empty');
+      console.error(' Cannot navigate to bill: visit_id is empty');
       alert('Error: Invalid visit ID. Please contact support.');
       return;
     }
 
-    console.log('✅ Navigating to final bill page:', `/final-bill/${patient.visit_id}`);
+    console.log(' Navigating to final bill page:', `/final-bill/${patient.visit_id}`);
     router.push(`/final-bill/${patient.visit_id}`);
   };
 
@@ -1902,7 +1902,7 @@ Verified by: [To be verified by doctor]`;
               )}
               {savedComments[patient.id] && !savingComments[patient.id] && (
                 <div className="absolute bottom-2 right-2 text-xs text-green-600 bg-green-50 px-2 py-1 rounded border border-green-200">
-                  ✓ Saved
+                  <Check className="inline-block w-4 h-4" /> Saved
                 </div>
               )}
             </div>

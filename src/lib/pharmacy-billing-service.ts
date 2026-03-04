@@ -123,7 +123,7 @@ export async function savePharmacySale(saleData: SaleData): Promise<SaleResponse
 
     // Step 2: Insert into pharmacy_sale_items (line items)
     const saleItems = saleData.items.map(item => {
-      console.log('📦 Mapping item to database:', {
+      console.log(' Mapping item to database:', {
         medicine_id: item.medicine_id,
         medicine_name: item.medicine_name,
         has_medicine_name: !!item.medicine_name

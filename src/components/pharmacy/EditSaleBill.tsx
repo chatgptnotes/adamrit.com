@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useAuth } from '@/contexts/AuthContext';
+import { X } from 'lucide-react'
 
 interface SaleItem {
   sale_item_id: number;
@@ -349,7 +350,7 @@ export const EditSaleBill: React.FC = () => {
                       className="text-red-500 hover:bg-red-100"
                       onClick={() => removeItem(item.sale_item_id)}
                     >
-                      ✕
+                      
                     </Button>
                   </TableCell>
                 </TableRow>

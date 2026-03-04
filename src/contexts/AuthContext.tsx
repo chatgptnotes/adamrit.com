@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { HospitalType, getHospitalConfig } from '@/types/hospital';
 import { supabase } from '@/integrations/supabase/client';
 import { hashPassword, comparePassword, validateEmail, sanitizeInput, signupRateLimiter } from '@/utils/auth';
+import { AlertOctagon, CheckCircle, ClipboardList, Key, Lock, Search, XCircle } from 'lucide-react'
 
 interface User {
   id?: string;
@@ -80,7 +81,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Database authentication
   const login = async (credentials: { email: string; password: string }): Promise<boolean> => {
     try {
-      console.log('🔐 Login attempt for:', credentials.email);
+      console.log(' Login attempt for:', credentials.email);
 
       const { data, error } = await supabase
         .from('User')
@@ -93,8 +94,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         return false;
       }
 
-      console.log('✅ User found, checking password...');
-      console.log('📋 Password type:', data.password.startsWith('$2') ? 'hashed' : 'plain');
+      console.log(' User found, checking password...');
+      console.log(' Password type:', data.password.startsWith('$2') ? 'hashed' : 'plain');
 
       // Check if password is hashed (new users) or plain text (existing users)
       let isPasswordValid = false;
@@ -112,14 +113,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         isPasswordValid = data.password === credentials.password;
       }
 
-      console.log('🔑 Password validation result:', isPasswordValid);
+      console.log(' Password validation result:', isPasswordValid);
 
       if (!isPasswordValid) {
-        console.error('❌ Invalid password');
+        console.error(' Invalid password');
         return false;
       }
 
-      console.log('✅ Password valid, creating user session...');
+      console.log(' Password valid, creating user session...');
 
       const user: User = {
         id: data.id,
@@ -205,11 +206,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setShowHospitalSelection(false);
   };
 
-  // 🚨 DEBUG: Check hospital config creation
-  console.log('🔍 AUTH DEBUG: user =', user);
-  console.log('🔍 AUTH DEBUG: user?.hospitalType =', user?.hospitalType);
+  //  DEBUG: Check hospital config creation
+  console.log(' AUTH DEBUG: user =', user);
+  console.log(' AUTH DEBUG: user?.hospitalType =', user?.hospitalType);
   const hospitalConfig = getHospitalConfig(user?.hospitalType);
-  console.log('🔍 AUTH DEBUG: hospitalConfig =', hospitalConfig);
+  console.log(' AUTH DEBUG: hospitalConfig =', hospitalConfig);
 
   const value: AuthContextType = {
     user,

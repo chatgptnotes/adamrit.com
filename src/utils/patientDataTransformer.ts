@@ -140,7 +140,7 @@ export const transformPatientsData = (patients: Patient[]) => {
       }
       
       // Debug: Log visits to track filtering issues (e.g., IH25G01006 not showing)
-      console.log('🔍 Visit:', visit.visit_id,
+      console.log(' Visit:', visit.visit_id,
         'Patient:', patient.name,
         'Surgery:', surgeryName,
         'SST:', visit.sst_treatment,

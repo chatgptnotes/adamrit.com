@@ -24,7 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { Loader2, Search, Users, Calendar, Clock, UserCheck, Shield, AlertTriangle, Filter, RotateCcw, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, FileText, Printer, Upload, Download } from "lucide-react";
+import { AlertTriangle, BarChart3, Building, Building2, Calendar, Check, CheckCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Clock, Download, File, FileText, Filter, Loader2, Printer, RotateCcw, Search, Shield, Smartphone, Upload, UserCheck, Users } from 'lucide-react';
 import * as XLSX from 'xlsx';
 // @ts-ignore
 const pdfjsLib = typeof window !== 'undefined' ? require('pdfjs-dist') : null;
@@ -622,7 +622,7 @@ const DischargedPatients = () => {
 
               <div class="footer">
                 <p>Generated on: ${format(new Date(), 'dd/MM/yyyy HH:mm')}</p>
-                <p class="warning">⚠️ This gate pass is valid only for the date of discharge mentioned above</p>
+                <p class="warning"> This gate pass is valid only for the date of discharge mentioned above</p>
               </div>
             </div>
           </body>
@@ -637,7 +637,7 @@ const DischargedPatients = () => {
   const { data: availableCorporates, isLoading: corporatesLoading } = useQuery({
     queryKey: ['corporates'],
     queryFn: async () => {
-      console.log('🏢 Fetching available corporates for filter...');
+      console.log(' Fetching available corporates for filter...');
 
       const { data, error } = await supabase
         .from('corporate')
@@ -649,7 +649,7 @@ const DischargedPatients = () => {
         throw error;
       }
 
-      console.log(`🏢 Found ${data?.length || 0} corporates for filter`);
+      console.log(` Found ${data?.length || 0} corporates for filter`);
       return data as CorporateOption[];
     },
     staleTime: 300000, // 5 minutes - corporates don't change often
@@ -659,7 +659,7 @@ const DischargedPatients = () => {
   const { data: visits, isLoading, error, refetch } = useQuery({
     queryKey: ['discharged-patients', statusFilter, patientTypeFilter, billingStatusFilter, corporateFilter, sortBy, sortOrder, hospitalConfig?.name, availableCorporates?.length],
     queryFn: async () => {
-      console.log('🏥 Fetching discharged patients for hospital:', hospitalConfig?.name, '(IPD, IPD (Inpatient) & Emergency only)');
+      console.log(' Fetching discharged patients for hospital:', hospitalConfig?.name, '(IPD, IPD (Inpatient) & Emergency only)');
 
       let query = supabase
         .from('visits')
@@ -693,7 +693,7 @@ const DischargedPatients = () => {
       // Apply hospital filter if hospitalConfig exists
       if (hospitalConfig?.name) {
         query = query.eq('patients.hospital_name', hospitalConfig.name);
-        console.log('🏥 DischargedPatients: Applied hospital filter for:', hospitalConfig.name);
+        console.log(' DischargedPatients: Applied hospital filter for:', hospitalConfig.name);
       }
 
       // Apply filters
@@ -704,7 +704,7 @@ const DischargedPatients = () => {
       // Patient type filter - since we already filter to IPD & Emergency, only apply if user wants specific type
       if (patientTypeFilter && patientTypeFilter !== 'all') {
         query = query.eq('patient_type', patientTypeFilter);
-        console.log('🏥 DischargedPatients: Applied additional patient type filter for:', patientTypeFilter);
+        console.log(' DischargedPatients: Applied additional patient type filter for:', patientTypeFilter);
       }
 
       if (billingStatusFilter && billingStatusFilter !== 'all') {
@@ -714,7 +714,7 @@ const DischargedPatients = () => {
       // Corporate filter
       if (corporateFilter && corporateFilter !== 'all') {
         query = query.eq('patients.corporate', corporateFilter);
-        console.log('🏥 DischargedPatients: Applied corporate filter for:', corporateFilter);
+        console.log(' DischargedPatients: Applied corporate filter for:', corporateFilter);
       }
 
       // Date range filter moved to client-side to preserve original Sr. No
@@ -744,7 +744,7 @@ const DischargedPatients = () => {
         };
       });
 
-      console.log(`🏥 Found ${processedData?.length || 0} discharged patients (IPD, IPD (Inpatient) & Emergency) for hospital:`, hospitalConfig?.name);
+      console.log(` Found ${processedData?.length || 0} discharged patients (IPD, IPD (Inpatient) & Emergency) for hospital:`, hospitalConfig?.name);
       return processedData as Visit[];
     },
     staleTime: 30000, // 30 seconds
@@ -1252,7 +1252,7 @@ const DischargedPatients = () => {
     }
 
     // Debug: Log extracted text to console
-    console.log('📄 PDF Text Extracted:', allText.substring(0, 3000));
+    console.log(' PDF Text Extracted:', allText.substring(0, 3000));
 
     const results: Array<{visit_id: string, discharged_sr_no: string}> = [];
 
@@ -1262,11 +1262,11 @@ const DischargedPatients = () => {
 
     // Find all Visit IDs in the text
     const visitIdMatches = allText.match(visitIdPattern) || [];
-    console.log('🔍 Found Visit IDs:', visitIdMatches.length, visitIdMatches.slice(0, 10));
+    console.log(' Found Visit IDs:', visitIdMatches.length, visitIdMatches.slice(0, 10));
 
     // Split text into tokens for analysis
     const tokens = allText.split(/\s+/);
-    console.log('📝 Total tokens:', tokens.length);
+    console.log(' Total tokens:', tokens.length);
 
     for (let i = 0; i < tokens.length; i++) {
       // Check if this token is a Visit ID
@@ -1295,7 +1295,7 @@ const DischargedPatients = () => {
                   discharged_sr_no: token,
                   visit_id: visitId
                 });
-                console.log(`✅ Matched: Sr.No=${token}, Visit ID=${visitId}`);
+                console.log(` Matched: Sr.No=${token}, Visit ID=${visitId}`);
                 break;
               }
             }
@@ -1309,7 +1309,7 @@ const DischargedPatients = () => {
       index === self.findIndex(t => t.visit_id === item.visit_id)
     );
 
-    console.log('📊 Total unique records found:', uniqueResults.length);
+    console.log(' Total unique records found:', uniqueResults.length);
     return uniqueResults;
   };
 
@@ -1722,7 +1722,7 @@ const DischargedPatients = () => {
                           </div>
                           {visit.patients?.phone && (
                             <div className="text-sm text-muted-foreground">
-                              📱 {visit.patients.phone}
+                               {visit.patients.phone}
                             </div>
                           )}
                         </div>
@@ -1902,7 +1902,7 @@ const DischargedPatients = () => {
                 </div>
 
                 <p className="text-orange-600 font-medium">
-                  ⚠️ This will:
+                   This will:
                 </p>
                 <ul className="list-disc list-inside space-y-1 text-sm">
                   <li>Remove the patient from Discharged Patients</li>
@@ -1994,7 +1994,7 @@ const DischargedPatients = () => {
                         </TableCell>
                         <TableCell>
                           {notification.resolved ? (
-                            <span className="text-green-600 text-sm">✓ Done</span>
+                            <span className="text-green-600 text-sm"> Done</span>
                           ) : (
                             <Button
                               variant="outline"
@@ -2022,7 +2022,7 @@ const DischargedPatients = () => {
 
             <div className="flex items-center justify-between pt-4 border-t">
               {gatePassNotifications && gatePassNotifications.length > 0 && !gatePassNotifications.every((n: any) => n.resolved) && (
-                <p className="text-sm text-orange-600">⚠️ Resolve all notifications to enable printing</p>
+                <p className="text-sm text-orange-600"> Resolve all notifications to enable printing</p>
               )}
               {(!gatePassNotifications || gatePassNotifications.length === 0 || gatePassNotifications.every((n: any) => n.resolved)) && (
                 <div></div>

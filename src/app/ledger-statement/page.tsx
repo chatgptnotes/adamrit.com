@@ -4,7 +4,7 @@ import { Suspense } from "react";
 export const dynamic = "force-dynamic";
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Calendar, Printer, Edit2, Trash2, Eye } from 'lucide-react';
+import { AlertTriangle, BarChart3, Calendar, Edit2, Eye, Printer, Search, Trash2 } from 'lucide-react';
 import { usePaymentByVoucherNo } from '@/hooks/useCashBookQueries';
 import { useLedgerStatementData, useLedgerBalances } from '@/hooks/useLedgerStatement';
 import { printReceipt } from '@/utils/receiptPrinter';
@@ -123,7 +123,7 @@ const LedgerStatementInternal: React.FC = () => {
   // Debug: Log ledger data to check patient_id values
   useEffect(() => {
     if (ledgerData && ledgerData.length > 0) {
-      console.log('📊 Ledger Data Sample (first 3 entries):',
+      console.log(' Ledger Data Sample (first 3 entries):',
         ledgerData.slice(0, 3).map(entry => ({
           patient_name: entry.patient_name,
           mrn_number: entry.mrn_number,
@@ -216,7 +216,7 @@ const LedgerStatementInternal: React.FC = () => {
   };
 
   const handlePatientClick = (patientId: string, patientName: string) => {
-    console.log('🔍 Patient Click Debug:', {
+    console.log(' Patient Click Debug:', {
       patientId,
       patientName,
       hasPatientId: !!patientId,
@@ -227,7 +227,7 @@ const LedgerStatementInternal: React.FC = () => {
       setPatientToView({ id: patientId, name: patientName });
       setIsPatientModalOpen(true);
     } else {
-      console.warn('⚠️ Patient ID is null/undefined - modal will not open properly');
+      console.warn(' Patient ID is null/undefined - modal will not open properly');
     }
   };
 

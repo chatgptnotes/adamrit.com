@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Calendar, CalendarDays, Loader2 } from "lucide-react";
+import { AlertTriangle, Bot, Building2, Calendar, CalendarDays, CheckCircle, ClipboardList, Download, Eraser, FileText, FlaskConical, Lightbulb, Loader2, Microscope, PartyPopper, Pencil, Pill, Plus, Printer, RefreshCw, Save, Scissors, Search, Trash2, User, XCircle } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import { format } from 'date-fns';
 import { useAuth } from '@/contexts/AuthContext';
@@ -148,7 +148,7 @@ const IpdDischargeSummary = () => {
 
   // Force complete cache clear and component refresh
   React.useEffect(() => {
-    console.log('🔄 IpdDischargeSummary component mounted - clearing all caches for visitId:', visitId);
+    console.log(' IpdDischargeSummary component mounted - clearing all caches for visitId:', visitId);
 
     // Clear all React Query cache
     try {
@@ -172,7 +172,7 @@ const IpdDischargeSummary = () => {
         });
       }
 
-      console.log('✅ All React Query caches and storage cleared');
+      console.log(' All React Query caches and storage cleared');
     } catch (error) {
       console.log('Cache clearing completed with minor issues:', error);
     }
@@ -348,7 +348,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
     queryKey: ['patient-discharge-data', visitId],
     queryFn: async () => {
       try {
-        console.log('🏥 IPD Discharge Summary: Fetching data for visit_id:', visitId);
+        console.log(' IPD Discharge Summary: Fetching data for visit_id:', visitId);
 
         // Use the EXACT same query structure as IPD Dashboard
         // Search by visit_id (not id) and join with patients table
@@ -373,7 +373,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
           .single();
 
         if (visitError) {
-          console.log('❌ Visit not found with visit_id:', visitId, visitError.message);
+          console.log(' Visit not found with visit_id:', visitId, visitError.message);
 
           // Fallback: Check if there's lab data for this visit_id
           const { data: labData } = await supabase
@@ -383,7 +383,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
             .limit(1);
 
           if (labData && labData.length > 0) {
-            console.log('✅ Found lab results, creating fallback data');
+            console.log(' Found lab results, creating fallback data');
             const labResult = labData[0];
 
             return {
@@ -411,7 +411,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
           throw new Error(`Visit ID ${visitId} not found`);
         }
 
-        console.log('✅ Found visit data with patients:', visitData);
+        console.log(' Found visit data with patients:', visitData);
 
         // Get discharge summary if exists
         const { data: summaryData } = await supabase
@@ -421,7 +421,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
           .single();
 
         if (summaryData) {
-          console.log('✅ Found existing discharge summary');
+          console.log(' Found existing discharge summary');
         }
 
         return {
@@ -431,7 +431,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         };
 
       } catch (error) {
-        console.log('❌ Error in patient data fetch:', error.message);
+        console.log(' Error in patient data fetch:', error.message);
         throw error;
       }
     },
@@ -445,12 +445,12 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
   const { data: labResultsData, isLoading: isLabResultsLoading } = useQuery({
     queryKey: ['lab-results', visitId],
     queryFn: async () => {
-      console.log('🧪 Fetching lab results for visit_id:', visitId);
+      console.log(' Fetching lab results for visit_id:', visitId);
 
       let data, error;
 
       // First, try to find the UUID for this visit_id string
-      console.log('🔍 Looking for visit UUID for visit_id:', visitId);
+      console.log(' Looking for visit UUID for visit_id:', visitId);
       const { data: visitData } = await supabase
         .from('visits')
         .select('id')
@@ -458,11 +458,11 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         .single();
 
       let visitUUID = visitData?.id;
-      console.log('📋 Found visit UUID:', visitUUID);
+      console.log(' Found visit UUID:', visitUUID);
 
       // Try to get lab results using the UUID
       if (visitUUID) {
-        console.log('🧪 Searching lab results using UUID:', visitUUID);
+        console.log(' Searching lab results using UUID:', visitUUID);
         const result = await supabase
           .from('lab_results')
           .select(`
@@ -486,7 +486,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
       } else {
         // Fallback: search by patient name if available from patientData
         if (patientData?.patients?.name) {
-          console.log('🔍 Searching lab results by patient name:', patientData.patients.name);
+          console.log(' Searching lab results by patient name:', patientData.patients.name);
           const result = await supabase
             .from('lab_results')
             .select(`
@@ -515,7 +515,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
       }
 
       if (error) {
-        console.log('❌ No lab results found for visit_id:', visitId, error.message);
+        console.log(' No lab results found for visit_id:', visitId, error.message);
         return {
           rawData: [],
           groupedResults: {},
@@ -523,7 +523,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         };
       }
 
-      console.log('✅ Lab results data found:', data?.length || 0, 'results');
+      console.log(' Lab results data found:', data?.length || 0, 'results');
 
       if (!data || data.length === 0) {
         return {
@@ -591,7 +591,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
       let radiologyResults = [];
 
       if (patientData?.id) {
-        console.log('🔍 Trying radiology lookup with visit UUID:', patientData.id);
+        console.log(' Trying radiology lookup with visit UUID:', patientData.id);
         const { data: radiologyViaUUID, error: radiologyUUIDError } = await supabase
           .from('visit_radiology')
           .select(`
@@ -615,13 +615,13 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
 
         if (!radiologyUUIDError && radiologyViaUUID && radiologyViaUUID.length > 0) {
           radiologyResults = radiologyViaUUID;
-          console.log('✅ Found radiology data via visit UUID:', radiologyResults.length, 'studies');
+          console.log(' Found radiology data via visit UUID:', radiologyResults.length, 'studies');
         }
       }
 
       // If no results with UUID, try with visit_id in radiology_orders table (complex system)
       if (radiologyResults.length === 0) {
-        console.log('🔍 Trying radiology lookup in radiology_orders with visit_id:', visitId);
+        console.log(' Trying radiology lookup in radiology_orders with visit_id:', visitId);
         const { data: radiologyOrders } = await supabase
           .from('radiology_orders')
           .select(`
@@ -663,7 +663,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
               description: order.clinical_indication
             }
           }));
-          console.log('✅ Found radiology data via radiology_orders:', radiologyResults.length, 'orders');
+          console.log(' Found radiology data via radiology_orders:', radiologyResults.length, 'orders');
         }
       }
 
@@ -729,7 +729,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
     queryFn: async () => {
       if (!visitId) return null;
 
-      console.log('🔪 Fetching surgery data for visit:', visitId);
+      console.log(' Fetching surgery data for visit:', visitId);
 
       // First try to get the visit UUID from the string visit ID
       let visitUUID = null;
@@ -742,15 +742,15 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
           .single();
         visitUUID = visitData?.id;
       } catch (error) {
-        console.log('❌ Error finding visit UUID:', error);
+        console.log(' Error finding visit UUID:', error);
       }
 
       if (!visitUUID) {
-        console.log('❌ No visit UUID found for surgery data fetch');
+        console.log(' No visit UUID found for surgery data fetch');
         return null;
       }
 
-      console.log('🔍 Fetching surgery data with visit UUID:', visitUUID);
+      console.log(' Fetching surgery data with visit UUID:', visitUUID);
 
       try {
         const { data, error } = await supabase
@@ -768,15 +768,15 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
           .order('created_at', { ascending: false });
 
         if (error) {
-          console.log('❌ Error fetching surgery data:', error.message);
+          console.log(' Error fetching surgery data:', error.message);
           return null;
         }
 
-        console.log('✅ Surgery data found:', data?.length || 0, 'surgeries');
-        console.log('🔍 Raw surgery data:', JSON.stringify(data, null, 2));
+        console.log(' Surgery data found:', data?.length || 0, 'surgeries');
+        console.log(' Raw surgery data:', JSON.stringify(data, null, 2));
         return data;
       } catch (error) {
-        console.log('❌ Surgery query failed:', error);
+        console.log(' Surgery query failed:', error);
         return null;
       }
     },
@@ -791,7 +791,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
     queryFn: async () => {
       if (!visitId) return null;
 
-      console.log('🏥 Fetching OT Notes data for visit:', visitId);
+      console.log(' Fetching OT Notes data for visit:', visitId);
 
       // First try to get the visit UUID from the string visit ID
       let visitUUID = null;
@@ -804,15 +804,15 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
           .single();
         visitUUID = visitData?.id;
       } catch (error) {
-        console.log('❌ Error finding visit UUID for OT notes:', error);
+        console.log(' Error finding visit UUID for OT notes:', error);
       }
 
       if (!visitUUID) {
-        console.log('❌ No visit UUID found for OT notes fetch');
+        console.log(' No visit UUID found for OT notes fetch');
         return null;
       }
 
-      console.log('🔍 Fetching OT notes with visit UUID:', visitUUID);
+      console.log(' Fetching OT notes with visit UUID:', visitUUID);
 
       try {
         const { data, error } = await supabase
@@ -823,15 +823,15 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
           .limit(1);
 
         if (error) {
-          console.log('❌ Error fetching OT notes:', error.message);
+          console.log(' Error fetching OT notes:', error.message);
           return null;
         }
 
-        console.log('✅ OT Notes data found:', data?.length || 0, 'records');
-        console.log('🔍 Raw OT notes data:', JSON.stringify(data, null, 2));
+        console.log(' OT Notes data found:', data?.length || 0, 'records');
+        console.log(' Raw OT notes data:', JSON.stringify(data, null, 2));
         return data?.[0] || null;
       } catch (error) {
-        console.log('❌ OT notes query failed:', error);
+        console.log(' OT notes query failed:', error);
         return null;
       }
     },
@@ -846,7 +846,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
     queryFn: async () => {
       if (!visitId) return null;
 
-      console.log('🏥 Fetching diagnosis data for visit:', visitId);
+      console.log(' Fetching diagnosis data for visit:', visitId);
 
       // First try to get the visit UUID from the string visit ID
       let visitUUID = null;
@@ -859,15 +859,15 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
           .single();
         visitUUID = visitData?.id;
       } catch (error) {
-        console.log('❌ Error finding visit UUID for diagnosis:', error);
+        console.log(' Error finding visit UUID for diagnosis:', error);
       }
 
       if (!visitUUID) {
-        console.log('❌ No visit UUID found for diagnosis fetch');
+        console.log(' No visit UUID found for diagnosis fetch');
         return null;
       }
 
-      console.log('🔍 Fetching diagnosis with visit UUID:', visitUUID);
+      console.log(' Fetching diagnosis with visit UUID:', visitUUID);
 
       try {
         // First, let's check if there's any data in visit_diagnoses for this visit
@@ -876,7 +876,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
           .select('*')
           .eq('visit_id', visitUUID);
 
-        console.log('🔍 All visit_diagnoses for UUID:', visitUUID, allVisitDiagnoses);
+        console.log(' All visit_diagnoses for UUID:', visitUUID, allVisitDiagnoses);
 
         // Fetch diagnosis data with proper join
         const { data, error } = await supabase
@@ -898,25 +898,25 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
           .order('created_at', { ascending: false });
 
         if (error) {
-          console.log('❌ Error fetching diagnosis data:', error.message);
+          console.log(' Error fetching diagnosis data:', error.message);
           return null;
         }
 
-        console.log('✅ Diagnosis data found:', data?.length || 0, 'diagnoses');
-        console.log('🔍 Detailed diagnosis data:', JSON.stringify(data, null, 2));
+        console.log(' Diagnosis data found:', data?.length || 0, 'diagnoses');
+        console.log(' Detailed diagnosis data:', JSON.stringify(data, null, 2));
 
         // Also check what's in visit_diagnoses table without join
         if (!data || data.length === 0) {
-          console.log('🔍 No data found, checking visit_diagnoses table directly...');
+          console.log(' No data found, checking visit_diagnoses table directly...');
           const { data: rawData } = await supabase
             .from('visit_diagnoses')
             .select('*');
-          console.log('🔍 All visit_diagnoses in table:', rawData);
+          console.log(' All visit_diagnoses in table:', rawData);
         }
 
         return data;
       } catch (error) {
-        console.log('❌ Diagnosis query failed:', error);
+        console.log(' Diagnosis query failed:', error);
         return null;
       }
     },
@@ -933,7 +933,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
     queryFn: async () => {
       if (!visitId) return null;
 
-      console.log('📋 Loading existing discharge summary for visit:', visitId);
+      console.log(' Loading existing discharge summary for visit:', visitId);
 
       try {
         // First get visit UUID from string visit_id
@@ -944,7 +944,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
           .single();
 
         if (!visitData?.id) {
-          console.log('📋 Visit UUID not found');
+          console.log(' Visit UUID not found');
           return null;
         }
 
@@ -962,18 +962,18 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         }
 
         if (!summaryData) {
-          console.log('📋 No existing discharge summary found - creating new one');
+          console.log(' No existing discharge summary found - creating new one');
           return null;
         }
 
-        console.log('📋 Found existing discharge summary:', summaryData.id);
+        console.log(' Found existing discharge summary:', summaryData.id);
 
         // Extract data from JSONB columns
         const medicationsData = summaryData.discharge_medications || [];
         const examinationData = summaryData.vital_signs || null;
         const surgeryData = summaryData.procedures_performed || null;
 
-        console.log('📋 Loaded discharge summary data:', {
+        console.log(' Loaded discharge summary data:', {
           summary: !!summaryData,
           medications: medicationsData?.length || 0,
           examination: !!examinationData,
@@ -988,7 +988,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         };
 
       } catch (error) {
-        console.error('❌ Error loading existing discharge summary:', error);
+        console.error(' Error loading existing discharge summary:', error);
         return null;
       }
     },
@@ -1202,13 +1202,13 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
 
         // Don't set shared description from OT notes - it will be loaded from ipd_discharge_summary if saved
 
-        console.log('✅ Surgery rows updated with data:', {
+        console.log(' Surgery rows updated with data:', {
           count: mappedSurgeryRows.length,
           surgeries: mappedSurgeryRows.map(r => r.procedurePerformed)
         });
 
       } catch (error) {
-        console.log('❌ Error updating surgery details:', error);
+        console.log(' Error updating surgery details:', error);
       }
     } else if (otNotesData) {
       // Fallback: Populate from OT Notes even if no visit_surgeries data
@@ -1227,13 +1227,13 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
 
         // Don't set shared description from OT notes - it will be loaded from ipd_discharge_summary if saved
 
-        console.log('✅ Surgery details populated from OT Notes only:', {
+        console.log(' Surgery details populated from OT Notes only:', {
           surgeon: otNotesData?.surgeon,
           anaesthetist: otNotesData?.anaesthetist,
           anaesthesia: otNotesData?.anaesthesia
         });
       } catch (error) {
-        console.log('❌ Error populating from OT Notes:', error);
+        console.log(' Error populating from OT Notes:', error);
       }
     }
   }, [visitSurgeryData, otNotesData, patientData, isOtNotesLoading]);
@@ -1242,7 +1242,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
   useEffect(() => {
     if (visitDiagnosisData && visitDiagnosisData.length > 0) {
       try {
-        console.log('🔄 Processing diagnosis data:', visitDiagnosisData);
+        console.log(' Processing diagnosis data:', visitDiagnosisData);
 
         // Format diagnosis data for display
         const primaryDiagnosis = visitDiagnosisData.find(d => d.is_primary === true);
@@ -1287,10 +1287,10 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         // Update diagnosis field only if empty
         if (!diagnosis || diagnosis.trim() === '' || diagnosis === 'Enter diagnosis details...') {
           setDiagnosis(diagnosisText.trim());
-          console.log('✅ Diagnosis field updated with:', diagnosisText.trim());
+          console.log(' Diagnosis field updated with:', diagnosisText.trim());
         }
 
-        console.log('✅ Diagnosis data processed:', {
+        console.log(' Diagnosis data processed:', {
           primaryFound: !!primaryDiagnosis,
           primaryName: primaryDiagnosis?.diagnoses?.name,
           secondaryCount: secondaryDiagnoses.length,
@@ -1298,7 +1298,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         });
 
       } catch (error) {
-        console.log('❌ Error formatting diagnosis data:', error);
+        console.log(' Error formatting diagnosis data:', error);
       }
     }
   }, [visitDiagnosisData, diagnosis]);
@@ -1307,7 +1307,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
   useEffect(() => {
     if (existingDischargeSummary) {
       try {
-        console.log('📝 Populating form with existing discharge summary data');
+        console.log(' Populating form with existing discharge summary data');
 
         const { summary, medications, examination, surgery } = existingDischargeSummary;
 
@@ -1317,9 +1317,9 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
 
           // Clean any JSON data from investigations text - AUTO CLEAN ON LOAD
           const investigationsText = summary.lab_investigations?.investigations_text || '';
-          console.log('📥 Loading investigations from database, length:', investigationsText.length);
+          console.log(' Loading investigations from database, length:', investigationsText.length);
           const cleanedInvestigations = cleanJSONFromText(investigationsText);
-          console.log('🧹 After auto-clean, length:', cleanedInvestigations.length);
+          console.log(' After auto-clean, length:', cleanedInvestigations.length);
           setInvestigations(cleanedInvestigations);
 
           setStayNotes(summary.ot_notes || '');
@@ -1365,7 +1365,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
           }));
 
           setMedicationRows(formattedMedications);
-          console.log('💊 Populated', formattedMedications.length, 'medications');
+          console.log(' Populated', formattedMedications.length, 'medications');
         }
 
         // Populate examination data
@@ -1378,7 +1378,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
             spo2: examination.spo2 || '',
             details: examination.examination_details || ''
           });
-          console.log('🔍 Populated examination data');
+          console.log(' Populated examination data');
         }
 
         // Populate surgery details ONLY if OT Notes data is not available
@@ -1393,21 +1393,21 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
             anesthesia: surgery.anesthesia_type || '',
             implant: surgery.implant || ''
           }]);
-          console.log('🏥 Populated surgery details from saved discharge summary (no OT notes available)');
+          console.log(' Populated surgery details from saved discharge summary (no OT notes available)');
         } else if (surgery && otNotesData) {
-          console.log('🏥 Skipping saved surgery details - using fresh OT notes data instead');
+          console.log(' Skipping saved surgery details - using fresh OT notes data instead');
         }
 
         // Always restore shared description from saved discharge summary (regardless of OT notes)
         if (surgery?.sharedDescription) {
           setSharedSurgeryDescription(surgery.sharedDescription);
-          console.log('📝 Restored shared description from saved discharge summary');
+          console.log(' Restored shared description from saved discharge summary');
         }
 
-        console.log('✅ Form populated with existing discharge summary data');
+        console.log(' Form populated with existing discharge summary data');
 
       } catch (error) {
-        console.error('❌ Error populating form with existing data:', error);
+        console.error(' Error populating form with existing data:', error);
       }
     }
   }, [existingDischargeSummary, otNotesData]);
@@ -1628,9 +1628,9 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         return;
       }
 
-      console.log('💾 Starting IPD discharge summary save process...');
-      console.log('📋 Patient Data:', patientData);
-      console.log('🔍 Visit ID (string):', visitId);
+      console.log(' Starting IPD discharge summary save process...');
+      console.log(' Patient Data:', patientData);
+      console.log(' Visit ID (string):', visitId);
 
       // 1. Get visit and patient UUIDs
       let visitUUID = patientData.id;
@@ -1639,7 +1639,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
       console.log('🆔 Initial UUIDs - Visit:', visitUUID, 'Patient:', patientUUID);
 
       if (!visitUUID) {
-        console.log('⚠️ No visitUUID found, querying visits table...');
+        console.log(' No visitUUID found, querying visits table...');
         const { data: visitData, error: visitError } = await supabase
           .from('visits')
           .select('id, patient_id')
@@ -1647,19 +1647,19 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
           .single();
 
         if (visitError) {
-          console.error('❌ Error fetching visit data:', visitError);
+          console.error(' Error fetching visit data:', visitError);
           throw new Error(`Could not find visit record: ${visitError.message}`);
         }
 
         visitUUID = visitData?.id;
         patientUUID = visitData?.patient_id;
-        console.log('✅ Fetched UUIDs - Visit:', visitUUID, 'Patient:', patientUUID);
+        console.log(' Fetched UUIDs - Visit:', visitUUID, 'Patient:', patientUUID);
       }
 
       // Validate required UUIDs
       if (!visitUUID || !patientUUID) {
         const errorMsg = `Missing required IDs - Visit UUID: ${visitUUID}, Patient UUID: ${patientUUID}`;
-        console.error('❌', errorMsg);
+        console.error('', errorMsg);
         throw new Error(errorMsg);
       }
 
@@ -1756,7 +1756,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         }
       };
 
-      console.log('💾 Saving IPD discharge summary with data:', JSON.stringify(dischargeData, null, 2));
+      console.log(' Saving IPD discharge summary with data:', JSON.stringify(dischargeData, null, 2));
 
       // 3. Check if a discharge summary already exists for this visit
       const { data: existingRecord } = await supabase
@@ -1769,7 +1769,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
 
       if (existingRecord) {
         // Update existing record
-        console.log('📝 Updating existing discharge summary:', existingRecord.id);
+        console.log(' Updating existing discharge summary:', existingRecord.id);
         const result = await supabase
           .from('ipd_discharge_summary')
           .update(dischargeData)
@@ -1780,7 +1780,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         summaryError = result.error;
       } else {
         // Insert new record
-        console.log('➕ Inserting new discharge summary');
+        console.log(' Inserting new discharge summary');
         const result = await supabase
           .from('ipd_discharge_summary')
           .insert(dischargeData)
@@ -1791,7 +1791,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
       }
 
       if (summaryError) {
-        console.error('❌ Supabase Error Details:', {
+        console.error(' Supabase Error Details:', {
           message: summaryError.message,
           details: summaryError.details,
           hint: summaryError.hint,
@@ -1800,15 +1800,15 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         throw new Error(`Database error: ${summaryError.message}${summaryError.hint ? ' - ' + summaryError.hint : ''}`);
       }
 
-      console.log('✅ IPD discharge summary saved successfully:', dischargeSummary.id);
-      console.log('📋 Summary contains:', {
+      console.log(' IPD discharge summary saved successfully:', dischargeSummary.id);
+      console.log(' Summary contains:', {
         medications: medicationRows.length,
         investigations: investigations.length,
         diagnosis: diagnosis ? 'Yes' : 'No',
         stay_notes: stayNotes ? 'Yes' : 'No'
       });
 
-      console.log('🎉 IPD discharge summary saved to database successfully!');
+      console.log(' IPD discharge summary saved to database successfully!');
 
       toast({
         title: "Success",
@@ -1816,7 +1816,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
       });
 
     } catch (error) {
-      console.error('❌ Error saving discharge summary:', error);
+      console.error(' Error saving discharge summary:', error);
       toast({
         title: "Error",
         description: `Failed to save discharge summary: ${error.message}`,
@@ -1827,7 +1827,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
   const handlePrintPreview = async () => {
     // Check for final payment
     if (!patientData?.bill_paid) {
-      alert('⚠️ Final Payment Required\n\nPlease complete the final payment before printing the discharge summary.');
+      alert(' Final Payment Required\n\nPlease complete the final payment before printing the discharge summary.');
       return;
     }
 
@@ -1837,7 +1837,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         description: "Loading discharge summary for printing...",
       });
 
-      console.log('🖨️ Fetching data for print preview...');
+      console.log(' Fetching data for print preview...');
 
       // Get visit UUID
       const { data: visitData, error: visitError } = await supabase
@@ -1846,10 +1846,10 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         .eq('visit_id', visitId)
         .single();
 
-      console.log('🔍 Visit data fetch result:', { visitData, visitError });
+      console.log(' Visit data fetch result:', { visitData, visitError });
 
       if (visitError || !visitData?.id) {
-        console.error('❌ Visit not found:', visitError);
+        console.error(' Visit not found:', visitError);
         toast({
           title: "Error",
           description: `Visit not found for ID: ${visitId}. ${visitError?.message || ''}`,
@@ -1861,7 +1861,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
       // Fetch patient details separately using visit's patient_id
       let patientDetails = null;
       if (visitData.patient_id) {
-        console.log('🔍 Fetching patient with ID:', visitData.patient_id);
+        console.log(' Fetching patient with ID:', visitData.patient_id);
         const { data: patientData, error: patientError } = await supabase
           .from('patients')
           .select('patients_id, phone')
@@ -1869,13 +1869,13 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
           .single();
 
         if (patientError) {
-          console.error('❌ Error fetching patient:', patientError);
+          console.error(' Error fetching patient:', patientError);
         }
 
         patientDetails = patientData;
-        console.log('👤 Patient details:', patientDetails);
+        console.log(' Patient details:', patientDetails);
       } else {
-        console.warn('⚠️ No patient_id in visitData');
+        console.warn(' No patient_id in visitData');
       }
 
       // Fetch discharge summary (get latest if multiple exist)
@@ -1900,17 +1900,17 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         return;
       }
 
-      console.log('✅ Summary data loaded for print:', summaryData);
+      console.log(' Summary data loaded for print:', summaryData);
 
       // Add patient_id and mobile to summaryData for print
       if (patientDetails) {
-        console.log('📝 Adding patient details to summary:', patientDetails);
+        console.log(' Adding patient details to summary:', patientDetails);
         summaryData.patient_id = patientDetails.patients_id;
         summaryData.mobile_no = patientDetails.phone; // Changed from mobile to phone
-        console.log('✅ Updated summaryData.patient_id:', summaryData.patient_id);
-        console.log('✅ Updated summaryData.mobile_no:', summaryData.mobile_no);
+        console.log(' Updated summaryData.patient_id:', summaryData.patient_id);
+        console.log(' Updated summaryData.mobile_no:', summaryData.mobile_no);
       } else {
-        console.warn('⚠️ No patient details found to add to summary');
+        console.warn(' No patient details found to add to summary');
       }
 
       // Fetch lab results for this visit - try UUID first, then string visit_id
@@ -1929,11 +1929,11 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         .eq('visit_id', visitData.id)
         .order('created_at', { ascending: false });
 
-      console.log('🧪 Lab results fetched with UUID:', labTestResults?.length || 0);
+      console.log(' Lab results fetched with UUID:', labTestResults?.length || 0);
 
       // If no results with UUID, try with string visit_id
       if (!labTestResults || labTestResults.length === 0) {
-        console.log('🔄 Trying with string visit_id:', visitId);
+        console.log(' Trying with string visit_id:', visitId);
         const { data: labResultsByStringId } = await supabase
           .from('lab_results')
           .select(`
@@ -1950,7 +1950,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
           .order('created_at', { ascending: false });
 
         labTestResults = labResultsByStringId;
-        console.log('🧪 Lab results fetched with string ID:', labTestResults?.length || 0);
+        console.log(' Lab results fetched with string ID:', labTestResults?.length || 0);
       }
 
       // Format lab results
@@ -2070,8 +2070,8 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
           console.log('Error parsing surgery_details:', e);
         }
       }
-      console.log('🔍 Surgery rows for print:', surgeryRowsToUse?.length || 0);
-      console.log('🔍 Surgery description for print:', descriptionToUse ? 'Found (' + descriptionToUse.substring(0, 50) + '...)' : 'Empty');
+      console.log(' Surgery rows for print:', surgeryRowsToUse?.length || 0);
+      console.log(' Surgery description for print:', descriptionToUse ? 'Found (' + descriptionToUse.substring(0, 50) + '...)' : 'Empty');
       const printHTML = generatePrintHTML(summaryData, patientInfo, visitId, formattedLabResults, surgeryRowsToUse, descriptionToUse);
 
       // Open print preview in new window
@@ -2093,7 +2093,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
       }
 
     } catch (error) {
-      console.error('❌ Print preview error:', error);
+      console.error(' Print preview error:', error);
       toast({
         title: "Error",
         description: `Failed to generate print preview: ${error.message}`,
@@ -2211,8 +2211,8 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
   const generatePrintHTML = (summaryData: any, patientInfo: any, visitIdString: string, labResults?: any, currentSurgeryRows?: any[], currentSurgeryDescription?: string) => {
     const currentDate = format(new Date(), 'dd/MM/yyyy');
 
-    console.log('🖨️ Generating print HTML with summaryData:', summaryData);
-    console.log('🧪 Lab results data:', labResults);
+    console.log(' Generating print HTML with summaryData:', summaryData);
+    console.log(' Lab results data:', labResults);
 
     // Format medications for table - use correct field name from database
     const medications = summaryData.discharge_medications || summaryData.medications_on_discharge || [];
@@ -2720,7 +2720,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         description: "Loading discharge summary data from database...",
       });
 
-      console.log('📥 Fetching discharge summary data for visit:', visitId);
+      console.log(' Fetching discharge summary data for visit:', visitId);
 
       // Get visit UUID from string visit_id
       const { data: visitData } = await supabase
@@ -2760,7 +2760,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         return;
       }
 
-      console.log('✅ Found discharge summary data:', summaryData);
+      console.log(' Found discharge summary data:', summaryData);
 
       // Format all data into a readable text format for the textbox
       let formattedText = '';
@@ -2833,10 +2833,10 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         description: "Discharge summary data loaded successfully!",
       });
 
-      console.log('✅ Discharge summary data formatted and displayed');
+      console.log(' Discharge summary data formatted and displayed');
 
     } catch (error) {
-      console.error('❌ Error fetching discharge summary data:', error);
+      console.error(' Error fetching discharge summary data:', error);
       toast({
         title: "Error",
         description: `Failed to fetch data: ${error.message}`,
@@ -2853,7 +2853,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         description: "Searching for lab results and radiology data...",
       });
 
-      console.log('🔍 Searching investigations for visit_id:', visitId);
+      console.log(' Searching investigations for visit_id:', visitId);
       let combinedResults = [];
 
       // First, get the visit UUID from the visit_id string
@@ -2864,15 +2864,15 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         .single();
 
       const visitUUID = visitData?.id;
-      console.log('🔍 Visit UUID found:', visitUUID);
+      console.log(' Visit UUID found:', visitUUID);
 
       // Search for lab results using the UUID
-      console.log('🧪 Searching lab results for visit UUID:', visitUUID);
+      console.log(' Searching lab results for visit UUID:', visitUUID);
 
       let data, error;
 
       // First try with TEXT visit_id (e.g., "IH25L06010") - this is how LabOrders saves results
-      console.log('🧪 Fetching lab results for TEXT visit_id:', visitId);
+      console.log(' Fetching lab results for TEXT visit_id:', visitId);
 
       let result = await supabase
         .from('lab_results')
@@ -2894,7 +2894,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
       data = result.data;
       error = result.error;
 
-      console.log('✅ Lab results fetched with TEXT visit_id:', {
+      console.log(' Lab results fetched with TEXT visit_id:', {
         count: data?.length,
         firstResult: data?.[0],
         error
@@ -2902,7 +2902,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
 
       // If no results with text visit_id, try with UUID as fallback
       if ((!data || data.length === 0) && visitUUID) {
-        console.log('🧪 No results with text visit_id, trying UUID:', visitUUID);
+        console.log(' No results with text visit_id, trying UUID:', visitUUID);
 
         result = await supabase
           .from('lab_results')
@@ -2924,7 +2924,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         data = result.data;
         error = result.error;
 
-        console.log('✅ Lab results fetched with UUID:', {
+        console.log(' Lab results fetched with UUID:', {
           count: data?.length,
           firstResult: data?.[0],
           error
@@ -2933,7 +2933,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
 
       // If still no results, try by patient_name (fallback since visit_id may not be linked)
       if ((!data || data.length === 0) && patientData?.patients?.name) {
-        console.log('🧪 No results with visit_id, trying by patient_name:', patientData.patients.name);
+        console.log(' No results with visit_id, trying by patient_name:', patientData.patients.name);
 
         result = await supabase
           .from('lab_results')
@@ -2954,7 +2954,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
         data = result.data;
         error = result.error;
 
-        console.log('✅ Lab results fetched by patient_name:', {
+        console.log(' Lab results fetched by patient_name:', {
           count: data?.length,
           firstResult: data?.[0],
           error
@@ -2963,7 +2963,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
 
       // Log first few results to see what we got
       if (data && data.length > 0) {
-        console.log('📋 First 3 results:', data.slice(0, 3));
+        console.log(' First 3 results:', data.slice(0, 3));
       }
 
       // Note: Don't return early here - continue to check visit_labs and radiology tables
@@ -2973,7 +2973,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
 
       // Process lab results
       if (data && data.length > 0) {
-        console.log('✅ Found lab results:', data.length);
+        console.log(' Found lab results:', data.length);
 
         const groupedLabResults = data.reduce((acc, result) => {
           const date = result.created_at;
@@ -3001,7 +3001,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
                     // Use the new extractValueFromJSON function
                     const value = extractValueFromJSON(result.result_value);
 
-                    console.log(`🔬 ${categoryName} - ${result.test_name}:`, {
+                    console.log(` ${categoryName} - ${result.test_name}:`, {
                       raw: result.result_value,
                       extracted: value
                     });
@@ -3044,12 +3044,12 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
             testsWithResults.add(mainTestName.toLowerCase());
           }
         });
-        console.log('📋 Tests with detailed results:', Array.from(testsWithResults));
+        console.log(' Tests with detailed results:', Array.from(testsWithResults));
       }
 
       // Also fetch from visit_labs table (where Lab Dashboard stores results)
       if (visitUUID) {
-        console.log('🧪 Fetching from visit_labs for visit UUID:', visitUUID);
+        console.log(' Fetching from visit_labs for visit UUID:', visitUUID);
 
         // Step 1: Simple query without join to verify data exists
         const { data: visitLabsData, error: visitLabsError } = await supabase
@@ -3058,7 +3058,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
           .eq('visit_id', visitUUID)
           .order('created_at', { ascending: false });
 
-        console.log('✅ visit_labs raw query result:', {
+        console.log(' visit_labs raw query result:', {
           count: visitLabsData?.length || 0,
           error: visitLabsError,
           data: visitLabsData
@@ -3070,14 +3070,14 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
 
           // Step 2: Fetch lab details separately
           const labIds = [...new Set(visitLabsData.map((vl: any) => vl.lab_id).filter(Boolean))];
-          console.log('🔬 Fetching lab details for IDs:', labIds);
+          console.log(' Fetching lab details for IDs:', labIds);
 
           const { data: labDetails, error: labError } = await supabase
             .from('lab')
             .select('id, name, category, description')
             .in('id', labIds);
 
-          console.log('🔬 Lab details result:', { labDetails, labError });
+          console.log(' Lab details result:', { labDetails, labError });
 
           // Create a lookup map
           const labMap: Record<string, any> = {};
@@ -3099,7 +3099,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
 
             // Skip if this test already has detailed results from lab_results
             if (testsWithResults.has(testName.toLowerCase())) {
-              console.log(`⏭️ Skipping ${testName} - already has detailed results`);
+              console.log(`⏭ Skipping ${testName} - already has detailed results`);
               return acc;
             }
 
@@ -3134,7 +3134,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
 
           // Don't include visit_labs status in discharge summary - only show actual lab results with values
           // if (formattedVisitLabs) {
-          //   console.log('📋 Formatted visit_labs data:', formattedVisitLabs);
+          //   console.log(' Formatted visit_labs data:', formattedVisitLabs);
           //   combinedResults.push(formattedVisitLabs);
           // }
         }
@@ -3147,7 +3147,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
       let radiologyResults = [];
 
       if (patientData?.id) {
-        console.log('🔍 Trying radiology lookup with visit UUID:', patientData.id);
+        console.log(' Trying radiology lookup with visit UUID:', patientData.id);
         const { data: radiologyViaUUID } = await supabase
           .from('visit_radiology')
           .select(`
@@ -3171,7 +3171,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
 
         if (radiologyViaUUID && radiologyViaUUID.length > 0) {
           radiologyResults = radiologyViaUUID;
-          console.log('✅ Found radiology data via visit UUID:', radiologyResults.length, 'studies');
+          console.log(' Found radiology data via visit UUID:', radiologyResults.length, 'studies');
         }
       }
 
@@ -3237,9 +3237,9 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
           : labResultsSection;
 
         // IMPORTANT: Clean any JSON that might still be in the text
-        console.log('🧹 Auto-cleaning fetched data before displaying...');
+        console.log(' Auto-cleaning fetched data before displaying...');
         const cleanedResults = cleanJSONFromText(finalResults);
-        console.log('✅ Auto-clean complete, setting investigations');
+        console.log(' Auto-clean complete, setting investigations');
 
         setInvestigations(cleanedResults);
 
@@ -3340,7 +3340,7 @@ DD/MM/YYYY:-Test Category: Test1:Value1 unit, Test2:Value2 unit`);
           }
         });
 
-        console.log('✅ Browser cache fully cleared on component mount');
+        console.log(' Browser cache fully cleared on component mount');
       } catch (error) {
         console.log('Cache clearing completed with minor issues');
       }
@@ -3375,7 +3375,7 @@ DD/MM/YYYY:-Test Category: Test1:Value1 unit, Test2:Value2 unit`);
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
           <div className="flex items-center">
             <div className="text-yellow-800">
-              <h3 className="font-semibold">⚠️ No Data Found for Visit ID: {visitId}</h3>
+              <h3 className="font-semibold"> No Data Found for Visit ID: {visitId}</h3>
               <p className="text-sm mt-1">
                 Working with demo/placeholder data. You can still use the form to create a new discharge summary.
               </p>
@@ -3408,7 +3408,7 @@ DD/MM/YYYY:-Test Category: Test1:Value1 unit, Test2:Value2 unit`);
                 {!patientData?.bill_paid && (
                   <TooltipContent className="bg-red-600 text-white border-red-700 font-semibold">
                     <p className="flex items-center gap-2">
-                      <span className="text-lg">⚠️</span>
+                      <span className="text-lg"></span>
                       Please complete final payment
                     </p>
                   </TooltipContent>
@@ -3508,7 +3508,7 @@ DD/MM/YYYY:-Test Category: Test1:Value1 unit, Test2:Value2 unit`);
               className="min-h-[120px]"
             />
             <div className="text-sm text-gray-600">
-              💡 Tip: You can manually enter lab results or try the "Try Fetch Lab Data" button to search for any existing data.
+               Tip: You can manually enter lab results or try the "Try Fetch Lab Data" button to search for any existing data.
             </div>
           </CardContent>
         </Card>
@@ -3565,7 +3565,7 @@ DD/MM/YYYY:-Test Category: Test1:Value1 unit, Test2:Value2 unit`);
               {!patientData?.bill_paid && (
                 <TooltipContent className="bg-red-600 text-white border-red-700 font-semibold">
                   <p className="flex items-center gap-2">
-                    <span className="text-lg">⚠️</span>
+                    <span className="text-lg"></span>
                     Please complete final payment
                   </p>
                 </TooltipContent>
@@ -4439,7 +4439,7 @@ Write in professional medical terminology. Do NOT use placeholders like "[insert
                                   className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800"
                                   title="Edit template"
                                 >
-                                  ✏️
+                                  
                                 </Button>
                                 <Button
                                   onClick={() => deleteTemplate(index)}
@@ -4448,7 +4448,7 @@ Write in professional medical terminology. Do NOT use placeholders like "[insert
                                   className="h-6 w-6 p-0 text-red-600 hover:text-red-800"
                                   title="Delete template"
                                 >
-                                  🗑️
+                                  
                                 </Button>
                                 <Button
                                   onClick={() => moveTemplateUp(index)}
@@ -4458,7 +4458,7 @@ Write in professional medical terminology. Do NOT use placeholders like "[insert
                                   disabled={index === 0}
                                   title="Move up"
                                 >
-                                  ⬆️
+                                  ⬆
                                 </Button>
                                 <Button
                                   onClick={() => moveTemplateDown(index)}
@@ -4468,7 +4468,7 @@ Write in professional medical terminology. Do NOT use placeholders like "[insert
                                   disabled={index === stayNotesTemplates.length - 1}
                                   title="Move down"
                                 >
-                                  ⬇️
+                                  ⬇
                                 </Button>
                               </div>
                             </div>
@@ -4511,7 +4511,7 @@ Write in professional medical terminology. Do NOT use placeholders like "[insert
                             description: "Sending request to Gemini AI...",
                           });
 
-                          console.log('🤖 Sending to Gemini:', newTemplateContent);
+                          console.log(' Sending to Gemini:', newTemplateContent);
 
                           // System prompt for Gemini
                           const systemPrompt = `You are a medical documentation assistant.
@@ -4575,13 +4575,13 @@ IMPORTANT INSTRUCTIONS:
                               description: "Discharge summary generated successfully!",
                             });
 
-                            console.log('✅ Generated Summary:', generatedSummary);
+                            console.log(' Generated Summary:', generatedSummary);
                           } else {
                             throw new Error('No response from ChatGPT');
                           }
 
                         } catch (error) {
-                          console.error('❌ ChatGPT Error:', error);
+                          console.error(' ChatGPT Error:', error);
                           toast({
                             title: "Error",
                             description: `Failed to generate summary: ${error.message}`,

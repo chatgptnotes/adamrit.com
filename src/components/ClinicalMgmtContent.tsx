@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, X } from 'lucide-react';
+import { AlertTriangle, Package, Plus, Save, Search, Stethoscope, X } from 'lucide-react';
 import SearchableDiagnosisSelect from './SearchableDiagnosisSelect';
 import SearchableCghsSurgerySelect from './SearchableCghsSurgerySelect';
 
@@ -163,7 +163,7 @@ const ClinicalMgmtContent = () => {
       <Card className="border border-gray-200">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-blue-600 text-lg">
-            🩺 Diagnosis
+             Diagnosis
           </CardTitle>
           <p className="text-sm text-gray-600">Search and add diagnosis, view related complications</p>
         </CardHeader>
@@ -180,7 +180,7 @@ const ClinicalMgmtContent = () => {
       <Card className="border border-gray-200">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-blue-600 text-lg">
-            📦 CGHS SURGERY
+             CGHS SURGERY
           </CardTitle>
           <p className="text-sm text-gray-600">Select CGHS surgeries for the patient</p>
         </CardHeader>
@@ -196,7 +196,7 @@ const ClinicalMgmtContent = () => {
       <Card className="border border-gray-200">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-orange-600 text-lg">
-            ⚠️ Complications mapped to diagnosis
+             Complications mapped to diagnosis
           </CardTitle>
           <p className="text-sm text-gray-600">Monitor and manage potential complications</p>
         </CardHeader>
@@ -328,7 +328,7 @@ const ClinicalMgmtContent = () => {
       <Card className="border border-green-200 bg-green-50">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-green-700 text-lg">
-            💾 Save Clinical Data
+             Save Clinical Data
           </CardTitle>
           <p className="text-sm text-green-600">Save all selected diagnoses, surgeries, and complications</p>
         </CardHeader>
@@ -344,7 +344,7 @@ const ClinicalMgmtContent = () => {
               className="bg-green-600 hover:bg-green-700 text-white w-full"
               onClick={handleSaveClinicalData}
             >
-              💾 Save Clinical Data
+              <Save className="inline-block w-4 h-4" /> Save Clinical Data
             </Button>
           </div>
         </CardContent>

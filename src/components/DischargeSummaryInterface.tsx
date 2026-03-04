@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Printer, FileText, Bot, User, Download } from 'lucide-react';
+import { BarChart3, Bot, CheckCircle, Download, FileText, Printer, User } from 'lucide-react';
 import DischargeSummary from './DischargeSummary';
 import SimpleDischargeSummary from './SimpleDischargeSummary';
 import { useVisitMedicalData } from '@/hooks/useVisitMedicalData';
@@ -689,9 +689,9 @@ Note: URGENT CARE/ EMERGENCY CARE IS AVAILABLE 24 X 7. PLEASE CONTACT: 763097481
               </div>
               
               <div className="text-sm text-green-600 bg-green-50 p-2 rounded">
-                ✅ Patient data loaded successfully! ({allPatientData.length} characters)
+                 Patient data loaded successfully! ({allPatientData.length} characters)
                 <br />
-                📊 Available data: {labs.length} lab tests, {radiology.length} radiology studies, {medications.length} medications
+                 Available data: {labs.length} lab tests, {radiology.length} radiology studies, {medications.length} medications
               </div>
             </CardContent>
           </Card>

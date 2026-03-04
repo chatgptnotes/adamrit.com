@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, Eye, Trash2, Calendar, Clock, FileText, DollarSign, Trash } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, DollarSign, Eye, FileText, Lightbulb, Save, Trash, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
@@ -325,7 +325,7 @@ const OldBills = () => {
               )}
               <div className="mt-2 flex items-center gap-2">
                 <Badge variant="outline" className="text-xs">
-                  💾 Showing only saved bills
+                   Showing only saved bills
                 </Badge>
                 <span className="text-xs text-gray-500">
                   Bills appear here only after clicking 'Save Bill' button
@@ -354,10 +354,10 @@ const OldBills = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No Saved Bills Found</h3>
               <p className="text-gray-600 mb-2">No bills have been saved for this patient yet.</p>
               <div className="text-sm text-gray-500 bg-blue-50 p-3 rounded-lg inline-block">
-                💡 <strong>How to save a bill:</strong><br />
+                 <strong>How to save a bill:</strong><br />
                 1. Go to Final Bill page<br />
                 2. Add items and fill details<br />
-                3. Click the <strong>'💾 Save Bill'</strong> button<br />
+                3. Click the <strong>' Save Bill'</strong> button<br />
                 4. Saved bills will appear here
               </div>
             </CardContent>

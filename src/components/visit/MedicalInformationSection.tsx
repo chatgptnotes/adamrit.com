@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, X } from 'lucide-react';
+import { Check, Search, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import SearchableCghsSurgerySelect from '@/components/SearchableCghsSurgerySelect';
@@ -397,10 +397,10 @@ export const MedicalInformationSection: React.FC<MedicalInformationSectionProps>
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Sanctioned">
-                          <span className="text-green-600 font-medium">✓ Sanctioned</span>
+                          <span className="text-green-600 font-medium"> Sanctioned</span>
                         </SelectItem>
                         <SelectItem value="Not Sanctioned">
-                          <span className="text-red-600 font-medium">✗ Not Sanctioned</span>
+                          <span className="text-red-600 font-medium"> Not Sanctioned</span>
                         </SelectItem>
                       </SelectContent>
                     </Select>

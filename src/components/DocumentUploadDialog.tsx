@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, FileText, Check, X, AlertCircle, Printer, Eye, Download, Image } from 'lucide-react';
+import { AlertCircle, Check, Diamond, Download, Eye, File, FileText, Image, Paperclip, Printer, Upload, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
@@ -426,7 +426,7 @@ export const DocumentUploadDialog: React.FC<DocumentUploadDialogProps> = ({
   };
 
   const handleRemarkStatusChange = async (documentId: number, status: 'Yes' | 'No' | '') => {
-    console.log('🔸 handleRemarkStatusChange called:', { documentId, status, visitId });
+    console.log(' handleRemarkStatusChange called:', { documentId, status, visitId });
 
     // Update local state
     setDocuments(prev =>
@@ -439,7 +439,7 @@ export const DocumentUploadDialog: React.FC<DocumentUploadDialogProps> = ({
 
     // Save to database immediately for all remark status changes
     try {
-      console.log('🔸 Saving remark status:', { documentId, status, visitId });
+      console.log(' Saving remark status:', { documentId, status, visitId });
 
       const documentName = MEDICAL_DOCUMENTS.find(d => d.id === documentId)?.name || `Document ${documentId}`;
 
@@ -447,7 +447,7 @@ export const DocumentUploadDialog: React.FC<DocumentUploadDialogProps> = ({
       const currentDoc = documents.find(d => d.id === documentId);
       const remarkReason = currentDoc?.remarkReason || '';
 
-      console.log('🔸 Document data before save:', { documentName, remarkReason, status });
+      console.log(' Document data before save:', { documentName, remarkReason, status });
 
       // First check if record exists - using maybeSingle() instead of single()
       const { data: existingRecord, error: fetchError } = await supabase
@@ -457,12 +457,12 @@ export const DocumentUploadDialog: React.FC<DocumentUploadDialogProps> = ({
         .eq('document_type_id', documentId)
         .maybeSingle();
 
-      console.log('🔸 Existing record check:', { existingRecord, fetchError });
+      console.log(' Existing record check:', { existingRecord, fetchError });
 
       let result;
       if (existingRecord) {
         // Update existing record
-        console.log('🔸 Updating existing record');
+        console.log(' Updating existing record');
         result = await supabase
           .from('patient_documents')
           .update({
@@ -475,7 +475,7 @@ export const DocumentUploadDialog: React.FC<DocumentUploadDialogProps> = ({
           .select();
       } else {
         // Insert new record for remark-only documents
-        console.log('🔸 Inserting new record');
+        console.log(' Inserting new record');
         result = await supabase
           .from('patient_documents')
           .insert({
@@ -498,20 +498,20 @@ export const DocumentUploadDialog: React.FC<DocumentUploadDialogProps> = ({
       const { data, error } = result;
 
       if (error) {
-        console.error('🔸 Supabase save error:', error);
+        console.error(' Supabase save error:', error);
         setAlertMessage({
           type: 'error',
           message: `Failed to save remark: ${error.message}`
         });
       } else {
-        console.log('🔸 Successfully saved remark status:', data);
+        console.log(' Successfully saved remark status:', data);
         setAlertMessage({
           type: 'success',
           message: 'Remark status saved successfully!'
         });
       }
     } catch (error) {
-      console.error('🔸 Failed to save remark status:', error);
+      console.error(' Failed to save remark status:', error);
       setAlertMessage({
         type: 'error',
         message: `Failed to save remark: ${error.message}`
@@ -784,7 +784,7 @@ export const DocumentUploadDialog: React.FC<DocumentUploadDialogProps> = ({
                 <td style="text-align: center; font-weight: bold;">${doc.id}</td>
                 <td>
                   <strong>${doc.name}</strong>
-                  ${doc.fileName ? `<div class="file-name">📎 ${doc.fileName}</div>` : ''}
+                  ${doc.fileName ? `<div class="file-name"> ${doc.fileName}</div>` : ''}
                 </td>
                 <td>
                   ${doc.remarkReason ? `<div class="reason-text">${doc.remarkReason}</div>` : '<em style="color: #9ca3af; font-size: 10px;">Enter reason...</em>'}
@@ -794,7 +794,7 @@ export const DocumentUploadDialog: React.FC<DocumentUploadDialogProps> = ({
                     '<span style="color: #9ca3af; font-size: 10px;">Remark only</span>' :
                     doc.isUploaded ?
                       `<div class="upload-details">
-                        ✓ Uploaded<br>
+                         Uploaded<br>
                         ${doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString('en-IN') : 'N/A'}
                       </div>` :
                       '<span style="color: #9ca3af; font-size: 10px;">Not Uploaded</span>'
@@ -802,12 +802,12 @@ export const DocumentUploadDialog: React.FC<DocumentUploadDialogProps> = ({
                 </td>
                 <td style="text-align: center;">
                   ${doc.remarkOnly ?
-                    (doc.remarkStatus === 'Yes' ? '<span class="status-yes">✓ Yes</span>' :
-                     doc.remarkStatus === 'No' ? '<span class="status-no">✗ No</span>' :
+                    (doc.remarkStatus === 'Yes' ? '<span class="status-yes"> Yes</span>' :
+                     doc.remarkStatus === 'No' ? '<span class="status-no"> No</span>' :
                      '<span style="color: #9ca3af; font-size: 10px;">Not Set</span>') :
                     doc.isUploaded ?
-                      '<span class="status-yes">✓ Yes</span>' :
-                      '<span class="status-no">✗ No</span>'
+                      '<span class="status-yes"> Yes</span>' :
+                      '<span class="status-no"> No</span>'
                   }
                 </td>
               </tr>
@@ -923,7 +923,7 @@ export const DocumentUploadDialog: React.FC<DocumentUploadDialogProps> = ({
                       {doc.fileName && (
                         <div className="flex items-center gap-2">
                           <p className="text-xs text-muted-foreground">
-                            📎 {doc.fileName}
+                             {doc.fileName}
                           </p>
                           <Badge variant="outline" className="text-xs">
                             {doc.fileType?.split('/')[1]?.toUpperCase() || 'FILE'}
@@ -932,7 +932,7 @@ export const DocumentUploadDialog: React.FC<DocumentUploadDialogProps> = ({
                       )}
                       {doc.uploadedAt && (
                         <p className="text-xs text-green-600">
-                          ✓ Uploaded on {new Date(doc.uploadedAt).toLocaleDateString()}
+                           Uploaded on {new Date(doc.uploadedAt).toLocaleDateString()}
                         </p>
                       )}
                     </div>
@@ -1082,7 +1082,7 @@ export const DocumentUploadDialog: React.FC<DocumentUploadDialogProps> = ({
                                           </head>
                                           <body>
                                             <div class="header">
-                                              <h2>📄 ${doc.fileName}</h2>
+                                              <h2> ${doc.fileName}</h2>
                                               <p>Document Preview - Visit ID: ${visitId}</p>
                                               <button class="download-btn" onclick="window.open('${doc.fileUrl}', '_blank')">Download Original</button>
                                             </div>

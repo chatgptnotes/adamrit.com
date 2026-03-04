@@ -30,7 +30,7 @@ export const useCorporateData = (): UseCorporateDataReturn => {
       setLoading(true);
       setError(null);
 
-      console.log('🔄 Fetching ALL corporates from database...');
+      console.log(' Fetching ALL corporates from database...');
 
       // Fetch all corporate records from database
       const { data, error: fetchError } = await supabase
@@ -38,7 +38,7 @@ export const useCorporateData = (): UseCorporateDataReturn => {
         .select('id, name, description')
         .order('name', { ascending: true });
 
-      console.log('📊 Database query result:', {
+      console.log(' Database query result:', {
         data: data?.length,
         error: fetchError?.message,
         firstFew: data?.slice(0, 5)?.map(c => c.name)
@@ -65,10 +65,10 @@ export const useCorporateData = (): UseCorporateDataReturn => {
         setCorporateIdMap(idMap);
 
         setCorporateOptions(corporateOptions);
-        console.log('✅ Loaded ALL corporate options from database:', corporateOptions.length, 'total');
-        console.log('🏢 Corporate options:', corporateOptions.map(opt => opt.label).join(', '));
+        console.log(' Loaded ALL corporate options from database:', corporateOptions.length, 'total');
+        console.log(' Corporate options:', corporateOptions.map(opt => opt.label).join(', '));
       } else {
-        console.log('⚠️ No corporate records found in database');
+        console.log(' No corporate records found in database');
         // Only use fallback if database is completely empty
         const fallbackOptions = [
           { value: "private", label: "Private" },
@@ -78,7 +78,7 @@ export const useCorporateData = (): UseCorporateDataReturn => {
           { value: "insurance", label: "Insurance" },
         ];
         setCorporateOptions(fallbackOptions);
-        console.log('📋 Using fallback options:', fallbackOptions.length, 'total');
+        console.log(' Using fallback options:', fallbackOptions.length, 'total');
       }
     } catch (err) {
       console.error('Error in fetchCorporateData:', err);
@@ -103,7 +103,7 @@ export const useCorporateData = (): UseCorporateDataReturn => {
           table: 'corporate'
         },
         (payload) => {
-          console.log('🔄 Corporate table changed:', payload);
+          console.log(' Corporate table changed:', payload);
           // Refetch data when corporate table changes
           fetchCorporateData();
         }

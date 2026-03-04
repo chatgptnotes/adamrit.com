@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { User, Stethoscope, Scissors, Pill, TestTube, Activity, Edit, Trash2, Heart, Users, Microscope, Calendar, Printer, CreditCard, FileText, Upload } from 'lucide-react';
+import { Activity, Building2, Calendar, ClipboardList, CreditCard, DollarSign, Edit, FileText, Heart, Microscope, Pill, Printer, Scissors, Stethoscope, TestTube, Trash2, Upload, User, Users } from 'lucide-react';
 import { EditPatientDialog } from './EditPatientDialog';
 import { DocumentUploadDialog } from './DocumentUploadDialog';
 import { format } from 'date-fns';
@@ -500,7 +500,7 @@ export const PatientCard: React.FC<PatientCardProps> = ({ patient, onEdit, onDel
           {/* Treatment Period Information */}
           <div className="bg-blue-50 p-4 rounded-lg mb-4">
             <h4 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
-              📅 Treatment Periods
+               Treatment Periods
             </h4>
             <div className="space-y-2 text-sm">
               <div className="flex items-center justify-between p-2 bg-white rounded border">
@@ -585,7 +585,7 @@ export const PatientCard: React.FC<PatientCardProps> = ({ patient, onEdit, onDel
               <Separator className="my-4" />
               <div className="space-y-3">
                 <h4 className="text-sm font-semibold text-primary flex items-center gap-2">
-                  📋 Patient Data Information
+                   Patient Data Information
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   {patient.srNo && (
@@ -655,7 +655,7 @@ export const PatientCard: React.FC<PatientCardProps> = ({ patient, onEdit, onDel
               <Separator className="my-4" />
               <div className="space-y-3">
                 <h4 className="text-sm font-semibold text-primary flex items-center gap-2">
-                  🏥 Surgery Details
+                   Surgery Details
                 </h4>
                 <div className="grid grid-cols-1 gap-4 text-sm">
                   {patient.diagnosisAndSurgeryPerformed && (
@@ -725,7 +725,7 @@ export const PatientCard: React.FC<PatientCardProps> = ({ patient, onEdit, onDel
               <Separator className="my-4" />
               <div className="space-y-3">
                 <h4 className="text-sm font-semibold text-primary flex items-center gap-2">
-                  📋 Administrative Status
+                   Administrative Status
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   {patient.extensionTakenNotTakenNotRequired && (
@@ -760,7 +760,7 @@ export const PatientCard: React.FC<PatientCardProps> = ({ patient, onEdit, onDel
               <Separator className="my-4" />
               <div className="space-y-3">
                 <h4 className="text-sm font-semibold text-primary flex items-center gap-2">
-                  💰 Billing Information
+                   Billing Information
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   {patient.intimationDone && (

@@ -32,6 +32,9 @@ export default function RootLayout({
               <main className="flex-1 overflow-auto bg-gray-50 p-6">
                 {children}
               </main>
+              <footer className="text-center text-xs text-gray-400 py-4 border-t border-gray-200">
+                <a href="https://drmhope.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600">drmhope.com</a> | A Bettroi Product
+              </footer>
             </div>
           </div>
         </Providers>

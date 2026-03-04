@@ -7,7 +7,7 @@ export const useVisitsData = () => {
   return useQuery({
     queryKey: ['visits-data'],
     queryFn: async () => {
-      console.log('🔍 Fetching all visits data...');
+      console.log(' Fetching all visits data...');
       
       const { data, error } = await supabase
         .from('visits')
@@ -117,12 +117,12 @@ export const useVisitsData = () => {
         .order('created_at', { ascending: false });
       
       if (error) {
-        console.error('❌ Error fetching visits data:', error);
+        console.error(' Error fetching visits data:', error);
         console.error('Error details:', error.message, error.details, error.hint);
         throw error;
       }
       
-      console.log('✅ Successfully fetched visits data:', data?.length, 'records');
+      console.log(' Successfully fetched visits data:', data?.length, 'records');
       return data || [];
     },
   });
@@ -136,7 +136,7 @@ export const useVisitData = (visitId: string | undefined) => {
     queryFn: async () => {
       if (!visitId) return null;
       
-      console.log('🔍 Fetching visit data for visitId:', visitId);
+      console.log(' Fetching visit data for visitId:', visitId);
       
       const { data, error } = await supabase
         .from('visits')
@@ -195,12 +195,12 @@ export const useVisitData = (visitId: string | undefined) => {
         .single();
       
       if (error) {
-        console.error('❌ Error fetching visit data:', error);
+        console.error(' Error fetching visit data:', error);
         console.error('Error details:', error.message, error.details, error.hint);
         throw error;
       }
       
-      console.log('✅ Successfully fetched visit data:', data);
+      console.log(' Successfully fetched visit data:', data);
       return data;
     },
   });
@@ -214,7 +214,7 @@ export const usePatientVisits = (patientId: string | undefined) => {
     queryFn: async () => {
       if (!patientId) return [];
       
-      console.log('🔍 Fetching visits for patient:', patientId);
+      console.log(' Fetching visits for patient:', patientId);
       
       const { data, error } = await supabase
         .from('visits')
@@ -230,11 +230,11 @@ export const usePatientVisits = (patientId: string | undefined) => {
         .order('created_at', { ascending: false });
       
       if (error) {
-        console.error('❌ Error fetching patient visits:', error);
+        console.error(' Error fetching patient visits:', error);
         throw error;
       }
       
-      console.log('✅ Successfully fetched patient visits:', data?.length, 'records');
+      console.log(' Successfully fetched patient visits:', data?.length, 'records');
       return data || [];
     },
   });

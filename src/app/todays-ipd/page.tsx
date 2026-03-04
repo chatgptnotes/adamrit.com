@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useDebounce } from 'use-debounce';
 import { Badge } from '@/components/ui/badge';
-import { Eye, FileText, Search, Calendar, DollarSign, Trash2, FolderOpen, FolderX, CheckCircle, XCircle, Clock, MinusCircle, RotateCcw, Printer, Filter, MessageSquare, ClipboardList, ArrowUpDown, Circle, ChevronLeft, ChevronRight, Upload, Bell, Download, Loader2 } from 'lucide-react';
+import { ArrowUpDown, Ban, BarChart3, Bell, Building2, Calendar, CalendarDays, Check, CheckCircle, ChevronLeft, ChevronRight, Circle, ClipboardList, Clock, DollarSign, Download, Eye, File, FileText, Filter, FolderOpen, FolderX, Loader2, MessageCircle, MessageSquare, MinusCircle, Printer, RefreshCw, RotateCcw, Search, Trash2, Upload, XCircle } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -101,7 +101,7 @@ const IpdRefereeAmountCell = ({
         console.error('Error fetching advance payments:', error);
         return [];
       }
-      console.log('💰 Advance payments for visit:', visit.visit_id, '=', data);
+      console.log(' Advance payments for visit:', visit.visit_id, '=', data);
       return data || [];
     },
     enabled: !!visit.visit_id,
@@ -1480,7 +1480,7 @@ const TodaysIpdDashboard = () => {
   const { data: todaysVisits = [], isLoading, refetch } = useQuery({
     queryKey: ['todays-visits', hospitalConfig?.name, startDate, endDate],
     queryFn: async () => {
-      console.log('🏥 TodaysIpdDashboard: Fetching visits for hospital:', hospitalConfig?.name);
+      console.log(' TodaysIpdDashboard: Fetching visits for hospital:', hospitalConfig?.name);
 
       let query = supabase
         .from('visits')
@@ -1516,17 +1516,17 @@ const TodaysIpdDashboard = () => {
       // Apply hospital filter if hospitalConfig exists
       if (hospitalConfig?.name) {
         query = query.eq('patients.hospital_name', hospitalConfig.name);
-        console.log('🏥 TodaysIpdDashboard: Applied hospital filter for:', hospitalConfig.name);
+        console.log(' TodaysIpdDashboard: Applied hospital filter for:', hospitalConfig.name);
       }
 
       // Apply date range filter (with time component for proper timestamp comparison)
       if (startDate) {
         query = query.gte('visit_date', `${startDate}T00:00:00`);
-        console.log('📅 TodaysIpdDashboard: Applied start date filter:', `${startDate}T00:00:00`);
+        console.log(' TodaysIpdDashboard: Applied start date filter:', `${startDate}T00:00:00`);
       }
       if (endDate) {
         query = query.lte('visit_date', `${endDate}T23:59:59`);
-        console.log('📅 TodaysIpdDashboard: Applied end date filter:', `${endDate}T23:59:59`);
+        console.log(' TodaysIpdDashboard: Applied end date filter:', `${endDate}T23:59:59`);
       }
 
       const { data, error } = await query;
@@ -1536,22 +1536,22 @@ const TodaysIpdDashboard = () => {
         throw error;
       }
 
-      console.log(`✅ TodaysIpdDashboard: Found ${data?.length || 0} visits for ${hospitalConfig?.name}`);
+      console.log(` TodaysIpdDashboard: Found ${data?.length || 0} visits for ${hospitalConfig?.name}`);
 
       // Debug: Check comments and discharge_date in fetched data
-      console.log('📊 Sample visit data (first visit):', data?.[0]);
-      console.log('💬 Comments in first visit:', data?.[0]?.comments);
-      console.log('📅 Discharge date in first visit:', data?.[0]?.discharge_date);
+      console.log(' Sample visit data (first visit):', data?.[0]);
+      console.log(' Comments in first visit:', data?.[0]?.comments);
+      console.log(' Discharge date in first visit:', data?.[0]?.discharge_date);
 
       // Log all visits with discharge dates
       const visitsWithDischargeDate = data?.filter(v => v.discharge_date) || [];
-      console.log(`📅 Found ${visitsWithDischargeDate.length} visits with discharge_date out of ${data?.length || 0} total visits`);
+      console.log(` Found ${visitsWithDischargeDate.length} visits with discharge_date out of ${data?.length || 0} total visits`);
 
       // Log all visits with comments
       const visitsWithComments = data?.filter(v => v.comments) || [];
-      console.log(`📝 Found ${visitsWithComments.length} visits with comments out of ${data?.length || 0} total visits`);
+      console.log(` Found ${visitsWithComments.length} visits with comments out of ${data?.length || 0} total visits`);
       if (visitsWithComments.length > 0) {
-        console.log('💭 Visits with comments:', visitsWithComments.map(v => ({
+        console.log(' Visits with comments:', visitsWithComments.map(v => ({
           id: v.id,
           visit_id: v.visit_id,
           patient_name: v.patients?.name,
@@ -1821,7 +1821,7 @@ const TodaysIpdDashboard = () => {
           filter: 'document_type_id=eq.1' // Only referral letters
         },
         async (payload: any) => {
-          console.log('📄 Referral letter change detected:', payload);
+          console.log(' Referral letter change detected:', payload);
           const visitId = payload.new?.visit_id || payload.old?.visit_id;
           const patientName = payload.new?.patient_name || payload.old?.patient_name;
           if (visitId) {
@@ -2011,7 +2011,7 @@ const TodaysIpdDashboard = () => {
       let consultant = '';
       let sanctionStatus = '';
 
-      console.log('🔍 Edit Patient - visit.remark2:', visit.remark2);
+      console.log(' Edit Patient - visit.remark2:', visit.remark2);
 
       if (visit.remark2) {
         const remarks = visit.remark2.split('; ');
@@ -2030,10 +2030,10 @@ const TodaysIpdDashboard = () => {
         });
       }
 
-      console.log('🔍 Extracted hopeSurgeon:', hopeSurgeon);
-      console.log('🔍 Extracted hopeConsultants:', hopeConsultants);
-      console.log('🔍 Extracted surgeon:', surgeon);
-      console.log('🔍 Extracted consultant:', consultant);
+      console.log(' Extracted hopeSurgeon:', hopeSurgeon);
+      console.log(' Extracted hopeConsultants:', hopeConsultants);
+      console.log(' Extracted surgeon:', surgeon);
+      console.log(' Extracted consultant:', consultant);
 
       const patientForEdit = {
         id: patient.id,
@@ -2072,12 +2072,12 @@ const TodaysIpdDashboard = () => {
 
   // Comment handlers
   const handleCommentClick = (visit: any) => {
-    console.log('🔍 Opening comment dialog for visit:', visit.id);
-    console.log('📋 Visit object:', visit);
-    console.log('💬 Existing comment from visit.comments:', visit.comments);
+    console.log(' Opening comment dialog for visit:', visit.id);
+    console.log(' Visit object:', visit);
+    console.log(' Existing comment from visit.comments:', visit.comments);
 
     const existingComment = visit.comments || '';
-    console.log('📝 Loading comment into dialog:', existingComment);
+    console.log(' Loading comment into dialog:', existingComment);
 
     // Load existing comment if any
     setCommentTexts(prev => ({
@@ -2116,7 +2116,7 @@ const TodaysIpdDashboard = () => {
       const hasChanged = text !== originalText;
 
       if (commentDialogs[visitId] && text !== undefined && hasChanged) {
-        console.log('🔄 Attempting to save comment for visit:', visitId, 'Text:', text, 'Original:', originalText);
+        console.log(' Attempting to save comment for visit:', visitId, 'Text:', text, 'Original:', originalText);
         setSavingComments(prev => ({ ...prev, [visitId]: true }));
 
         try {
@@ -2127,7 +2127,7 @@ const TodaysIpdDashboard = () => {
             .select();
 
           if (error) {
-            console.error('❌ Error saving comment:', error);
+            console.error(' Error saving comment:', error);
             console.error('Error details:', {
               visitId,
               text,
@@ -2137,7 +2137,7 @@ const TodaysIpdDashboard = () => {
             alert(`Failed to save comment: ${error.message}`);
             setSavingComments(prev => ({ ...prev, [visitId]: false }));
           } else {
-            console.log('✅ Comment saved successfully for visit:', visitId, 'Response:', data);
+            console.log(' Comment saved successfully for visit:', visitId, 'Response:', data);
             // Update the original comment after successful save
             setOriginalComments(prev => ({ ...prev, [visitId]: text }));
             // Show saved indicator
@@ -2151,7 +2151,7 @@ const TodaysIpdDashboard = () => {
             refetch();
           }
         } catch (error) {
-          console.error('❌ Exception while saving comment:', error);
+          console.error(' Exception while saving comment:', error);
           console.error('Exception details:', {
             visitId,
             text,
@@ -2203,7 +2203,7 @@ const TodaysIpdDashboard = () => {
   };
 
   const handleBillingStatusSubmit = async (visitId: string, value: string) => {
-    console.log('🔄 Starting billing status update for visitId:', visitId, 'value:', value);
+    console.log(' Starting billing status update for visitId:', visitId, 'value:', value);
     try {
       const { error } = await supabase
         .from('visits')
@@ -2211,19 +2211,19 @@ const TodaysIpdDashboard = () => {
         .eq('visit_id', visitId);
 
       if (error) {
-        console.error('❌ Error updating billing_status:', error);
+        console.error(' Error updating billing_status:', error);
         return;
       }
 
-      console.log('✅ Billing Status updated successfully for visit:', visitId, 'with value:', value);
+      console.log(' Billing Status updated successfully for visit:', visitId, 'with value:', value);
       refetch(); // Refresh the data
     } catch (error) {
-      console.error('❌ Exception during billing_status update:', error);
+      console.error(' Exception during billing_status update:', error);
     }
   };
 
   const handleBillingSubStatusSubmit = async (visitId: string, value: string) => {
-    console.log('🔄 Starting billing sub status update for visitId:', visitId, 'value:', value);
+    console.log(' Starting billing sub status update for visitId:', visitId, 'value:', value);
     try {
       const { error } = await supabase
         .from('visits')
@@ -2231,14 +2231,14 @@ const TodaysIpdDashboard = () => {
         .eq('visit_id', visitId);
 
       if (error) {
-        console.error('❌ Error updating billing_sub_status:', error);
+        console.error(' Error updating billing_sub_status:', error);
         return;
       }
 
-      console.log('✅ Billing Sub Status updated successfully for visit:', visitId, 'with value:', value);
+      console.log(' Billing Sub Status updated successfully for visit:', visitId, 'with value:', value);
       refetch(); // Refresh the data
     } catch (error) {
-      console.error('❌ Exception during billing_sub_status update:', error);
+      console.error(' Exception during billing_sub_status update:', error);
     }
   };
 
@@ -2560,7 +2560,7 @@ const TodaysIpdDashboard = () => {
         ];
 
         // STEP 1: Delete from NO ACTION tables first (to avoid constraint violations)
-        console.log('🗑️ Step 1: Deleting from NO ACTION constraint tables...');
+        console.log(' Step 1: Deleting from NO ACTION constraint tables...');
 
         for (const tableName of noActionTables) {
           try {
@@ -2570,19 +2570,19 @@ const TodaysIpdDashboard = () => {
               .eq('visit_id', visitUUID);
 
             if (error) {
-              console.error(`❌ Error deleting from ${tableName}:`, error);
+              console.error(` Error deleting from ${tableName}:`, error);
               // Continue with other tables even if one fails
             } else {
-              console.log(`✅ Deleted data from ${tableName}`);
+              console.log(` Deleted data from ${tableName}`);
             }
           } catch (tableError) {
-            console.error(`❌ Exception deleting from ${tableName}:`, tableError);
+            console.error(` Exception deleting from ${tableName}:`, tableError);
             // Continue with other tables
           }
         }
 
         // STEP 2: Delete from text-based tables (if they exist)
-        console.log('🗑️ Step 2: Deleting from text-based tables...');
+        console.log(' Step 2: Deleting from text-based tables...');
 
         for (const tableName of textVisitIdTables) {
           try {
@@ -2592,13 +2592,13 @@ const TodaysIpdDashboard = () => {
               .eq('visit_id', visitId);
 
             if (error) {
-              console.error(`❌ Error deleting from ${tableName}:`, error);
+              console.error(` Error deleting from ${tableName}:`, error);
               // Continue with other tables even if one fails
             } else {
-              console.log(`✅ Deleted data from ${tableName}`);
+              console.log(` Deleted data from ${tableName}`);
             }
           } catch (tableError) {
-            console.error(`❌ Exception deleting from ${tableName}:`, tableError);
+            console.error(` Exception deleting from ${tableName}:`, tableError);
             // Continue with other tables
           }
         }
@@ -2614,7 +2614,7 @@ const TodaysIpdDashboard = () => {
         if (billsError) {
           console.error('Error deleting bills for visit:', billsError);
         } else {
-          console.log('✅ Deleted bills data for visit');
+          console.log(' Deleted bills data for visit');
         }
 
         // Finally, delete the visit record itself using UUID
@@ -2630,7 +2630,7 @@ const TodaysIpdDashboard = () => {
           return;
         }
 
-        console.log('✅ Successfully deleted visit and all related data');
+        console.log(' Successfully deleted visit and all related data');
 
         // Refresh the visits list
         refetch();
@@ -2740,31 +2740,31 @@ const TodaysIpdDashboard = () => {
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
                     <DropdownMenuItem onSelect={() => setSortBy('sr_no')} className={sortBy === 'sr_no' ? 'bg-accent' : ''}>
-                      Sr No (Ascending) {sortBy === 'sr_no' && '✓'}
+                      Sr No (Ascending) {sortBy === 'sr_no' && ''}
                     </DropdownMenuItem>
                     <DropdownMenuItem onSelect={() => setSortBy('sr_no_desc')} className={sortBy === 'sr_no_desc' ? 'bg-accent' : ''}>
-                      Sr No (Descending) {sortBy === 'sr_no_desc' && '✓'}
+                      Sr No (Descending) {sortBy === 'sr_no_desc' && ''}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onSelect={() => setSortBy('latest')} className={sortBy === 'latest' ? 'bg-accent' : ''}>
-                      Latest First {sortBy === 'latest' && '✓'}
+                      Latest First {sortBy === 'latest' && ''}
                     </DropdownMenuItem>
                     <DropdownMenuItem onSelect={() => setSortBy('oldest')} className={sortBy === 'oldest' ? 'bg-accent' : ''}>
-                      Oldest First {sortBy === 'oldest' && '✓'}
+                      Oldest First {sortBy === 'oldest' && ''}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onSelect={() => setSortBy('name_asc')} className={sortBy === 'name_asc' ? 'bg-accent' : ''}>
-                      Patient Name (A-Z) {sortBy === 'name_asc' && '✓'}
+                      Patient Name (A-Z) {sortBy === 'name_asc' && ''}
                     </DropdownMenuItem>
                     <DropdownMenuItem onSelect={() => setSortBy('name_desc')} className={sortBy === 'name_desc' ? 'bg-accent' : ''}>
-                      Patient Name (Z-A) {sortBy === 'name_desc' && '✓'}
+                      Patient Name (Z-A) {sortBy === 'name_desc' && ''}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onSelect={() => setSortBy('visit_id_asc')} className={sortBy === 'visit_id_asc' ? 'bg-accent' : ''}>
-                      Visit ID (Ascending) {sortBy === 'visit_id_asc' && '✓'}
+                      Visit ID (Ascending) {sortBy === 'visit_id_asc' && ''}
                     </DropdownMenuItem>
                     <DropdownMenuItem onSelect={() => setSortBy('visit_id_desc')} className={sortBy === 'visit_id_desc' ? 'bg-accent' : ''}>
-                      Visit ID (Descending) {sortBy === 'visit_id_desc' && '✓'}
+                      Visit ID (Descending) {sortBy === 'visit_id_desc' && ''}
                     </DropdownMenuItem>
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
@@ -2776,11 +2776,11 @@ const TodaysIpdDashboard = () => {
                   <DropdownMenuSubTrigger>Billing Executive</DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="max-h-64 overflow-y-auto">
                     <DropdownMenuItem onSelect={() => setBillingExecutiveFilter('')} className={billingExecutiveFilter === '' ? 'bg-accent' : ''}>
-                      All {billingExecutiveFilter === '' && '✓'}
+                      All {billingExecutiveFilter === '' && ''}
                     </DropdownMenuItem>
                     {['Dr.B.K.Murali', 'Ruby', 'Shrikant', 'Gaurav', 'Dr. Swapnil', 'Dr.Sachin', 'Dr.Shiraj', 'Dr. Sharad', 'Shashank', 'Shweta', 'Suraj', 'Nitin', 'Sonali', 'Ruchika', 'Pragati', 'Rachana', 'Kashish', 'Aman', 'Dolly', 'Ruchi', 'Gayatri', 'Noor', 'Nisha', 'Diksha', 'Ayush', 'Kiran', 'Pratik', 'Azhar', 'Tejas', 'Abhishek', 'Chandrprakash'].map((exec) => (
                       <DropdownMenuItem key={exec} onSelect={() => setBillingExecutiveFilter(exec)} className={billingExecutiveFilter === exec ? 'bg-accent' : ''}>
-                        {exec} {billingExecutiveFilter === exec && '✓'}
+                        {exec} {billingExecutiveFilter === exec && ''}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuSubContent>
@@ -2791,11 +2791,11 @@ const TodaysIpdDashboard = () => {
                   <DropdownMenuSubTrigger>Billing Status</DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
                     <DropdownMenuItem onSelect={() => setBillingStatusFilter('')} className={billingStatusFilter === '' ? 'bg-accent' : ''}>
-                      All {billingStatusFilter === '' && '✓'}
+                      All {billingStatusFilter === '' && ''}
                     </DropdownMenuItem>
                     {['Approval Pending', 'ID Pending', 'Doctor Planning Done', 'Bill Completed', 'Bill Submitted', 'Bill uploaded, not couriered', 'Bill uploaded, couriered', 'Payment received'].map((status) => (
                       <DropdownMenuItem key={status} onSelect={() => setBillingStatusFilter(status)} className={billingStatusFilter === status ? 'bg-accent' : ''}>
-                        {status === 'Bill Completed' ? 'Bill PDF Completed' : (status === 'Bill Submitted' ? 'Bill submitted - DSC done' : status)} {billingStatusFilter === status && '✓'}
+                        {status === 'Bill Completed' ? 'Bill PDF Completed' : (status === 'Bill Submitted' ? 'Bill submitted - DSC done' : status)} {billingStatusFilter === status && ''}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuSubContent>
@@ -2806,11 +2806,11 @@ const TodaysIpdDashboard = () => {
                   <DropdownMenuSubTrigger>Corporate</DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="max-h-64 overflow-y-auto">
                     <DropdownMenuItem onSelect={() => setCorporateFilter('')} className={corporateFilter === '' ? 'bg-accent' : ''}>
-                      All {corporateFilter === '' && '✓'}
+                      All {corporateFilter === '' && ''}
                     </DropdownMenuItem>
                     {corporates.map((corporate) => (
                       <DropdownMenuItem key={corporate.id} onSelect={() => setCorporateFilter(corporate.name)} className={corporateFilter === corporate.name ? 'bg-accent' : ''}>
-                        {corporate.name} {corporateFilter === corporate.name && '✓'}
+                        {corporate.name} {corporateFilter === corporate.name && ''}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuSubContent>
@@ -2821,11 +2821,11 @@ const TodaysIpdDashboard = () => {
                   <DropdownMenuSubTrigger>Bunch</DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
                     <DropdownMenuItem onSelect={() => setBunchFilter('')} className={bunchFilter === '' ? 'bg-accent' : ''}>
-                      All {bunchFilter === '' && '✓'}
+                      All {bunchFilter === '' && ''}
                     </DropdownMenuItem>
                     {Array.from(new Set((todaysVisits || []).map(visit => visit.bunch_no).filter(Boolean))).sort().map((bunchNo) => (
                       <DropdownMenuItem key={bunchNo} onSelect={() => setBunchFilter(bunchNo as string)} className={bunchFilter === bunchNo ? 'bg-accent' : ''}>
-                        Bunch {bunchNo} {bunchFilter === bunchNo && '✓'}
+                        Bunch {bunchNo} {bunchFilter === bunchNo && ''}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuSubContent>
@@ -3117,7 +3117,7 @@ const TodaysIpdDashboard = () => {
 
                           {/* 24-hour expired tooltip */}
                           <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-red-600 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-50 whitespace-nowrap">
-                            <div className="font-medium">🚫 Grace Period Expired</div>
+                            <div className="font-medium"> Grace Period Expired</div>
                             <div className="text-xs">24-hour grace period has ended</div>
                             <div className="text-xs">Please upload the referral letter for</div>
                             <div className="text-xs font-semibold">{visit.patients?.name}</div>
@@ -3271,10 +3271,10 @@ const TodaysIpdDashboard = () => {
                     {visit.discharge_date ? (
                       (() => {
                         try {
-                          console.log('🗓️ Discharge date for', visit.patients?.name, ':', visit.discharge_date, 'Type:', typeof visit.discharge_date);
+                          console.log(' Discharge date for', visit.patients?.name, ':', visit.discharge_date, 'Type:', typeof visit.discharge_date);
                           return format(new Date(visit.discharge_date), 'MMM dd, yyyy');
                         } catch (error) {
-                          console.error('❌ Date format error for', visit.patients?.name, ':', error, 'Value:', visit.discharge_date);
+                          console.error(' Date format error for', visit.patients?.name, ':', error, 'Value:', visit.discharge_date);
                           return String(visit.discharge_date); // Show raw value if format fails
                         }
                       })()
@@ -3598,7 +3598,7 @@ const TodaysIpdDashboard = () => {
                 )}
                 {savedComments[visit.id] && !savingComments[visit.id] && (
                   <div className="absolute bottom-2 right-2 text-xs text-green-600 bg-green-50 px-2 py-1 rounded border border-green-200">
-                    ✓ Saved
+                     Saved
                   </div>
                 )}
               </div>

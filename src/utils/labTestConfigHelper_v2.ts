@@ -74,7 +74,7 @@ export async function saveTestConfigWithNested(
       normal_ranges: JSON.stringify(config.normal_ranges || [])
     };
 
-    console.log(`💾 Saving config at level ${testLevel}:`, config.sub_test_name);
+    console.log(` Saving config at level ${testLevel}:`, config.sub_test_name);
 
     const { data: savedConfig, error } = await supabase
       .from('lab_test_config')
@@ -90,11 +90,11 @@ export async function saveTestConfigWithNested(
     const currentConfigId = savedConfig.id;
     savedIds.push(currentConfigId);
 
-    console.log(`✅ Saved "${config.sub_test_name}" with ${config.age_ranges?.length || 0} age ranges, ${config.normal_ranges?.length || 0} normal ranges`);
+    console.log(` Saved "${config.sub_test_name}" with ${config.age_ranges?.length || 0} age ranges, ${config.normal_ranges?.length || 0} normal ranges`);
 
     // Recursively save nested configs
     if (config.nested_configs && config.nested_configs.length > 0) {
-      console.log(`📂 Saving ${config.nested_configs.length} nested configs for "${config.sub_test_name}"`);
+      console.log(` Saving ${config.nested_configs.length} nested configs for "${config.sub_test_name}"`);
 
       for (let i = 0; i < config.nested_configs.length; i++) {
         const nestedConfig = config.nested_configs[i];

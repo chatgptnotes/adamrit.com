@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer } from 'lucide-react';
+import { ArrowLeft, BarChart3, Check, CheckCircle, ClipboardList, DollarSign, Printer, Search } from 'lucide-react';
 import { format } from 'date-fns';
 
 const ViewBill = () => {
@@ -19,7 +19,7 @@ const ViewBill = () => {
     queryFn: async () => {
       if (!billId) return null;
 
-      console.log('🔍 Fetching bill data for ID:', billId);
+      console.log(' Fetching bill data for ID:', billId);
 
       // Fetch main bill record
       const { data: bill, error: billError } = await supabase
@@ -79,10 +79,10 @@ const ViewBill = () => {
         bill_line_items: lineItems || []
       };
 
-      console.log('✅ Fetched real bill data:', billWithRelations);
-      console.log('📊 Bill sections:', sections?.length || 0);
-      console.log('📋 Bill line items:', lineItems?.length || 0);
-      console.log('💰 Total amount:', bill.total_amount);
+      console.log(' Fetched real bill data:', billWithRelations);
+      console.log(' Bill sections:', sections?.length || 0);
+      console.log(' Bill line items:', lineItems?.length || 0);
+      console.log(' Total amount:', bill.total_amount);
 
       return billWithRelations;
     },
@@ -292,7 +292,7 @@ const ViewBill = () => {
                         <td className="border border-gray-300 p-2"></td>
                         <td className="border border-gray-300 p-2"></td>
                         <td className="border border-gray-300 p-2 text-center">
-                          <span className="text-green-600">✓</span>
+                          <span className="text-green-600"></span>
                         </td>
                       </tr>
                     )}
@@ -309,7 +309,7 @@ const ViewBill = () => {
                     <td className="border border-gray-300 p-2 text-center">{item.qty}</td>
                     <td className="border border-gray-300 p-2 text-center">{item.amount}</td>
                     <td className="border border-gray-300 p-2 text-center">
-                      <span className="text-green-600">✓</span>
+                      <span className="text-green-600"></span>
                     </td>
                   </tr>
                 ))}
@@ -380,7 +380,7 @@ const ViewBill = () => {
 
           {/* Generated Info */}
           <div className="mt-4 text-center text-xs text-gray-500">
-            <p>✅ Bill saved to database. ID: {billData.id?.slice(0, 8)}</p>
+            <p><CheckCircle className="inline-block w-4 h-4" /> Bill saved to database. ID: {billData.id?.slice(0, 8)}</p>
           </div>
         </div>
       </div>

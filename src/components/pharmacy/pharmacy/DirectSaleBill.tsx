@@ -18,7 +18,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
-import { Calendar, Trash2, Printer, CheckCircle } from 'lucide-react';
+import { Calendar, CheckCircle, Package, Printer, Search, Trash2, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -170,7 +170,7 @@ const DirectSaleBill: React.FC = () => {
     }
 
     try {
-      console.log('🔍 Searching medications for:', searchTerm, 'medicineId:', medicineId);
+      console.log(' Searching medications for:', searchTerm, 'medicineId:', medicineId);
 
       // First get medicines matching the search term
       const { data: medicines, error: medError } = await supabase
@@ -181,7 +181,7 @@ const DirectSaleBill: React.FC = () => {
         .limit(10);
 
       if (medError) {
-        console.error('❌ Error searching medications:', medError);
+        console.error(' Error searching medications:', medError);
         throw medError;
       }
 
@@ -202,7 +202,7 @@ const DirectSaleBill: React.FC = () => {
         .order('expiry_date', { ascending: true });
 
       if (batchError) {
-        console.error('❌ Error fetching batches:', batchError);
+        console.error(' Error fetching batches:', batchError);
       }
 
       // Create dropdown items - one per batch (so user can see stock for each batch)
@@ -250,14 +250,14 @@ const DirectSaleBill: React.FC = () => {
         }
       });
 
-      console.log('✅ Medication search results with batches:', mappedData);
+      console.log(' Medication search results with batches:', mappedData);
       setMedicationSuggestions(prev => ({ ...prev, [medicineId]: mappedData }));
 
       if (mappedData.length > 0) {
         setShowMedicationResults(prev => ({ ...prev, [medicineId]: true }));
       }
     } catch (error: any) {
-      console.error('❌ Error searching medications:', error);
+      console.error(' Error searching medications:', error);
       toast({
         title: "Error",
         description: "Failed to search medications",
@@ -269,7 +269,7 @@ const DirectSaleBill: React.FC = () => {
   // Fetch available batches for a selected medicine from batch inventory
   const fetchBatchesForMedicine = async (medicineId: string, rowId: string) => {
     try {
-      console.log('🔍 Fetching batches for medicine:', medicineId);
+      console.log(' Fetching batches for medicine:', medicineId);
       const { data, error } = await supabase
         .from('medicine_batch_inventory')
         .select('id, medicine_id, batch_number, expiry_date, current_stock, mrp, selling_price')
@@ -280,11 +280,11 @@ const DirectSaleBill: React.FC = () => {
         .order('expiry_date', { ascending: true }); // FEFO - First Expiry First Out
 
       if (error) {
-        console.error('❌ Error fetching batches:', error);
+        console.error(' Error fetching batches:', error);
         throw error;
       }
 
-      console.log('✅ Available batches:', data);
+      console.log(' Available batches:', data);
 
       // Update the medicine row with available batches
       setMedicines(prev => prev.map(m => {
@@ -305,7 +305,7 @@ const DirectSaleBill: React.FC = () => {
         });
       }
     } catch (error: any) {
-      console.error('❌ Error fetching batches:', error);
+      console.error(' Error fetching batches:', error);
     }
   };
 
@@ -511,7 +511,7 @@ const DirectSaleBill: React.FC = () => {
       if (insertError) throw insertError;
 
       // Deduct stock from batch inventory for each medicine
-      console.log('📦 Deducting stock for sold medicines...');
+      console.log(' Deducting stock for sold medicines...');
       for (const med of validMedicines) {
         if (med.batchInventoryId) {
           // Get current stock
@@ -543,7 +543,7 @@ const DirectSaleBill: React.FC = () => {
           if (updateError) {
             console.error('Error updating stock:', updateError);
           } else {
-            console.log(`✅ Stock deducted for ${med.itemName}: ${soldQty} units (New stock: ${newStock})`);
+            console.log(` Stock deducted for ${med.itemName}: ${soldQty} units (New stock: ${newStock})`);
           }
 
           // Log stock movement

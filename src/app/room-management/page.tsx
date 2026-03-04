@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Building2, Eye, Edit, Trash2, Plus, ArrowLeft } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, BarChart3, Building2, CheckCircle, Edit, Eye, Plus, Search, Trash2, XCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
   Table,
@@ -72,8 +72,8 @@ const RoomManagement: React.FC = () => {
     try {
       setLoading(true);
 
-      console.log('🔍 DEBUG - Hospital Config:', hospitalConfig);
-      console.log('🔍 DEBUG - Hospital Name for Filter:', hospitalConfig?.name);
+      console.log(' DEBUG - Hospital Config:', hospitalConfig);
+      console.log(' DEBUG - Hospital Name for Filter:', hospitalConfig?.name);
 
       let query = supabase
         .from('room_management')
@@ -82,26 +82,26 @@ const RoomManagement: React.FC = () => {
 
       // Apply hospital filter - only show wards for logged-in hospital
       if (hospitalConfig?.name) {
-        console.log('✅ Applying hospital filter:', hospitalConfig.name);
+        console.log(' Applying hospital filter:', hospitalConfig.name);
         query = query.eq('hospital_name', hospitalConfig.name);
       } else {
-        console.log('⚠️ No hospital config - fetching all wards');
+        console.log(' No hospital config - fetching all wards');
       }
 
       const { data, error } = await query;
 
-      console.log('📊 Query Result - Data:', data);
-      console.log('📊 Query Result - Error:', error);
-      console.log('📊 Number of wards fetched:', data?.length || 0);
+      console.log(' Query Result - Data:', data);
+      console.log(' Query Result - Error:', error);
+      console.log(' Number of wards fetched:', data?.length || 0);
 
       if (error) {
-        console.error('❌ Error fetching wards:', error);
+        console.error(' Error fetching wards:', error);
         throw error;
       }
 
       setWards(data || []);
     } catch (error) {
-      console.error('❌ Error fetching wards:', error);
+      console.error(' Error fetching wards:', error);
       toast.error('Failed to fetch wards');
     } finally {
       setLoading(false);

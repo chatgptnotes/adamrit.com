@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { Building2, Plus, Edit, Trash2, Search } from 'lucide-react';
+import { BarChart3, Building2, CheckCircle, Edit, FileText, Lock, Plus, RefreshCw, Rocket, Search, Trash2, XCircle } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -98,43 +98,43 @@ const Corporate: React.FC = () => {
       return;
     }
 
-    console.log('🚀 Starting corporate save process...');
-    console.log('📝 Form data:', { name: formData.name.trim() });
-    console.log('🔄 Edit mode:', !!editingCorporate);
+    console.log(' Starting corporate save process...');
+    console.log(' Form data:', { name: formData.name.trim() });
+    console.log(' Edit mode:', !!editingCorporate);
 
     try {
       // Check authentication state (both Supabase and HMIS)
       const { data: { session }, error: authError } = await supabase.auth.getSession();
-      console.log('🔐 Supabase Auth session:', session?.user?.id ? 'Authenticated' : 'Not authenticated');
-      console.log('🔐 Supabase User ID:', session?.user?.id);
+      console.log(' Supabase Auth session:', session?.user?.id ? 'Authenticated' : 'Not authenticated');
+      console.log(' Supabase User ID:', session?.user?.id);
 
       // Check HMIS authentication from context
-      console.log('🏥 HMIS Auth user:', hospitalConfig ? 'Authenticated' : 'Not authenticated');
-      console.log('🏥 HMIS User:', {
+      console.log(' HMIS Auth user:', hospitalConfig ? 'Authenticated' : 'Not authenticated');
+      console.log(' HMIS User:', {
         isAuthenticated: !!hospitalConfig,
         hospitalType: hospitalConfig?.type,
         hospitalName: hospitalConfig?.name
       });
 
       if (authError) {
-        console.error('❌ Supabase Auth error:', authError);
+        console.error(' Supabase Auth error:', authError);
       }
 
       // For now, we'll bypass Supabase Auth and rely on HMIS authentication
       // This is because the system uses custom HMIS auth, not Supabase Auth
       if (!hospitalConfig) {
-        console.error('❌ No HMIS user found');
+        console.error(' No HMIS user found');
         toast.error('Please log in to the HMIS system to save corporate data');
         return;
       }
 
       // Log that we're proceeding with HMIS auth instead of Supabase auth
-      console.log('✅ Proceeding with HMIS authentication instead of Supabase auth');
-      console.log('📝 Note: RLS should be disabled on corporate table for this to work');
+      console.log(' Proceeding with HMIS authentication instead of Supabase auth');
+      console.log(' Note: RLS should be disabled on corporate table for this to work');
 
       if (editingCorporate) {
         // Update existing corporate
-        console.log('📝 Updating corporate with ID:', editingCorporate.id);
+        console.log(' Updating corporate with ID:', editingCorporate.id);
         const { data, error } = await supabase
           .from('corporate')
           .update({
@@ -144,11 +144,11 @@ const Corporate: React.FC = () => {
           .eq('id', editingCorporate.id)
           .select();
 
-        console.log('📊 Update response data:', data);
-        console.log('❌ Update error:', error);
+        console.log(' Update response data:', data);
+        console.log(' Update error:', error);
 
         if (error) {
-          console.error('❌ Supabase update error details:', {
+          console.error(' Supabase update error details:', {
             message: error.message,
             details: error.details,
             hint: error.hint,
@@ -159,22 +159,22 @@ const Corporate: React.FC = () => {
         toast.success('Corporate updated successfully');
       } else {
         // Create new corporate
-        console.log('➕ Creating new corporate...');
+        console.log(' Creating new corporate...');
         const insertData = {
           name: formData.name.trim()
         };
-        console.log('📝 Insert data:', insertData);
+        console.log(' Insert data:', insertData);
 
         const { data, error } = await supabase
           .from('corporate')
           .insert(insertData)
           .select();
 
-        console.log('📊 Insert response data:', data);
-        console.log('❌ Insert error:', error);
+        console.log(' Insert response data:', data);
+        console.log(' Insert error:', error);
 
         if (error) {
-          console.error('❌ Supabase insert error details:', {
+          console.error(' Supabase insert error details:', {
             message: error.message,
             details: error.details,
             hint: error.hint,
@@ -182,7 +182,7 @@ const Corporate: React.FC = () => {
           });
           throw error;
         }
-        console.log('✅ Corporate added successfully!');
+        console.log(' Corporate added successfully!');
         toast.success('Corporate added successfully');
       }
 
@@ -194,14 +194,14 @@ const Corporate: React.FC = () => {
       setIsDialogOpen(false);
 
       // Refresh data
-      console.log('🔄 Refreshing corporate data...');
+      console.log(' Refreshing corporate data...');
       fetchCorporateData();
     } catch (error: any) {
-      console.error('❌ Complete error object:', error);
-      console.error('❌ Error message:', error?.message);
-      console.error('❌ Error details:', error?.details);
-      console.error('❌ Error hint:', error?.hint);
-      console.error('❌ Error code:', error?.code);
+      console.error(' Complete error object:', error);
+      console.error(' Error message:', error?.message);
+      console.error(' Error details:', error?.details);
+      console.error(' Error hint:', error?.hint);
+      console.error(' Error code:', error?.code);
 
       // More specific error messages
       if (error?.message?.includes('permission denied')) {

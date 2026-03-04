@@ -6,7 +6,7 @@ import React from 'react';
  */
 
 /**
- * ✅ CORRECT PATTERN - Single mapping with conditional rendering
+ *  CORRECT PATTERN - Single mapping with conditional rendering
  * Use this instead of duplicate .map() calls
  */
 export const renderItemsWithCondition = <T>(
@@ -20,7 +20,7 @@ export const renderItemsWithCondition = <T>(
 };
 
 /**
- * ✅ CORRECT PATTERN - For Conservative Treatment conditional rendering
+ *  CORRECT PATTERN - For Conservative Treatment conditional rendering
  */
 export const renderItemsExcludingConservative = <T>(
   items: T[],
@@ -39,7 +39,7 @@ export const renderItemsExcludingConservative = <T>(
 };
 
 /**
- * ✅ CORRECT PATTERN - Single mapping with multiple conditions
+ *  CORRECT PATTERN - Single mapping with multiple conditions
  */
 export const renderItemsWithMultipleConditions = <T>(
   items: T[],
@@ -68,10 +68,10 @@ export const renderItemsWithMultipleConditions = <T>(
 };
 
 /**
- * ❌ WRONG PATTERN - Don't do this:
+ *  WRONG PATTERN - Don't do this:
  * {items.map(item => <Row item={item} />)}
  * {items.map(item => <Row item={item} />)} // Duplicate!
  * 
- * ✅ CORRECT PATTERN - Do this instead:
+ *  CORRECT PATTERN - Do this instead:
  * {renderItemsWithCondition(items, item => <Row item={item} />)}
  */

@@ -7,7 +7,7 @@ import { PurchaseOrderService, PurchaseOrder } from '@/lib/purchase-order-servic
 import { SupplierService, Supplier } from '@/lib/supplier-service';
 import { GRNService } from '@/lib/grn-service';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Search, Package, CheckCircle, AlertCircle } from 'lucide-react';
+import { AlertCircle, AlertTriangle, CheckCircle, Loader2, Package, Search } from 'lucide-react';
 
 interface EditPurchaseOrderProps {
   purchaseOrderId: string;
@@ -865,12 +865,12 @@ const EditPurchaseOrder: React.FC<EditPurchaseOrderProps> = ({ purchaseOrderId, 
             </div>
             {grnStatus === 'DRAFT' && (
               <p className="text-sm text-blue-700">
-                ⚠️ Draft saved. Click <strong>Submit</strong> to add inventory.
+                 Draft saved. Click <strong>Submit</strong> to add inventory.
               </p>
             )}
             {grnStatus === 'POSTED' && (
               <p className="text-sm text-green-700">
-                ✅ Inventory has been updated successfully.
+                 Inventory has been updated successfully.
               </p>
             )}
           </div>

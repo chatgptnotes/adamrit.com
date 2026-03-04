@@ -20,28 +20,7 @@ import {
   DialogTrigger 
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  ShoppingCart, 
-  Search, 
-  Plus, 
-  Minus,
-  Scan,
-  CreditCard,
-  DollarSign,
-  Receipt,
-  User,
-  FileText,
-  Calculator,
-  Trash2,
-  Edit,
-  Printer,
-  CheckCircle,
-  AlertTriangle,
-  Clock,
-  Package,
-  Users,
-  Calendar
-} from 'lucide-react';
+import { AlertTriangle, BarChart3, Building2, Calculator, Calendar, CheckCircle, Clock, CreditCard, DollarSign, Edit, FileText, Minus, Package, Plus, Printer, Receipt, RefreshCw, Scan, Search, ShoppingCart, Trash2, User, Users, X, XCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useDebounce } from 'use-debounce';
 import { useAuth } from '@/contexts/AuthContext';
@@ -176,11 +155,11 @@ const PharmacyBilling: React.FC = () => {
 
         // Step 2: Get batch inventory for these medicines
         const medicineIds = medicines.map((m: any) => m.id);
-        console.log('🔍 DEBUG: Found medicines in medicine_master:', medicines.map(m => ({ 
+        console.log(' DEBUG: Found medicines in medicine_master:', medicines.map(m => ({ 
           name: m.medicine_name, 
           id: m.id 
         })));
-        console.log('🔍 DEBUG: Searching for batch inventory with medicine_ids:', medicineIds);
+        console.log(' DEBUG: Searching for batch inventory with medicine_ids:', medicineIds);
         
         const { data: batches, error: batchError } = await supabase
           .from('medicine_batch_inventory')
@@ -191,12 +170,12 @@ const PharmacyBilling: React.FC = () => {
           .gt('current_stock', 0)
           .order('expiry_date', { ascending: true }); // FEFO - First Expiry First Out
           
-        console.log('🔍 DEBUG: Found batches in medicine_batch_inventory:', batches?.map(b => ({ 
+        console.log(' DEBUG: Found batches in medicine_batch_inventory:', batches?.map(b => ({ 
           medicine_id: b.medicine_id, 
           batch: b.batch_number, 
           stock: b.current_stock 
         })) || []);
-        console.log('🔍 DEBUG: Batch query error:', batchError);
+        console.log(' DEBUG: Batch query error:', batchError);
 
         if (batchError) {
           console.error('Error fetching batches:', batchError);
@@ -433,7 +412,7 @@ const PharmacyBilling: React.FC = () => {
     }).format(amount);
 
   const addToCart = (medicine: any) => {
-    console.log('🏥 Adding medicine to cart:', {
+    console.log(' Adding medicine to cart:', {
       batch_inventory_id: medicine.id,
       medicine_id: medicine.medicine_id,
       name: medicine.name,
@@ -494,7 +473,7 @@ const PharmacyBilling: React.FC = () => {
       newItem.tax_amount = taxAmount;
       newItem.total_amount = totalAmount;
 
-      console.log('✅ New cart item created:', {
+      console.log(' New cart item created:', {
         medicine_id: newItem.medicine_id,
         medicine_name: newItem.medicine_name,
         qty_strips: newItem.qty_strips,
@@ -670,7 +649,7 @@ const PharmacyBilling: React.FC = () => {
       payment_method: paymentMethod,
       payment_status: 'COMPLETED',
       items: cart.map(item => {
-        console.log('🔍 Cart item being mapped:', {
+        console.log(' Cart item being mapped:', {
           medicine_id: item.medicine_id,
           medicine_name: item.medicine_name,
           generic_name: item.generic_name
@@ -710,13 +689,13 @@ const PharmacyBilling: React.FC = () => {
     console.log('Error:', response.error);
 
     if (!response.success) {
-      console.error('❌ Error saving to pharmacy_sales:', response.error);
+      console.error(' Error saving to pharmacy_sales:', response.error);
       alert('Error saving sale: ' + response.error);
       setIsProcessingPayment(false);
       return;
     }
 
-    console.log('✅ Sale saved successfully! Sale ID:', response.sale_id);
+    console.log(' Sale saved successfully! Sale ID:', response.sale_id);
 
     // Deduct stock from medicine_batch_inventory table (batch-wise stock tracking)
     console.log('=== UPDATING STOCK IN MEDICINE_BATCH_INVENTORY ===');
@@ -731,7 +710,7 @@ const PharmacyBilling: React.FC = () => {
 
     for (const item of cart) {
       try {
-        console.log(`\n🔄 Processing medicine: ${item.medicine_name} (Batch: ${item.batch_number}, Inventory ID: ${item.batch_inventory_id})`);
+        console.log(`\n Processing medicine: ${item.medicine_name} (Batch: ${item.batch_number}, Inventory ID: ${item.batch_inventory_id})`);
 
         // Get current stock from medicine_batch_inventory
         const { data: currentBatch, error: fetchError } = await supabase
@@ -741,13 +720,13 @@ const PharmacyBilling: React.FC = () => {
           .single();
 
         if (fetchError) {
-          console.error(`❌ Error fetching stock for batch ${item.batch_inventory_id}:`, fetchError);
+          console.error(` Error fetching stock for batch ${item.batch_inventory_id}:`, fetchError);
           alert(`Error: Could not fetch stock for ${item.medicine_name} (Batch: ${item.batch_number}). Error: ${fetchError.message}`);
           continue;
         }
 
         if (!currentBatch) {
-          console.error(`❌ Batch not found in medicine_batch_inventory table: ${item.batch_inventory_id}`);
+          console.error(` Batch not found in medicine_batch_inventory table: ${item.batch_inventory_id}`);
           alert(`Error: ${item.medicine_name} (Batch: ${item.batch_number}) not found in inventory`);
           continue;
         }
@@ -757,7 +736,7 @@ const PharmacyBilling: React.FC = () => {
         const currentSoldQty = currentBatch.sold_quantity || 0;
         const newSoldQty = currentSoldQty + item.quantity;
 
-        console.log(`📊 Stock Update Details:`);
+        console.log(` Stock Update Details:`);
         console.log(`  Medicine: ${item.medicine_name}`);
         console.log(`  Batch: ${currentBatch.batch_number}`);
         console.log(`  Current Stock: ${currentStock}`);
@@ -766,7 +745,7 @@ const PharmacyBilling: React.FC = () => {
 
         // Check if stock would go negative
         if (newStock < 0) {
-          console.warn(`⚠️ Insufficient stock for ${item.medicine_name}. Available: ${currentStock}, Requested: ${item.quantity}`);
+          console.warn(` Insufficient stock for ${item.medicine_name}. Available: ${currentStock}, Requested: ${item.quantity}`);
           alert(`Warning: Insufficient stock for ${item.medicine_name} (Batch: ${item.batch_number}). Available: ${currentStock}, Sold: ${item.quantity}. Stock set to 0.`);
         }
 
@@ -783,14 +762,14 @@ const PharmacyBilling: React.FC = () => {
           .select();
 
         if (updateError) {
-          console.error(`❌ Error updating stock for batch ${item.batch_inventory_id}:`, updateError);
+          console.error(` Error updating stock for batch ${item.batch_inventory_id}:`, updateError);
           alert(`Error updating stock for ${item.medicine_name} (Batch: ${item.batch_number}): ${updateError.message}`);
         } else {
-          console.log(`✅ Stock updated successfully for ${item.medicine_name} (Batch: ${currentBatch.batch_number})`);
+          console.log(` Stock updated successfully for ${item.medicine_name} (Batch: ${currentBatch.batch_number})`);
           console.log(`Updated data:`, updateData);
         }
       } catch (error: any) {
-        console.error('❌ Exception in stock update:', error);
+        console.error(' Exception in stock update:', error);
         alert(`Exception during stock update for ${item.medicine_name}: ${error.message}`);
       }
     }
@@ -800,7 +779,7 @@ const PharmacyBilling: React.FC = () => {
     setIsProcessingPayment(false);
     clearCart();
 
-    alert(`✅ Sale completed successfully! Sale ID: ${response.sale_id}`);
+    alert(` Sale completed successfully! Sale ID: ${response.sale_id}`);
   };
 
   const filteredMedicines = searchResults.filter(medicine =>
@@ -1593,7 +1572,7 @@ const PharmacyBilling: React.FC = () => {
                               onClick={() => removeFromCart(item.id)}
                               className="h-6 w-6 p-0 text-red-500"
                             >
-                              ✕
+                              
                             </Button>
                           </TableCell>
                         </TableRow>

@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
 import TestConfigurationSection, { SubTest } from './TestConfigurationSection';
+import { BarChart3, Building2, CheckCircle, FileText, Rocket, Trash2, XCircle } from 'lucide-react'
 
 export default function LabTestConfigManager() {
   const [testName, setTestName] = useState('');
@@ -113,7 +114,7 @@ export default function LabTestConfigManager() {
         throw new Error(`Failed to save ${subTest.name}: ${error.message}`);
       }
 
-      console.log(`✅ Saved ${subTest.name} with ID: ${data.id}`);
+      console.log(` Saved ${subTest.name} with ID: ${data.id}`);
       console.log(`   Age Ranges: ${ageRangesData.length}, Normal Ranges: ${normalRangesData.length}`);
       console.log(`   Nested Sub-Tests: ${nestedSubTestsData.length}`);
     } catch (error) {
@@ -124,14 +125,14 @@ export default function LabTestConfigManager() {
 
   // Main save function
   const handleSave = async () => {
-    console.log('🚀 HANDLE SAVE CALLED!');
-    console.log('📝 testName:', testName);
-    console.log('🏥 labId:', labId);
-    console.log('📊 subTests count:', subTests.length);
-    console.log('📊 subTests:', subTests);
+    console.log(' HANDLE SAVE CALLED!');
+    console.log(' testName:', testName);
+    console.log(' labId:', labId);
+    console.log(' subTests count:', subTests.length);
+    console.log(' subTests:', subTests);
 
     if (!testName.trim()) {
-      console.log('❌ SAVE BLOCKED: Test name is empty');
+      console.log(' SAVE BLOCKED: Test name is empty');
       toast({
         title: 'Cannot Auto-Save',
         description: 'Please enter test name first',
@@ -141,7 +142,7 @@ export default function LabTestConfigManager() {
     }
 
     if (!labId.trim()) {
-      console.log('❌ SAVE BLOCKED: Lab ID is empty');
+      console.log(' SAVE BLOCKED: Lab ID is empty');
       toast({
         title: 'Cannot Auto-Save',
         description: 'Please enter lab ID first',
@@ -151,7 +152,7 @@ export default function LabTestConfigManager() {
     }
 
     if (subTests.length === 0) {
-      console.log('❌ No sub-tests added');
+      console.log(' No sub-tests added');
       toast({
         title: 'Error',
         description: 'Please add at least one sub-test',
@@ -160,7 +161,7 @@ export default function LabTestConfigManager() {
       return;
     }
 
-    console.log('✅ Validation passed, starting save...');
+    console.log(' Validation passed, starting save...');
     setIsLoading(true);
 
     try {
@@ -170,7 +171,7 @@ export default function LabTestConfigManager() {
       console.log('Sub-Tests:', JSON.stringify(subTests, null, 2));
 
       // Delete existing records for this test to ensure clean save with new sequence
-      console.log('🗑️ Deleting old records for:', testName, 'Lab ID:', labId);
+      console.log(' Deleting old records for:', testName, 'Lab ID:', labId);
       const { error: deleteError } = await supabase
         .from('lab_test_config')
         .delete()
@@ -181,7 +182,7 @@ export default function LabTestConfigManager() {
         console.error('Error deleting old records:', deleteError);
         throw new Error(`Failed to delete old records: ${deleteError.message}`);
       }
-      console.log('✅ Old records deleted successfully');
+      console.log(' Old records deleted successfully');
 
       let totalSaved = 0;
       let totalNested = 0;

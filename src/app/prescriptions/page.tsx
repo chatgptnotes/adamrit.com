@@ -9,7 +9,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Search, Plus, Printer, Edit } from 'lucide-react';
+import { Edit, Eye, FileText, Plus, Printer, Search, X } from 'lucide-react';
 
 const Prescriptions = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -383,10 +383,10 @@ const Prescriptions = () => {
                       <td className="border border-gray-300 px-2 py-1 text-center">
                         <div className="flex justify-center gap-1">
                           <Button variant="ghost" size="sm" className="h-6 w-6 p-0" title="View">
-                            👁️
+                            
                           </Button>
                           <Button variant="ghost" size="sm" className="h-6 w-6 p-0" title="Print">
-                            🖨️
+                            
                           </Button>
                         </div>
                       </td>
@@ -444,7 +444,7 @@ const Prescriptions = () => {
                     onClick={handleClosePrescriptionModal}
                     className="text-red-600 hover:text-red-900"
                   >
-                    ✖️
+                    
                   </Button>
                 </div>
               </div>

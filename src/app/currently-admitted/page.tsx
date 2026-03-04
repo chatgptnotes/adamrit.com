@@ -21,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Search, Users, Calendar, Clock, FileText, Building2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { Building2, Calendar, CheckCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Clock, FileText, Loader2, Search, Users } from 'lucide-react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { toast } from "@/hooks/use-toast";
 
@@ -173,7 +173,7 @@ const CurrentlyAdmittedPatients = () => {
   const { data: visits = [], isLoading, error } = useQuery({
     queryKey: ['currently-admitted-visits', hospitalConfig?.name],
     queryFn: async () => {
-      console.log('🏥 CurrentlyAdmittedPatients: Fetching visits for hospital:', hospitalConfig?.name);
+      console.log(' CurrentlyAdmittedPatients: Fetching visits for hospital:', hospitalConfig?.name);
 
 
       // Get all IPD patients who are not discharged yet
@@ -209,7 +209,7 @@ const CurrentlyAdmittedPatients = () => {
       // Apply hospital filter if hospitalConfig exists
       if (hospitalConfig?.name) {
         query = query.eq('patients.hospital_name', hospitalConfig.name);
-        console.log('🏥 CurrentlyAdmittedPatients: Applied hospital filter for:', hospitalConfig.name);
+        console.log(' CurrentlyAdmittedPatients: Applied hospital filter for:', hospitalConfig.name);
       }
       
       const { data: visitsData, error } = await query;
@@ -219,7 +219,7 @@ const CurrentlyAdmittedPatients = () => {
         throw error;
       }
 
-      console.log(`✅ CurrentlyAdmittedPatients: Found ${visitsData?.length || 0} visits for ${hospitalConfig?.name}`);
+      console.log(` CurrentlyAdmittedPatients: Found ${visitsData?.length || 0} visits for ${hospitalConfig?.name}`);
       
       if (!visitsData || visitsData.length === 0) {
         console.log('No visits found');
@@ -272,8 +272,8 @@ const CurrentlyAdmittedPatients = () => {
           : null
       }));
 
-      console.log('🔍 Total IPD visits (not discharged):', visitsWithRoomInfo?.length);
-      console.log('🔍 Filter applied: patient_type=IPD AND discharge_date IS NULL');
+      console.log(' Total IPD visits (not discharged):', visitsWithRoomInfo?.length);
+      console.log(' Filter applied: patient_type=IPD AND discharge_date IS NULL');
       return visitsWithRoomInfo || [];
     },
   });

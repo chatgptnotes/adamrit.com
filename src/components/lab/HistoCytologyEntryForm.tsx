@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
+import { CheckCircle, X } from 'lucide-react'
 const CKEditor = typeof window !== 'undefined' ? require('@ckeditor/ckeditor5-react').CKEditor : null;
 const ClassicEditor = typeof window !== 'undefined' ? require('@ckeditor/ckeditor5-build-classic') : null;
 
@@ -199,7 +200,7 @@ const HistoCytologyEntryForm: React.FC<HistoCytologyEntryFormProps> = ({
 
         if (!error && data?.collected_date) {
           setSampleCollectedDate(data.collected_date);
-          console.log('✅ Got sample collected date:', data.collected_date);
+          console.log(' Got sample collected date:', data.collected_date);
         }
       } catch (err) {
         console.error('Error fetching collected_date:', err);
@@ -632,7 +633,7 @@ const HistoCytologyEntryForm: React.FC<HistoCytologyEntryFormProps> = ({
                   className="text-red-500 h-6 px-2"
                   onClick={() => removeFile(index)}
                 >
-                  ✕
+                  
                 </Button>
               </div>
             ))}
@@ -659,7 +660,7 @@ const HistoCytologyEntryForm: React.FC<HistoCytologyEntryFormProps> = ({
                   className="text-red-500 h-6 px-2"
                   onClick={() => removeSavedFile(index)}
                 >
-                  ✕
+                  
                 </Button>
               </div>
             ))}

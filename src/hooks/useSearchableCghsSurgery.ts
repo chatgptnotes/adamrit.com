@@ -10,7 +10,7 @@ export const useSearchableCghsSurgery = (patientCorporate?: string) => {
   const { data: surgeries = [], isLoading } = useQuery({
     queryKey: ['cghs-surgery', searchTerm, patientCorporate],
     queryFn: async () => {
-      console.log('🔍 Fetching CGHS surgeries:', {
+      console.log(' Fetching CGHS surgeries:', {
         searchTerm,
         patientCorporate: patientCorporate || 'NOT SET'
       });
@@ -48,7 +48,7 @@ export const useSearchableCghsSurgery = (patientCorporate?: string) => {
           rateSource = 'bhopal_nabh';
         }
 
-        console.log('🔍 Surgery rate mapping:', {
+        console.log(' Surgery rate mapping:', {
           surgeryName: surgery.name,
           patientCorporate: patientCorporate || 'NOT SET',
           corporateLower: corporate || 'EMPTY',

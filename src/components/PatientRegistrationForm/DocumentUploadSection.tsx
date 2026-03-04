@@ -3,7 +3,7 @@
 import React, { useRef, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Upload, X } from 'lucide-react';
+import { File, Upload, X } from 'lucide-react';
 
 export const DocumentUploadSection: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -38,7 +38,7 @@ export const DocumentUploadSection: React.FC = () => {
             {selectedFile ? (
               <div className="space-y-2">
                 <div className="flex items-center justify-center gap-2">
-                  <span className="text-sm text-gray-700">📄 {selectedFile.name}</span>
+                  <span className="text-sm text-gray-700"> {selectedFile.name}</span>
                   <button
                     type="button"
                     onClick={handleFileRemove}
