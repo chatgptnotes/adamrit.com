@@ -680,29 +680,6 @@ const DetailedInvoiceInternal = () => {
     }
   };
 
-  // Toggle select all for a section
-  const toggleSelectAll = (section: 'laboratory' | 'radiology' | 'surgery' | 'anesthetist' | 'implants') => {
-    const items = section === 'laboratory' ? serviceData.laboratory :
-                  section === 'radiology' ? serviceData.radiology :
-                  section === 'surgery' ? serviceData.surgery :
-                  section === 'anesthetist' ? serviceData.anesthetist :
-                  serviceData.implants;
-    const selected = section === 'laboratory' ? selectedLabItems :
-                     section === 'radiology' ? selectedRadiologyItems :
-                     section === 'surgery' ? selectedSurgeryItems :
-                     section === 'anesthetist' ? selectedAnesthetistItems :
-                     selectedImplantItems;
-    const setter = section === 'laboratory' ? setSelectedLabItems :
-                   section === 'radiology' ? setSelectedRadiologyItems :
-                   section === 'surgery' ? setSelectedSurgeryItems :
-                   section === 'anesthetist' ? setSelectedAnesthetistItems :
-                   setSelectedImplantItems;
-    if (selected.length === items.length) {
-      setter([]);
-    } else {
-      setter(items.map((_, i) => i));
-    }
-  };
 
   // Fetch patient data from database
   const { data: visitData, isLoading, error } = useQuery({
@@ -1366,6 +1343,29 @@ const DetailedInvoiceInternal = () => {
       </div>
     );
   }
+  // Toggle select all for a section
+  const toggleSelectAll = (section: 'laboratory' | 'radiology' | 'surgery' | 'anesthetist' | 'implants') => {
+    const items = section === 'laboratory' ? serviceData.laboratory :
+                  section === 'radiology' ? serviceData.radiology :
+                  section === 'surgery' ? serviceData.surgery :
+                  section === 'anesthetist' ? serviceData.anesthetist :
+                  serviceData.implants;
+    const selected = section === 'laboratory' ? selectedLabItems :
+                     section === 'radiology' ? selectedRadiologyItems :
+                     section === 'surgery' ? selectedSurgeryItems :
+                     section === 'anesthetist' ? selectedAnesthetistItems :
+                     selectedImplantItems;
+    const setter = section === 'laboratory' ? setSelectedLabItems :
+                   section === 'radiology' ? setSelectedRadiologyItems :
+                   section === 'surgery' ? setSelectedSurgeryItems :
+                   section === 'anesthetist' ? setSelectedAnesthetistItems :
+                   setSelectedImplantItems;
+    if (selected.length === items.length) {
+      setter([]);
+    } else {
+      setter(items.map((_: any, i: number) => i));
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white p-6">
