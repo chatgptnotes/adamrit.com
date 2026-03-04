@@ -585,7 +585,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
   const { data: radiologyData, isLoading: isRadiologyLoading } = useQuery({
     queryKey: ['radiology-data', visitId, patientData?.id],
     queryFn: async () => {
-      console.log('🩻 Fetching radiology data for visit_id:', visitId);
+      console.log(' Fetching radiology data for visit_id:', visitId);
 
       // First, let's try to get radiology data using the visit's UUID (from patientData)
       let radiologyResults = [];
@@ -3141,7 +3141,7 @@ Keep it concise and professional. Do not use tables, bullet points, or extensive
       }
 
       // Now fetch radiology data
-      console.log('🩻 Searching radiology data for visit_id:', visitId);
+      console.log(' Searching radiology data for visit_id:', visitId);
 
       // Try to get radiology data using the visit's UUID (from patientData)
       let radiologyResults = [];

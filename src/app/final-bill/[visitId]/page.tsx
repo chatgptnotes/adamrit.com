@@ -1052,7 +1052,7 @@ const FinalBill = () => {
             item.name.toLowerCase().includes('complete blood count')
           );
           if (cbcServices.length > 0) {
-            console.log('🩸 CBC Services found in database:', cbcServices.map(item => ({
+            console.log(' CBC Services found in database:', cbcServices.map(item => ({
               id: item.id,
               name: item.name,
               privateRate: item.private,
@@ -1060,7 +1060,7 @@ const FinalBill = () => {
               nonNabhRate: item['Non-NABH_rates_in_rupee'],
               bhopaliRate: item.bhopal_nabh_rate
             })));
-            console.log('🩸 CBC Services after mapping (what user sees in dropdown):',
+            console.log(' CBC Services after mapping (what user sees in dropdown):',
               mappedData.filter(item =>
                 item.name.toLowerCase().includes('cbc') ||
                 item.name.toLowerCase().includes('complete blood count')
@@ -9922,7 +9922,7 @@ INSTRUCTIONS:
 
   // Function to add radiology service to invoice
   const addRadiologyServiceToInvoice = async (radiologyService: any) => {
-    console.log('🩻 Adding radiology service to invoice:', radiologyService);
+    console.log(' Adding radiology service to invoice:', radiologyService);
 
     // Save to visit_radiology table if visitId is available (with duplicate detection)
     if (visitId) {
