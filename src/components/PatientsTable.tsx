@@ -20,13 +20,13 @@ export function PatientsTable({ patients }: PatientsTableProps) {
   const filteredPatients = useMemo(() => {
     return patients.filter((patient) => {
       const matchesSearch = 
-        patient.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.patient_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        patient?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        patient?.patient_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         patient.mobile_phone.includes(searchTerm) ||
-        patient.city.toLowerCase().includes(searchTerm.toLowerCase())
+        patient?.city?.toLowerCase().includes(searchTerm.toLowerCase())
 
       const matchesAdmissionType = admissionTypeFilter === 'all' || patient.admission_type === admissionTypeFilter
-      const matchesSex = sexFilter === 'all' || patient.sex.toLowerCase() === sexFilter.toLowerCase()
+      const matchesSex = sexFilter === 'all' || patient?.sex?.toLowerCase() === sexFilter.toLowerCase()
 
       return matchesSearch && matchesAdmissionType && matchesSex
     })
