@@ -680,6 +680,30 @@ const DetailedInvoiceInternal = () => {
     }
   };
 
+  // Toggle select all for a section
+  const toggleSelectAll = (section: 'laboratory' | 'radiology' | 'surgery' | 'anesthetist' | 'implants') => {
+    const items = section === 'laboratory' ? serviceData.laboratory :
+                  section === 'radiology' ? serviceData.radiology :
+                  section === 'surgery' ? serviceData.surgery :
+                  section === 'anesthetist' ? serviceData.anesthetist :
+                  serviceData.implants;
+    const selected = section === 'laboratory' ? selectedLabItems :
+                     section === 'radiology' ? selectedRadiologyItems :
+                     section === 'surgery' ? selectedSurgeryItems :
+                     section === 'anesthetist' ? selectedAnesthetistItems :
+                     selectedImplantItems;
+    const setter = section === 'laboratory' ? setSelectedLabItems :
+                   section === 'radiology' ? setSelectedRadiologyItems :
+                   section === 'surgery' ? setSelectedSurgeryItems :
+                   section === 'anesthetist' ? setSelectedAnesthetistItems :
+                   setSelectedImplantItems;
+    if (selected.length === items.length) {
+      setter([]);
+    } else {
+      setter(items.map((_, i) => i));
+    }
+  };
+
   // Fetch patient data from database
   const { data: visitData, isLoading, error } = useQuery({
     queryKey: ['visit-details', visitId],
@@ -1517,7 +1541,7 @@ const DetailedInvoiceInternal = () => {
           {/* LABORATORY */}
           <div className="mb-0">
             <div className="bg-gray-200 border border-gray-400 border-t-0 p-1 flex justify-between items-center">
-              <strong className="text-xs">LABORATORY</strong>
+              <div className="flex items-center gap-2"><input type="checkbox" checked={selectedLabItems.length === serviceData.laboratory.length && serviceData.laboratory.length > 0} onChange={() => toggleSelectAll('laboratory')} className="cursor-pointer" title="Select All" /><strong className="text-xs">LABORATORY</strong></div>
               <div className="flex gap-1">
                 <button onClick={() => handlePrintSectionAll('laboratory')} className="text-xs bg-green-100 px-1 hover:bg-green-200 cursor-pointer" title="Print All"></button>
                 <button onClick={() => handlePrintSectionSelected('laboratory')} className="text-xs bg-blue-100 px-1 hover:bg-blue-200 cursor-pointer" title="Print Selected"></button>
@@ -1555,7 +1579,7 @@ const DetailedInvoiceInternal = () => {
           {/* RADIOLOGY */}
           <div className="mb-4">
             <div className="bg-gray-200 border border-gray-400 border-t-0 p-1 flex justify-between items-center">
-              <strong className="text-xs">RADIOLOGY</strong>
+              <div className="flex items-center gap-2"><input type="checkbox" checked={selectedRadiologyItems.length === serviceData.radiology.length && serviceData.radiology.length > 0} onChange={() => toggleSelectAll('radiology')} className="cursor-pointer" title="Select All" /><strong className="text-xs">RADIOLOGY</strong></div>
               <div className="flex gap-1">
                 <button onClick={() => handlePrintSectionAll('radiology')} className="text-xs bg-green-100 px-1 hover:bg-green-200 cursor-pointer" title="Print All"></button>
                 <button onClick={() => handlePrintSectionSelected('radiology')} className="text-xs bg-blue-100 px-1 hover:bg-blue-200 cursor-pointer" title="Print Selected"></button>
@@ -1593,7 +1617,7 @@ const DetailedInvoiceInternal = () => {
           {/* SURGERY (includes implants) */}
           <div className="mb-4">
             <div className="bg-gray-200 border border-gray-400 border-t-0 p-1 flex justify-between items-center">
-              <strong className="text-xs">SURGERY</strong>
+              <div className="flex items-center gap-2"><input type="checkbox" checked={selectedSurgeryItems.length === serviceData.surgery.length && serviceData.surgery.length > 0} onChange={() => toggleSelectAll('surgery')} className="cursor-pointer" title="Select All" /><strong className="text-xs">SURGERY</strong></div>
               <div className="flex gap-1">
                 <button onClick={() => handlePrintSectionAll('surgery')} className="text-xs bg-green-100 px-1 hover:bg-green-200 cursor-pointer" title="Print All"></button>
                 <button onClick={() => handlePrintSectionSelected('surgery')} className="text-xs bg-blue-100 px-1 hover:bg-blue-200 cursor-pointer" title="Print Selected"></button>
@@ -1644,7 +1668,7 @@ const DetailedInvoiceInternal = () => {
           {/* ANESTHETIST */}
           <div className="mb-4">
             <div className="bg-gray-200 border border-gray-400 border-t-0 p-1 flex justify-between items-center">
-              <strong className="text-xs">ANESTHETIST</strong>
+              <div className="flex items-center gap-2"><input type="checkbox" checked={selectedAnesthetistItems.length === serviceData.anesthetist.length && serviceData.anesthetist.length > 0} onChange={() => toggleSelectAll('anesthetist')} className="cursor-pointer" title="Select All" /><strong className="text-xs">ANESTHETIST</strong></div>
               <div className="flex gap-1">
                 <button onClick={() => handlePrintSectionAll('anesthetist')} className="text-xs bg-green-100 px-1 hover:bg-green-200 cursor-pointer" title="Print All"></button>
                 <button onClick={() => handlePrintSectionSelected('anesthetist')} className="text-xs bg-blue-100 px-1 hover:bg-blue-200 cursor-pointer" title="Print Selected"></button>
