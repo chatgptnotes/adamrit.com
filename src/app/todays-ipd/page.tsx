@@ -38,6 +38,7 @@ import { format } from 'date-fns';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { EditPatientDialog } from '@/components/EditPatientDialog';
 import { DocumentUploadDialog } from '@/components/DocumentUploadDialog';
+import { ConferenceCallDialog } from '@/components/ConferenceCallDialog';
 import { usePatients } from '@/hooks/usePatients';
 import { CascadingBillingStatusDropdown } from '@/components/shared/CascadingBillingStatusDropdown';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuSeparator, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '@/components/ui/dropdown-menu';
@@ -309,6 +310,7 @@ const TodaysIpdDashboard = () => {
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [selectedPatientForEdit, setSelectedPatientForEdit] = useState(null);
   const [showDocumentUploadDialog, setShowDocumentUploadDialog] = useState(false);
+  const [showConferenceCallDialog, setShowConferenceCallDialog] = useState(false);
   const [selectedVisitForDocument, setSelectedVisitForDocument] = useState<any>(null);
   const [selectedPatientForView, setSelectedPatientForView] = useState<any>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
@@ -3724,6 +3726,14 @@ const TodaysIpdDashboard = () => {
                 <div className="flex justify-end gap-2 pt-4 border-t">
                   <Button
                     variant="outline"
+                    className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                    onClick={() => setShowConferenceCallDialog(true)}
+                  >
+                    <Phone className="w-4 h-4 mr-1" />
+                    Conference Call
+                  </Button>
+                  <Button
+                    variant="outline"
                     onClick={() => {
                       setViewDialogOpen(false);
                       setSelectedPatientForView(null);
@@ -3735,6 +3745,18 @@ const TodaysIpdDashboard = () => {
               </div>
             </DialogContent>
           </Dialog>
+        )}
+
+        {/* Conference Call Dialog */}
+        {selectedPatientForView && (
+          <ConferenceCallDialog
+            open={showConferenceCallDialog}
+            onClose={() => setShowConferenceCallDialog(false)}
+            visitId={selectedPatientForView.visit_id}
+            patientName={selectedPatientForView.patients?.name || selectedPatientForView.patient_name}
+            referringDoctorName={selectedPatientForView.referring_doctor || ''}
+            referringDoctorPhone={''}
+          />
         )}
 
         {/* Getpass Notification Modal */}
