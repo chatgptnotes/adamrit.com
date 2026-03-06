@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import {
   Phone, Plus, Search, UserPlus, Stethoscope,
-  Users, Edit, Trash2, PhoneCall, Clock, CheckCircle, XCircle, Receipt
+  Users, Edit, Trash2, PhoneCall, Clock, CheckCircle, XCircle
 } from 'lucide-react';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
@@ -21,16 +21,6 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { useCorporateBulkPayments } from '@/hooks/useCorporateBulkPayments';
-import { useCorporateData } from '@/hooks/useCorporateData';
 
 interface MasterPerson {
   id: string;
@@ -74,12 +64,6 @@ export default function MasterDataPage() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [callingId, setCallingId] = useState<string | null>(null);
   const [callStatuses, setCallStatuses] = useState<Record<string, string>>({});
-
-  // Corporate Receipts filters
-  const [receiptFromDate, setReceiptFromDate] = useState('');
-  const [receiptToDate, setReceiptToDate] = useState('');
-  const [receiptCorporate, setReceiptCorporate] = useState('all');
-
   const { toast } = useToast();
   const qc = useQueryClient();
 
@@ -108,15 +92,6 @@ export default function MasterDataPage() {
       return data || [];
     },
   });
-
-  // Corporate Receipts data
-  const { data: payments = [], isLoading: paymentsLoading } = useCorporateBulkPayments({
-    from_date: receiptFromDate || undefined,
-    to_date: receiptToDate || undefined,
-    corporate_name: receiptCorporate !== 'all' ? receiptCorporate : undefined,
-  });
-
-  const { corporateOptions = [] } = useCorporateData();
 
   const addMutation = useMutation({
     mutationFn: async (d: any) => {
@@ -184,15 +159,6 @@ export default function MasterDataPage() {
     return null;
   };
 
-  const formatDate = (dateStr: string) => {
-    try {
-      return new Date(dateStr).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-    } catch { return dateStr; }
-  };
-
-  const formatAmount = (val: any) =>
-    val ? `₹${Number(val).toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '-';
-
   const FormFields = ({ f, setF }: any) => (
     <div className="grid grid-cols-2 gap-3">
       <div className="col-span-2">
@@ -236,14 +202,12 @@ export default function MasterDataPage() {
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2"><Users className="h-6 w-6 text-blue-600" />Marketing Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-1">Referring Doctors, Relationship Managers, Call Logs & Corporate Receipts</p>
+          <h1 className="text-2xl font-bold flex items-center gap-2"><Users className="h-6 w-6 text-blue-600" />Master Data</h1>
+          <p className="text-sm text-gray-500 mt-1">Referring Doctors and Relationship Managers — with Twilio call integration</p>
         </div>
-        {tab !== 'corporate_receipts' && tab !== 'call_logs' && (
-          <Button onClick={() => { setForm(EMPTY_FORM); setIsAddOpen(true); }} className="gap-2">
-            <UserPlus className="h-4 w-4" /> Add Person
-          </Button>
-        )}
+        <Button onClick={() => { setForm(EMPTY_FORM); setIsAddOpen(true); }} className="gap-2">
+          <UserPlus className="h-4 w-4" /> Add Person
+        </Button>
       </div>
 
       <Tabs value={tab} onValueChange={setTab} className="mb-4">
@@ -252,21 +216,14 @@ export default function MasterDataPage() {
           <TabsTrigger value="referring_doctor">Doctors ({persons.filter(p => p.person_type === 'referring_doctor' || p.person_type === 'both').length})</TabsTrigger>
           <TabsTrigger value="relationship_manager">Rel. Managers ({persons.filter(p => p.person_type === 'relationship_manager' || p.person_type === 'both').length})</TabsTrigger>
           <TabsTrigger value="call_logs">Call Logs ({callLogs.length})</TabsTrigger>
-          <TabsTrigger value="corporate_receipts" className="flex items-center gap-1">
-            <Receipt className="h-3.5 w-3.5" />
-            Corporate Receipts ({payments.length})
-          </TabsTrigger>
         </TabsList>
 
-        {/* Search — only for person tabs */}
-        {tab !== 'call_logs' && tab !== 'corporate_receipts' && (
-          <div className="my-3">
-            <div className="relative w-80">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-              <Input className="pl-9" placeholder="Search name, mobile, hospital..." value={search} onChange={e => setSearch(e.target.value)} />
-            </div>
+        <div className="my-3">
+          <div className="relative w-80">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Input className="pl-9" placeholder="Search name, mobile, hospital..." value={search} onChange={e => setSearch(e.target.value)} />
           </div>
-        )}
+        </div>
 
         <TabsContent value="all"><PersonGrid persons={filtered} /></TabsContent>
         <TabsContent value="referring_doctor"><PersonGrid persons={filtered} /></TabsContent>
@@ -274,118 +231,10 @@ export default function MasterDataPage() {
         <TabsContent value="call_logs">
           <CallLogsTable logs={callLogs} />
         </TabsContent>
-
-        {/* ── CORPORATE RECEIPTS TAB ── */}
-        <TabsContent value="corporate_receipts">
-          {/* Filters */}
-          <div className="flex flex-wrap items-end gap-3 mb-4 p-3 bg-gray-50 rounded-lg border">
-            <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">Corporate</label>
-              <Select value={receiptCorporate} onValueChange={setReceiptCorporate}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="All Corporates" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Corporates</SelectItem>
-                  {corporateOptions.map((opt: any) => (
-                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">From Date</label>
-              <Input type="date" value={receiptFromDate} onChange={e => setReceiptFromDate(e.target.value)} className="w-40" />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">To Date</label>
-              <Input type="date" value={receiptToDate} onChange={e => setReceiptToDate(e.target.value)} className="w-40" />
-            </div>
-            {(receiptFromDate || receiptToDate || receiptCorporate !== 'all') && (
-              <Button variant="outline" size="sm" onClick={() => { setReceiptFromDate(''); setReceiptToDate(''); setReceiptCorporate('all'); }}>
-                Clear
-              </Button>
-            )}
-          </div>
-
-          {/* Summary */}
-          <div className="flex gap-4 mb-4">
-            <div className="bg-blue-50 border border-blue-100 rounded-lg px-4 py-2 text-sm">
-              <span className="text-gray-500">Total Receipts: </span>
-              <span className="font-semibold text-blue-700">{payments.length}</span>
-            </div>
-            <div className="bg-green-50 border border-green-100 rounded-lg px-4 py-2 text-sm">
-              <span className="text-gray-500">Total Amount: </span>
-              <span className="font-semibold text-green-700">
-                ₹{payments.reduce((s, p) => s + Number(p.total_amount || 0), 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-              </span>
-            </div>
-          </div>
-
-          {/* Table */}
-          <div className="rounded-lg border overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-gray-50">
-                  <TableHead className="font-semibold">Receipt No.</TableHead>
-                  <TableHead className="font-semibold">Date</TableHead>
-                  <TableHead className="font-semibold">Corporate</TableHead>
-                  <TableHead className="font-semibold">Mode</TableHead>
-                  <TableHead className="font-semibold">Reference</TableHead>
-                  <TableHead className="font-semibold">Bank Name</TableHead>
-                  <TableHead className="font-semibold text-right">Claim Amount</TableHead>
-                  <TableHead className="font-semibold text-right">Total Amount</TableHead>
-                  <TableHead className="font-semibold">Patient(s)</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paymentsLoading && (
-                  <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-gray-400">Loading...</TableCell>
-                  </TableRow>
-                )}
-                {!paymentsLoading && payments.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-gray-400">No corporate receipts found.</TableCell>
-                  </TableRow>
-                )}
-                {payments.map((payment: any) => {
-                  const patientNames = (payment.allocations || [])
-                    .map((a: any) => a.patient_name)
-                    .filter(Boolean)
-                    .join(', ');
-                  return (
-                    <TableRow key={payment.id} className="hover:bg-gray-50">
-                      <TableCell className="font-mono text-sm font-medium text-blue-700">
-                        {payment.receipt_number}
-                      </TableCell>
-                      <TableCell className="text-sm">{formatDate(payment.payment_date)}</TableCell>
-                      <TableCell className="font-medium">{payment.corporate_name}</TableCell>
-                      <TableCell>
-                        <span className="px-2 py-0.5 bg-gray-100 rounded text-xs font-medium">
-                          {payment.payment_mode}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-sm text-gray-600">{payment.reference_number || '-'}</TableCell>
-                      <TableCell className="text-sm text-gray-600">{payment.bank_name || '-'}</TableCell>
-                      <TableCell className="text-right text-sm">{formatAmount(payment.claim_amount)}</TableCell>
-                      <TableCell className="text-right text-sm font-semibold text-green-700">
-                        {formatAmount(payment.total_amount)}
-                      </TableCell>
-                      <TableCell className="text-sm text-gray-600 max-w-[200px] truncate" title={patientNames}>
-                        {patientNames || '-'}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-        </TabsContent>
       </Tabs>
 
       {/* ── PERSON CARDS ── */}
-      {tab !== 'call_logs' && tab !== 'corporate_receipts' && (
+      {tab !== 'call_logs' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-2">
           {isLoading && <p className="text-gray-400 col-span-3">Loading...</p>}
           {filtered.length === 0 && !isLoading && (
