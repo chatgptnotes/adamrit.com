@@ -1507,7 +1507,7 @@ const FinalBill = () => {
             patient_id: visitData.patients.id,
             visit_id: visitId,
             bill_no: billNo,
-            claim_id: validateClaimId(visitData.claim_id || visitId || 'TEMP-CLAIM'),
+            claim_id: validateClaimId(visitData.card_no || visitData.claim_id || visitId || 'TEMP-CLAIM'),
             date: new Date().toISOString(),
             category: 'GENERAL',
             total_amount: 0,
@@ -5716,7 +5716,7 @@ INSTRUCTIONS:
 
         return {
           ...prev,
-          claimId: validateClaimId(visitData.claim_id || visitId || ""),
+          claimId: validateClaimId(visitData.card_no || visitData.claim_id || visitId || ""),
           billNo: billData?.bill_no || `BL-${visitData.visit_id}`,
           registrationNo: cleanData(patient.patients_id) || patient.id || "",
           name: cleanData(patient.name),
