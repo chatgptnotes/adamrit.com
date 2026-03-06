@@ -31,7 +31,8 @@ import {
   Building2,
   User,
   Scissors,
-  ArrowLeftRight
+  ArrowLeftRight,
+  PhoneCall
 } from 'lucide-react'
 
 const navigationGroups = [
@@ -40,6 +41,12 @@ const navigationGroups = [
     items: [
       { name: 'Dashboard', href: '/', icon: LayoutDashboard },
       { name: 'Patients', href: '/patients', icon: Users },
+    ]
+  },
+  {
+    title: 'Communication',
+    items: [
+      { name: 'Conference Call', href: '/conference-call', icon: PhoneCall },
     ]
   },
   {
