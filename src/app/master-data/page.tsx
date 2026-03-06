@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
+import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import {
   Phone, Plus, Search, UserPlus, Stethoscope,
-  Users, Edit, Trash2, PhoneCall, Clock, CheckCircle, XCircle
+  Users, Edit, Trash2, PhoneCall, Clock, CheckCircle, XCircle,
+  ChevronDown, ChevronRight, Pencil, IndianRupee, Building2
 } from 'lucide-react';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
@@ -21,6 +23,14 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
+} from '@/components/ui/table';
+import { useAuth } from '@/contexts/AuthContext';
+import { useCorporateBulkPayments, useDeleteCorporateBulkPayment } from '@/hooks/useCorporateBulkPayments';
+import BulkPaymentReceiptForm from '@/components/corporate-bulk-payment/BulkPaymentReceiptForm';
+import { CorporateBulkPayment } from '@/types/corporateBulkPayment';
+import { toast as sonnerToast } from 'sonner';
 
 interface MasterPerson {
   id: string;
@@ -216,6 +226,7 @@ export default function MasterDataPage() {
           <TabsTrigger value="referring_doctor">Doctors ({persons.filter(p => p.person_type === 'referring_doctor' || p.person_type === 'both').length})</TabsTrigger>
           <TabsTrigger value="relationship_manager">Rel. Managers ({persons.filter(p => p.person_type === 'relationship_manager' || p.person_type === 'both').length})</TabsTrigger>
           <TabsTrigger value="call_logs">Call Logs ({callLogs.length})</TabsTrigger>
+          <TabsTrigger value="corporate_receipts">Corporate Receipts</TabsTrigger>
         </TabsList>
 
         <div className="my-3">
@@ -230,6 +241,9 @@ export default function MasterDataPage() {
         <TabsContent value="relationship_manager"><PersonGrid persons={filtered} /></TabsContent>
         <TabsContent value="call_logs">
           <CallLogsTable logs={callLogs} />
+        </TabsContent>
+        <TabsContent value="corporate_receipts">
+          <CorporateReceiptsTable />
         </TabsContent>
       </Tabs>
 
@@ -319,6 +333,178 @@ export default function MasterDataPage() {
 
 function PersonGrid({ persons }: { persons: any[] }) {
   return null; // Cards rendered in parent for tab switching
+}
+
+function CorporateReceiptsTable() {
+  const { hospitalConfig } = useAuth();
+  const deleteMutation = useDeleteCorporateBulkPayment();
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingPayment, setEditingPayment] = useState<CorporateBulkPayment | null>(null);
+
+  const { data: payments = [], isLoading } = useCorporateBulkPayments({
+    hospital_name: hospitalConfig?.name,
+  });
+
+  const toggleRow = (id: string) => {
+    setExpandedRows(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const handleDelete = async (id: string, receiptNumber: string) => {
+    if (!confirm(`Delete receipt ${receiptNumber}? This will remove all patient allocations.`)) return;
+    try {
+      await deleteMutation.mutateAsync(id);
+      sonnerToast.success(`Receipt ${receiptNumber} deleted`);
+      setExpandedRows(prev => { const next = new Set(prev); next.delete(id); return next; });
+    } catch (error: any) {
+      sonnerToast.error(`Failed to delete: ${error.message}`);
+    }
+  };
+
+  const formatDate = (dateStr: string) => {
+    try {
+      return new Date(dateStr).toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    } catch { return dateStr; }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button onClick={() => { setEditingPayment(null); setIsFormOpen(true); }}>
+          <Plus className="h-4 w-4 mr-2" /> Add Receipt
+        </Button>
+      </div>
+      <Card>
+        <CardHeader><CardTitle className="text-lg">Payment Receipts</CardTitle></CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="text-center py-8 text-gray-500">Loading...</div>
+          ) : payments.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">No corporate bulk payment receipts found.</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-10"></TableHead>
+                    <TableHead>Receipt No.</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Corporate</TableHead>
+                    <TableHead>Mode</TableHead>
+                    <TableHead>Reference</TableHead>
+                    <TableHead>Bank Name</TableHead>
+                    <TableHead className="text-right">Claim Amount</TableHead>
+                    <TableHead className="text-right">Total Amount</TableHead>
+                    <TableHead className="text-right">Patients</TableHead>
+                    <TableHead>Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {payments.map((payment) => (
+                    <React.Fragment key={payment.id}>
+                      <TableRow className="cursor-pointer hover:bg-gray-50" onClick={() => toggleRow(payment.id)}>
+                        <TableCell>
+                          {expandedRows.has(payment.id) ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        </TableCell>
+                        <TableCell className="font-medium">{payment.receipt_number}</TableCell>
+                        <TableCell>{formatDate(payment.payment_date)}</TableCell>
+                        <TableCell>{payment.corporate_name}</TableCell>
+                        <TableCell>{payment.payment_mode}</TableCell>
+                        <TableCell>{payment.reference_number || '-'}</TableCell>
+                        <TableCell>{payment.bank_name || '-'}</TableCell>
+                        <TableCell className="text-right">
+                          {payment.claim_amount ? `Rs. ${Number(payment.claim_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '-'}
+                        </TableCell>
+                        <TableCell className="text-right font-medium">
+                          Rs. {Number(payment.total_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        </TableCell>
+                        <TableCell className="text-right">{payment.allocations?.length || 0}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-blue-500 hover:text-blue-700"
+                              onClick={(e) => { e.stopPropagation(); setEditingPayment(payment); setIsFormOpen(true); }}>
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-red-500 hover:text-red-700"
+                              onClick={(e) => { e.stopPropagation(); handleDelete(payment.id, payment.receipt_number); }}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                      {expandedRows.has(payment.id) && (
+                        <TableRow>
+                          <TableCell colSpan={11} className="bg-gray-50 p-0">
+                            <div className="p-4">
+                              {payment.narration && (
+                                <p className="text-sm text-gray-600 mb-3"><span className="font-medium">Narration:</span> {payment.narration}</p>
+                              )}
+                              {payment.allocations && payment.allocations.length > 0 ? (
+                                <Table>
+                                  <TableHeader>
+                                    <TableRow>
+                                      <TableHead className="w-10">#</TableHead>
+                                      <TableHead>Patient Name</TableHead>
+                                      <TableHead>Patient ID</TableHead>
+                                      <TableHead>Visit ID</TableHead>
+                                      <TableHead className="text-right">Bill Amount</TableHead>
+                                      <TableHead className="text-right">Received Amt</TableHead>
+                                      <TableHead className="text-right">Deduction</TableHead>
+                                      <TableHead className="text-right">TDS</TableHead>
+                                      <TableHead>Remarks</TableHead>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {payment.allocations.map((alloc, idx) => (
+                                      <TableRow key={alloc.id}>
+                                        <TableCell className="text-center">{idx + 1}</TableCell>
+                                        <TableCell className="font-medium">{alloc.patient_name}</TableCell>
+                                        <TableCell>{alloc.patients_id || '-'}</TableCell>
+                                        <TableCell>{alloc.visit_id || '-'}</TableCell>
+                                        <TableCell className="text-right">{alloc.bill_amount ? `Rs. ${Number(alloc.bill_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '-'}</TableCell>
+                                        <TableCell className="text-right">Rs. {Number(alloc.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</TableCell>
+                                        <TableCell className="text-right">{alloc.deduction_amount ? `Rs. ${Number(alloc.deduction_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '-'}</TableCell>
+                                        <TableCell className="text-right">{alloc.tds_amount ? `Rs. ${Number(alloc.tds_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '-'}</TableCell>
+                                        <TableCell>{alloc.remarks || '-'}</TableCell>
+                                      </TableRow>
+                                    ))}
+                                  </TableBody>
+                                </Table>
+                              ) : (
+                                <p className="text-sm text-gray-500">No allocations recorded.</p>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={isFormOpen} onOpenChange={(open) => { setIsFormOpen(open); if (!open) setEditingPayment(null); }}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>{editingPayment ? 'Edit Corporate Bulk Payment Receipt' : 'New Corporate Bulk Payment Receipt'}</DialogTitle>
+          </DialogHeader>
+          <BulkPaymentReceiptForm
+            key={editingPayment?.id || 'new'}
+            editData={editingPayment}
+            onSuccess={() => { setIsFormOpen(false); setEditingPayment(null); }}
+            onCancel={() => { setIsFormOpen(false); setEditingPayment(null); }}
+          />
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }
 
 function CallLogsTable({ logs }: { logs: any[] }) {
