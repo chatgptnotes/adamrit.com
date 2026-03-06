@@ -2,18 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import twilio from 'twilio';
 import { createClient } from '@supabase/supabase-js';
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID!;
-const authToken = process.env.TWILIO_AUTH_TOKEN!;
-const twilioPhone = process.env.TWILIO_PHONE_NUMBER!;
-const twilioWhatsAppFrom = process.env.TWILIO_WHATSAPP_FROM || 'whatsapp:+14155238886'; // Twilio sandbox default
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const twilioWhatsAppFrom = process.env.TWILIO_WHATSAPP_FROM || 'whatsapp:+14155238886';
 
 export async function POST(req: NextRequest) {
   try {
+    const accountSid = process.env.TWILIO_ACCOUNT_SID!;
+    const authToken = process.env.TWILIO_AUTH_TOKEN!;
+    const twilioPhone = process.env.TWILIO_PHONE_NUMBER!;
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
     const body = await req.json();
     const {
       visitId,
