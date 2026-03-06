@@ -50,12 +50,6 @@ const navigationGroups = [
     ]
   },
   {
-    title: 'Marketing',
-    items: [
-      { name: 'Marketing Dashboard', href: '/marketing-dashboard', icon: BarChart3 },
-    ]
-  },
-  {
     title: 'IPD',
     items: [
       { name: 'IPD Dashboard', href: '/todays-ipd', icon: BedDouble },
