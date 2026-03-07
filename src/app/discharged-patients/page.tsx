@@ -305,6 +305,21 @@ const DischargedPatients = () => {
   // Check if current user is a marketing manager or superadmin
   const isMarketingManager = user?.role === 'marketing_manager' || user?.role === 'superadmin';
 
+  // Fetch bill submissions for marketing managers
+  useEffect(() => {
+    if (!isMarketingManager) return;
+    setBillSubmissionsLoading(true);
+    supabase
+      .from('bill_submission')
+      .select('id, visit_id, patient_name, patient_id, bill_amount, received_amount, deduction_amount, tds_amount, remarks, submission_date, created_at')
+      .order('created_at', { ascending: false })
+      .limit(500)
+      .then(({ data }) => {
+        setBillSubmissions(data || []);
+        setBillSubmissionsLoading(false);
+      });
+  }, [isMarketingManager]);
+
   // Allowed emails to see Referral Doctor/Relationship Manager column
   const ALLOWED_REFERRAL_COLUMN_EMAILS = [
     'marketingmanager@hope.com',
@@ -367,6 +382,9 @@ const DischargedPatients = () => {
 
   // State for referral report preview modal
   const [isReferralReportOpen, setIsReferralReportOpen] = useState(false);
+  const [billSubmissions, setBillSubmissions] = useState<any[]>([]);
+  const [billSearch, setBillSearch] = useState('');
+  const [billSubmissionsLoading, setBillSubmissionsLoading] = useState(false);
 
   // State for unpaid referral report modal
   const [isUnpaidReportOpen, setIsUnpaidReportOpen] = useState(false);
@@ -2249,6 +2267,82 @@ const DischargedPatients = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Payment Receipt Table - Marketing Managers Only */}
+      {isMarketingManager && (
+        <div className="mt-6 bg-white border border-gray-200 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <FileText className="h-5 w-5 text-blue-600" />
+              Payment Receipt Table
+            </h2>
+            <Input
+              placeholder="Search patient name, visit ID, patient ID..."
+              value={billSearch}
+              onChange={e => setBillSearch(e.target.value)}
+              className="w-72 text-sm"
+            />
+          </div>
+          {billSubmissionsLoading ? (
+            <div className="text-center py-8 text-gray-400">Loading...</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-blue-50">
+                    <TableHead className="whitespace-nowrap">Patient Name</TableHead>
+                    <TableHead className="whitespace-nowrap">Patient ID</TableHead>
+                    <TableHead className="whitespace-nowrap">Visit ID</TableHead>
+                    <TableHead className="whitespace-nowrap">Bill Amount</TableHead>
+                    <TableHead className="whitespace-nowrap">Received Amount</TableHead>
+                    <TableHead className="whitespace-nowrap">Deduction Amount</TableHead>
+                    <TableHead className="whitespace-nowrap">TDS</TableHead>
+                    <TableHead className="whitespace-nowrap">Remarks</TableHead>
+                    <TableHead className="whitespace-nowrap">Date</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {billSubmissions
+                    .filter(b => {
+                      if (!billSearch) return true;
+                      const s = billSearch.toLowerCase();
+                      return (b.patient_name || '').toLowerCase().includes(s) ||
+                        (b.visit_id || '').toLowerCase().includes(s) ||
+                        (b.patient_id || '').toLowerCase().includes(s);
+                    })
+                    .map((b) => (
+                      <TableRow key={b.id}>
+                        <TableCell className="font-medium">{b.patient_name || '-'}</TableCell>
+                        <TableCell className="font-mono text-xs text-gray-600">{b.patient_id || '-'}</TableCell>
+                        <TableCell className="font-mono text-xs text-blue-600">{b.visit_id || '-'}</TableCell>
+                        <TableCell>{b.bill_amount != null ? `₹${Number(b.bill_amount).toLocaleString('en-IN')}` : '-'}</TableCell>
+                        <TableCell className="text-green-700 font-medium">{b.received_amount != null ? `₹${Number(b.received_amount).toLocaleString('en-IN')}` : '-'}</TableCell>
+                        <TableCell className="text-red-600">{b.deduction_amount != null ? `₹${Number(b.deduction_amount).toLocaleString('en-IN')}` : '-'}</TableCell>
+                        <TableCell className="text-orange-600">{b.tds_amount != null ? `₹${Number(b.tds_amount).toLocaleString('en-IN')}` : '-'}</TableCell>
+                        <TableCell className="max-w-xs truncate text-gray-600">{b.remarks || '-'}</TableCell>
+                        <TableCell className="text-xs text-gray-500 whitespace-nowrap">
+                          {b.submission_date || (b.created_at ? new Date(b.created_at).toLocaleDateString('en-GB') : '-')}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  {billSubmissions.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={9} className="text-center py-8 text-gray-400">No payment receipts found</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+          <p className="text-xs text-gray-400 mt-2">
+            Showing {billSubmissions.filter(b => {
+              if (!billSearch) return true;
+              const s = billSearch.toLowerCase();
+              return (b.patient_name || '').toLowerCase().includes(s) || (b.visit_id || '').toLowerCase().includes(s) || (b.patient_id || '').toLowerCase().includes(s);
+            }).length} of {billSubmissions.length} records
+          </p>
+        </div>
+      )}
     </div>
   );
 };
